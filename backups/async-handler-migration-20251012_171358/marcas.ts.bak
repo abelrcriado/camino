@@ -20,16 +20,27 @@
  *         description: Error interno del servidor
  */
 
+import type { NextApiRequest, NextApiResponse } from "next";
 import { ProductoService } from "@/services/producto.service";
-import { asyncHandler } from "@/middlewares/error-handler";
 
 const productoService = new ProductoService();
 
-export default asyncHandler(async (req, res) => {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== "GET") {
     return res.status(405).json({ message: "Método no permitido" });
   }
 
-  const marcas = await productoService.getMarcas();
-  return res.status(200).json({ data: marcas });
-});
+  try {
+    const marcas = await productoService.getMarcas();
+    return res.status(200).json({ data: marcas });
+  } catch (error) {
+    console.error("Error fetching marcas:", error);
+    return res.status(500).json({
+      message: "Error al obtener las marcas",
+      error: error instanceof Error ? error.message : "Error desconocido",
+    });
+  }
+}

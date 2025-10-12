@@ -1,10 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import { marginController } from "@/controllers/margin.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default asyncHandler(async (req, res) => {
   const { id } = req.query;
 
   if (!id || typeof id !== "string") {
@@ -21,30 +18,22 @@ export default async function handler(
     });
   }
 
-  try {
-    const { product_specific_margins } = req.body;
+  const { product_specific_margins } = req.body;
 
-    if (
-      !product_specific_margins ||
-      typeof product_specific_margins !== "object"
-    ) {
-      return res.status(400).json({
-        success: false,
-        error: "product_specific_margins es requerido y debe ser un objeto",
-      });
-    }
-
-    const result = await marginController.updateProductMargins(
-      id,
-      product_specific_margins
-    );
-
-    return res.status(result.success ? 200 : 400).json(result);
-  } catch (error: any) {
-    console.error("Error in product margins API:", error);
-    return res.status(500).json({
+  if (
+    !product_specific_margins ||
+    typeof product_specific_margins !== "object"
+  ) {
+    return res.status(400).json({
       success: false,
-      error: error.message || "Error interno del servidor",
+      error: "product_specific_margins es requerido y debe ser un objeto",
     });
   }
-}
+
+  const result = await marginController.updateProductMargins(
+    id,
+    product_specific_margins
+  );
+
+  return res.status(result.success ? 200 : 400).json(result);
+});
