@@ -1,7 +1,9 @@
 # 🗺️ ROADMAP - Camino Service Backend
 
-**Última actualización:** 12 de octubre de 2025  
-**Versión:** 1.0 (Post-Sprint 5.3)
+**Última actualización:** 13 de octubre de 2025  
+**Versión:** 2.0 (Post-Reorganización: Calidad Primero)
+
+> ⚠️ **CAMBIO ESTRATÉGICO:** Este ROADMAP ha sido completamente reorganizado siguiendo la estrategia **"CALIDAD PRIMERO"**. Todas las optimizaciones de infraestructura se completan ANTES de continuar con nuevas features. Ver `docs/ANALISIS_INGENIERIA_OPTIMIZACION.md` para el análisis completo.
 
 ---
 
@@ -10,551 +12,499 @@
 ### ✅ Completado (Sprints 1-5)
 
 **Sprint 1-2: Base de Datos y Jerarquía** ✅
+
 - Tablas core implementadas (42 tablas en producción)
 - Jerarquía: Caminos → Ubicaciones → Service Points → Servicios
 - Sistema de precios jerárquico (BASE → UBICACION → SERVICE_POINT)
 - Máquinas vending con slots
 
 **Sprint 3-4: Lógica de Negocio** ✅
+
 - DTOs, Repositories, Services completos (29 repositories, 25 services)
 - Sistema de ventas con reservas y códigos de retiro
 - Integración Stripe para pagos
 - Inventario básico en vending machines
 
 **Sprint 5.1: Endpoints API** ✅ (16 endpoints nuevos)
+
 - Caminos y Ubicaciones (5 endpoints)
 - Productos y Vending Slots (5 endpoints)
 - Ventas App y Precios (6 endpoints)
 - Documentación Swagger completa
 
 **Sprint 5.2: Tests Unitarios** ✅ (254 tests, 99.72% coverage)
+
 - 16 archivos de test creados (~4,800 líneas)
 - 2421 tests pasando (100% success rate)
 - Patrones de testing documentados
 
 **Sprint 5.3: Refactoring y Utilidades** ✅
+
 - error-messages.ts (242 líneas, 50+ constantes)
 - validate-uuid.ts (185 líneas, 6 funciones)
 - validate-ownership.ts (215 líneas, 6 funciones)
 - pagination.ts (332 líneas, 8 funciones)
 - 3 endpoints refactorizados como ejemplo
 
+**Sprint 5.4: Documentación y Análisis** ✅
+
+- Sistema Mandatory de Documentación implementado
+- Git profesional configurado (Husky, Conventional Commits)
+- Primera release: v0.1.0 con CHANGELOG.md
+- Análisis de ingeniería completo (5 red flags, 8 mejoras)
+- BACKLOG reorganizado con estrategia de 3 fases
+
 ### 📈 Métricas del Sistema
 
-| Métrica                | Valor                     |
-| ---------------------- | ------------------------- |
-| **Tablas en BD**       | 42 tablas                 |
-| **Endpoints API**      | 35+ endpoints activos     |
-| **Tests**              | 2421 tests (100% passing) |
-| **Coverage**           | 99.72% promedio           |
-| **DTOs**               | 29 interfaces             |
-| **Repositories**       | 29 clases                 |
-| **Services**           | 25 clases                 |
-| **Controllers**        | 13 clases                 |
-| **Arquitectura**       | Clean Architecture 5-layer|
-| **TypeScript Errors**  | 0                         |
-| **Lint Errors**        | 0                         |
+| Métrica               | Valor Actual               | Objetivo Fase 1            |
+| --------------------- | -------------------------- | -------------------------- |
+| **Tablas en BD**      | 42 tablas                  | 42 + 5 RPC functions       |
+| **Endpoints API**     | 35+ endpoints activos      | 35+ (refactorizados)       |
+| **Tests**             | 2421 tests (100% passing)  | 2421+ (100% passing)       |
+| **Coverage**          | 99.72% promedio            | 99%+ mantenido             |
+| **asyncHandler**      | 0% adoption                | **100% adoption** 🎯       |
+| **console.log**       | 30+ instancias             | **0 instancias** 🎯        |
+| **Transacciones**     | 0/5 operaciones            | **5/5 operaciones** 🎯     |
+| **Rate Limiting**     | ❌ No implementado         | **✅ Activo** 🎯           |
+| **DTOs**              | 29 interfaces              | 29 interfaces              |
+| **Repositories**      | 29 clases                  | 29 clases                  |
+| **Services**          | 25 clases                  | 25 clases                  |
+| **Controllers**       | 13 clases                  | 13 clases                  |
+| **Arquitectura**      | Clean Architecture 5-layer | Clean Architecture 5-layer |
+| **TypeScript Errors** | 0                          | 0                          |
+| **Lint Errors**       | 0                          | 0                          |
 
 ---
 
-## 🎯 Pendientes y Próximos Sprints
+## 🚨 RED FLAGS CRÍTICOS IDENTIFICADOS
 
-### Sprint 6: Aplicación de Utilidades (Semana 13)
+En el análisis de ingeniería se identificaron **5 Red Flags Críticos** que deben resolverse ANTES de continuar con features:
 
-**Objetivo:** Refactorizar endpoints existentes con utilidades centralizadas de Sprint 5.3
+### 1. asyncHandler No Usado (Alta Prioridad) 🔴
 
-#### Sprint 6.1: Aplicar Utilidades a Endpoints Core (3 días)
+- **Problema:** Existe en `error-handler.ts` pero 0% adoption
+- **Impacto:** 50+ endpoints con try/catch duplicado (250+ líneas repetidas)
+- **Solución:** Sprint 6.1 - Migración masiva con script automatizado
 
-**Alcance:** 10-15 endpoints prioritarios
+### 2. console.log en Producción (Alta Prioridad) 🔴
 
-- **Utilidades a aplicar:**
-  - ErrorMessages para todos los strings de error
-  - validateUUID/validateUUIDs para validación de IDs
-  - validateOwnership para recursos anidados
-  - parsePaginationParams/createPaginatedResponse para paginación
+- **Problema:** 30+ instancias de console.log/error/warn
+- **Impacto:** Winston configurado pero no usado, logs no estructurados
+- **Solución:** Sprint 6.1 - Reemplazo masivo con ESLint enforcement
 
-- **Endpoints prioritarios:**
-  1. `pages/api/booking.ts` (alta complejidad)
-  2. `pages/api/precios.ts` (paginación + filtros)
-  3. `pages/api/service-points/index.ts` (filtrado manual)
-  4. `pages/api/workshops/[id]/services.ts` (ownership)
-  5. `pages/api/inventory.ts` (paginación)
-  6. 5-10 endpoints adicionales según prioridad
+### 3. Sin Transacciones (Crítico para Integridad) 🔴
 
-- **Criterios de selección:**
-  - Endpoints con múltiples validaciones UUID
-  - Endpoints con paginación manual
-  - Endpoints con filtrado post-query
-  - Endpoints con ownership validation
+- **Problema:** Operaciones multi-tabla sin rollback (stock, pagos, bookings)
+- **Impacto:** Riesgo de inconsistencia de datos
+- **Solución:** Sprint 7.1 - PostgreSQL RPC functions transaccionales
 
-- **Entregables:**
-  - 10-15 endpoints refactorizados
-  - Tests actualizados (si mensajes de error cambian)
-  - Verificación: 2421 tests siguen pasando
-  - Documento: Antes/Después de cada endpoint
+### 4. Coverage Threshold Bajo (Calidad) 🟡
 
-#### Sprint 6.2: Middleware Global de Error Handling (2 días)
+- **Problema:** Jest configurado con 50% threshold (industria: 80-90%)
+- **Impacto:** Riesgo de regresiones, coverage actual 99.72% no protegido
+- **Solución:** Sprint 6.2 - Ajustar threshold a 95%
 
-**Objetivo:** Centralizar try/catch patterns usando error-handler.ts existente
+### 5. Sin Rate Limiting (Seguridad) 🔴
 
-- **Tareas:**
-  1. Auditar uso actual de handleError en endpoints
-  2. Crear wrapper asyncHandler para eliminar try/catch repetitivo
-  3. Aplicar a 5-10 endpoints como prueba
-  4. Documentar patrón en ARCHITECTURE.md
-
-- **Patrón propuesto:**
-  ```typescript
-  // ANTES
-  export default async function handler(req, res) {
-    try {
-      // lógica
-    } catch (error) {
-      return handleError(error, res);
-    }
-  }
-
-  // DESPUÉS
-  export default asyncHandler(async (req, res) => {
-    // lógica sin try/catch
-  });
-  ```
-
-- **Entregables:**
-  - asyncHandler implementado y documentado
-  - 5-10 endpoints usando el wrapper
-  - Tests verificados
-  - Guía de uso en docs/
+- **Problema:** API expuesta sin protección contra DoS
+- **Impacto:** Vulnerabilidad crítica en producción
+- **Solución:** Sprint 7.2 - Upstash Rate Limit middleware
 
 ---
 
-### Sprint 7: Inventario Avanzado (Semana 14)
+## 📋 ESTRATEGIA: 3 FASES CON BLOQUEO
 
-**Objetivo:** Implementar sistema completo de inventario con movimientos
+```
+┌─────────────────────────────────────────────────────────┐
+│  🎯 FASE 1: FUNDAMENTOS DE CALIDAD (8 días) 🔴         │
+│  ├─ Sprint 6: Infraestructura de Código (5 días)        │
+│  └─ Sprint 7: Infraestructura de Seguridad (3 días)     │
+│                                                           │
+│  📦 FASE 2: FEATURES CON CALIDAD (12 días) ⏸️           │
+│  ├─ Sprint 8: Inventory Advanced (5 días)               │
+│  ├─ Sprint 9: Testing & Observability (4 días)          │
+│  └─ Sprint 10: Performance & Caching (3 días)           │
+│                                                           │
+│  🚀 FASE 3: FEATURES AVANZADAS (Variable) ⏸️            │
+│  └─ Sprints 11+: Dashboard, Analytics, Auth, etc.       │
+│                                                           │
+│  ⚠️ BLOQUEO: No se puede iniciar Fase 2 sin completar   │
+│              Fase 1. No se puede iniciar Fase 3 sin      │
+│              completar Fase 2.                           │
+└─────────────────────────────────────────────────────────┘
+```
 
-#### Sprint 7.1: Movimientos de Stock (3 días)
+---
 
-**Problema actual:** Inventario básico solo en vending machines, sin trazabilidad
+## 🎯 FASE 1: FUNDAMENTOS DE CALIDAD (Sprints 6-7) 🔴 CRÍTICO
 
-**Implementar:**
+**Duración Total:** 8 días  
+**Estado:** 🔴 PRÓXIMO - BLOQUEANTE PARA TODO LO DEMÁS  
+**Objetivo:** Establecer infraestructura de calidad ANTES de escribir más código
 
-1. **Tabla: stock_movements**
-   - Campos: id, producto_id, origen_tipo, origen_id, destino_tipo, destino_id, cantidad, tipo_movimiento, fecha, usuario_id, referencia
-   - Tipos: ENTRADA, SALIDA, TRANSFERENCIA, AJUSTE, RESERVA, DESRESERVA
+### ✅ Sprint 6: Infraestructura de Código (5 días) 🔴 PRÓXIMO
 
-2. **Repository: StockMovementRepository**
-   - `create(movimiento)`: Registrar movimiento
-   - `findByProducto(productoId, filters)`: Historial por producto
-   - `findByUbicacion(tipo, id, filters)`: Movimientos de ubicación
-   - `getBalance(tipo, id, productoId)`: Balance actual
+| **Services** | 25 clases |
+| **Controllers** | 13 clases |
+| **Arquitectura** | Clean Architecture 5-layer|
+| **TypeScript Errors** | 0 |
+| **Lint Errors** | 0 |
 
-3. **Service: StockMovementService**
-   - `registrarEntrada(data)`: Entrada de stock
-   - `registrarSalida(data)`: Salida de stock
-   - `transferir(origen, destino, producto, cantidad)`: Transferencia
-   - `ajustar(ubicacion, producto, cantidad, motivo)`: Ajuste manual
+### ✅ Sprint 6: Infraestructura de Código (5 días) 🔴 PRÓXIMO
 
-4. **Integración con VentaApp:**
-   - Reserva → Crear movimiento RESERVA
-   - Retiro → Crear movimiento SALIDA + cancelar RESERVA
-   - Expiración → Crear movimiento DESRESERVA
+**Objetivo:** Eliminar código duplicado y establecer patrones de calidad
+
+#### Sprint 6.1: asyncHandler + Eliminar console.log (2 días) 🔴 CRÍTICO
+
+**Día 1 - asyncHandler Migration:**
+
+- ✅ Crear script de migración automatizado (`scripts/migrate-async-handler.sh`)
+- ✅ Migrar 50+ endpoints a asyncHandler wrapper
+- ✅ Eliminar ~250 líneas de try/catch duplicado
+- ✅ Agregar ESLint rule: `require-async-handler`
+- ✅ Tests: Verificar 2421 tests siguen pasando
+
+**Día 2 - console.log Elimination:**
+
+- ✅ Auditoría: Encontrar 30+ instancias de console.log/error/warn
+- ✅ Reemplazar con Winston logger (ya configurado)
+- ✅ Agregar ESLint rule: `'no-console': ['error', { allow: [] }]`
+- ✅ Tests: Validar logging en tests con mocks
 
 **Entregables:**
-- Migración de BD con tabla stock_movements
-- DTO, Repository, Service, Controller
-- 2 endpoints: POST /api/stock-movements, GET /api/stock-movements
-- Tests unitarios (50+ tests)
 
-#### Sprint 7.2: Reglas de Reposición (2 días)
+- Script de migración ejecutado y documentado
+- 50+ endpoints usando asyncHandler
+- 0 instancias de console.log
+- ESLint enforcement activo
+- Documento: `docs/sprints/SPRINT_6.1_COMPLETADO.md`
 
-**Problema:** Reposición manual sin alertas automáticas
+**Criterios de Éxito:**
 
-**Implementar:**
+- ✅ asyncHandler adoption: 100%
+- ✅ console.log instances: 0
+- ✅ Tests passing: 2421/2421
+- ✅ Lint passing: 0 errors
+- ✅ Code reduction: ~250 lines eliminated
 
-1. **Tabla: restock_rules**
-   - Campos: id, ubicacion_tipo, ubicacion_id, producto_id, stock_min, stock_max, punto_pedido, lead_time_dias
+#### Sprint 6.2: Coverage Threshold + Aplicar Utilidades (3 días)
 
-2. **Service: RestockAlertService**
-   - `checkLowStock()`: Detectar productos bajo mínimo
-   - `generateRestockOrders()`: Generar pedidos automáticos
-   - `getAlerts(filters)`: Alertas activas
+**Día 1 - Coverage Threshold:**
 
-3. **Cron Job:**
-   - Verificar stock cada hora
-   - Generar alertas automáticas
-   - Notificar a responsables
+- ✅ Ajustar `jest.config.js` threshold: 50% → 95%
+- ✅ Validar coverage actual se mantiene
+- ✅ Documentar estándar en `docs/CLEAN_ARCHITECTURE.md`
 
-**Entregables:**
-- Tabla restock_rules
-- Service con lógica de alertas
-- Endpoint GET /api/restock-alerts
-- Cron job configurado
+**Días 2-3 - Aplicar Utilidades:**
 
----
-
-### Sprint 8: Testing E2E y Integración (Semana 15)
-
-**Objetivo:** Tests de integración completos para flujos críticos
-
-#### Sprint 8.1: Tests de Integración API (3 días)
-
-**Alcance:** Flujos completos con base de datos de test
-
-1. **Flujo de Venta Completa:**
-   - Crear venta → Pagar → Confirmar retiro
-   - Verificar: stock reservado, stock consumido, movimientos registrados
-
-2. **Flujo de Reposición:**
-   - Crear pedido → Aprobar → Recibir
-   - Verificar: stock actualizado, movimientos correctos
-
-3. **Flujo de Precios:**
-   - Crear precio base → Override ubicación → Resolver precio
-   - Verificar: jerarquía correcta
-
-**Setup:**
-- Base de datos de test en Supabase
-- Fixtures con datos de prueba
-- Cleanup automático después de tests
+- ✅ Refactorizar 10-15 endpoints prioritarios:
+  - `pages/api/booking.ts` (ErrorMessages + validateUUID)
+  - `pages/api/payment.ts` (validateUUID + ownership)
+  - `pages/api/inventory.ts` (pagination helpers)
+  - `pages/api/precios.ts` (pagination + filters)
+  - `pages/api/service-points/index.ts` (filtrado manual → parseSortParams)
+  - `pages/api/workshops/[id]/services.ts` (validateOwnership)
+  - 5-8 endpoints adicionales según prioridad
 
 **Entregables:**
-- 50+ tests de integración
-- Fixtures documentados
-- Script de setup/teardown
 
-#### Sprint 8.2: Tests E2E con Playwright (2 días)
+- jest.config.js con threshold 95%
+- 10-15 endpoints refactorizados
+- Tests actualizados si necesario
+- Documento: `docs/sprints/SPRINT_6.2_COMPLETADO.md`
 
-**Alcance:** Flujos de usuario en dashboard
+**Criterios de Éxito:**
 
-1. **Flujo Admin:**
-   - Login → Ver dashboard → Crear service point → Asignar servicio
+- ✅ Coverage threshold: 95%
+- ✅ Endpoints refactorizados: 10-15
+- ✅ Tests passing: 2421/2421
+- ✅ Utilidades adoption: 50%+ endpoints
 
-2. **Flujo Gestor:**
-   - Ver inventario → Crear pedido reposición → Aprobar
+---
 
-3. **Flujo API:**
-   - Simular app móvil → Crear venta → Confirmar retiro
+### ✅ Sprint 7: Infraestructura de Seguridad & DB (3 días) 🔴 CRÍTICO
+
+**Objetivo:** Proteger integridad de datos y seguridad de API
+
+#### Sprint 7.1: Transacciones PostgreSQL RPC (2 días) 🔴 CRÍTICO
+
+**Día 1 - Crear RPC Functions:**
+
+- ✅ `create_stock_request_tx`: Stock request + reservation + movement (CRITICAL)
+- ✅ `process_payment_tx`: Payment + update booking + stock adjustment
+- ✅ `create_booking_tx`: Booking + availability update + notification
+
+**Día 2 - Refactorizar Services:**
+
+- ✅ `StockRequestService.createRequest()`: Usar RPC
+- ✅ `PaymentService.processPayment()`: Usar RPC
+- ✅ `BookingService.create()`: Usar RPC
+- ✅ Agregar tests de rollback behavior
 
 **Entregables:**
-- Playwright configurado
-- 20+ tests E2E
-- CI/CD pipeline con tests
 
----
+- 5 funciones RPC transaccionales en Supabase
+- 5 services refactorizados
+- Tests de rollback (simular errores)
+- Documento: `docs/sprints/SPRINT_7.1_COMPLETADO.md`
 
-### Sprint 9: Optimizaciones y Performance (Semana 16)
+**Criterios de Éxito:**
 
-#### Sprint 9.1: Caching con Redis (3 días)
+- ✅ RPC functions: 5/5 operacionales
+- ✅ Operaciones críticas: 100% transaccionales
+- ✅ Tests rollback: Passing
+- ✅ Data integrity: Protected
 
-**Problema:** Queries repetitivas sin cache
+#### Sprint 7.2: Rate Limiting + Secrets Management (1 día)
 
-**Implementar:**
+**Rate Limiting Setup:**
 
-1. **Cache de Precios:**
-   - Key: `precio:${productoId}:${spId}:${ubicacionId}`
-   - TTL: 1 hora
-   - Invalidación: al actualizar precio
+- ✅ Instalar Upstash Redis + @upstash/ratelimit
+- ✅ Crear `middleware.ts` en project root
+- ✅ Configurar limites por endpoint:
+  - General: 100 requests/minuto
+  - `/api/payment`: 10 requests/minuto
+  - `/api/user` (registro): 5 requests/hora
+- ✅ Agregar headers de rate limit en responses
 
-2. **Cache de Service Points:**
-   - Key: `sp:${ubicacionId}`
-   - TTL: 15 minutos
+**Secrets Management:**
 
-3. **Cache de Inventario:**
-   - Key: `stock:${machineId}:${productoId}`
-   - TTL: 5 minutos
-
-**Entregables:**
-- Redis configurado
-- CacheService implementado
-- 3 servicios con caching
-- Benchmarks de performance
-
-#### Sprint 9.2: Rate Limiting (2 días)
-
-**Implementar:**
-
-1. **Rate Limiter Middleware:**
-   - 100 requests/minuto por IP
-   - 1000 requests/hora por usuario autenticado
-   - Limits personalizados por endpoint
-
-2. **Endpoints Protegidos:**
-   - Todos los POST/PUT/DELETE
-   - Endpoints de consulta pública (stats, precios)
+- ✅ Mover secrets a Vercel environment variables
+- ✅ Eliminar hardcoded secrets de código
+- ✅ Documentar proceso en `docs/DEPLOYMENT.md`
 
 **Entregables:**
-- Middleware rate-limiter
-- Configuración por endpoint
-- Tests de límites
+
+- middleware.ts implementado
+- Rate limiting activo en producción
+- Secrets movidos a Vercel
+- Documento: `docs/sprints/SPRINT_7.2_COMPLETADO.md`
+
+**Criterios de Éxito:**
+
+- ✅ Rate limiting: Activo
+- ✅ DoS protection: Enabled
+- ✅ Secrets: 100% en Vercel
+- ✅ Tests: Rate limit behavior validated
 
 ---
 
-### Sprint 10: Dashboard Improvements (Semana 17)
+## 📦 FASE 2: FEATURES CON CALIDAD (Sprints 8-10) ⏸️ BLOQUEADO
 
-#### Sprint 10.1: Dashboard de Inventario Real-Time (3 días)
+**Duración Total:** 12 días  
+**Estado:** ⏸️ BLOQUEADO hasta completar Fase 1  
+**Objetivo:** Implementar features usando infraestructura de calidad establecida
 
-**Implementar:**
+### ⏸️ Sprint 8: Inventory Advanced (5 días)
 
-1. **Vista de Stock por Ubicación:**
-   - Mapa de service points con alertas de stock bajo
-   - Gráficos de rotación de productos
-   - Alertas en tiempo real
+**BLOQUEADO HASTA:** Sprint 7.2 completado
 
-2. **Panel de Reposición:**
-   - Pedidos pendientes
-   - Estado de transferencias
-   - Historial de movimientos
+**Sprint 8.1: Stock Movements (3 días)**
 
-**Entregables:**
-- 4 páginas nuevas en dashboard
-- Integración con APIs existentes
-- WebSocket para updates real-time
+- Tabla: `stock_movements` (ENTRADA, SALIDA, TRANSFERENCIA, AJUSTE)
+- Repository: `StockMovementRepository`
+- Service: `StockMovementService` (usando asyncHandler, Winston, RPCs)
+- Endpoints: `/api/stock-movements` (CRUD completo)
+- Tests: 100% coverage con asyncHandler patterns
 
-#### Sprint 10.2: Reporting y Analytics (2 días)
+**Sprint 8.2: Restock Rules (2 días)**
 
-**Implementar:**
-
-1. **Reportes de Ventas:**
-   - Ventas por service point
-   - Productos más vendidos
-   - Revenue por ubicación
-
-2. **Reportes de Inventario:**
-   - Stock actual vs óptimo
-   - Productos con rotación lenta
-   - Costo de inventario
-
-**Entregables:**
-- API endpoints de analytics
-- Dashboard con gráficos
-- Exportación a CSV/PDF
+- Tabla: `restock_rules` (stock_minimo, stock_maximo, auto_reorder)
+- Service: `RestockService` con lógica de alertas
+- Background job: Check stock levels diariamente
+- Endpoints: `/api/restock-rules` + `/api/restock-alerts`
 
 ---
 
-## 🔮 Roadmap Largo Plazo (Sprints 11+)
+### ⏸️ Sprint 9: Testing & Observability (4 días)
 
-### Funcionalidades Planificadas
+**BLOQUEADO HASTA:** Sprint 8.2 completado
 
-#### Autenticación y Permisos Avanzados (Sprint 11)
-- Roles granulares (admin, gestor, operador, viewer)
-- Permisos por service point
-- Audit log de acciones
+**Sprint 9.1: E2E Testing + CI/CD (2 días)**
 
-#### Notificaciones (Sprint 12)
-- Sistema de notificaciones push
-- Emails automáticos (alertas, confirmaciones)
-- Webhooks para integraciones
+- Playwright setup para E2E tests
+- GitHub Actions workflow: lint → test → e2e → deploy
+- Husky pre-push hooks
+- Vercel preview deployments
 
-#### Mobile App (Sprint 13-15)
-- App React Native para peregrinos
-- Escaneo QR para retiro
-- Pago in-app con Stripe
+**Sprint 9.2: Error Monitoring + Health Check (2 días)**
 
-#### Integraciones (Sprint 16-17)
-- API para partners externos
-- Integración con ERP/contabilidad
-- Sincronización offline mejorada
-
-#### Machine Learning (Sprint 18+)
-- Predicción de demanda
-- Optimización de stock
-- Detección de anomalías
+- Sentry integration para error tracking
+- Health check endpoint: `/api/health`
+- APM básico: Response times, error rates
+- Alertas en Slack/Email
 
 ---
 
-## 📝 Mejoras Técnicas Pendientes
+### ⏸️ Sprint 10: Performance & Caching (3 días)
 
-### Alta Prioridad
+**BLOQUEADO HASTA:** Sprint 9.2 completado
 
-1. **Centralizar Filtrado en Servicios**
-   - **Problema:** Endpoints aplican filtros manualmente después de llamar servicios
-   - **Solución:** Mover lógica de filtrado a servicios
-   - **Archivos afectados:** service-points.ts, slots/index.ts, otros
-   - **Impacto:** Reducir código en endpoints, mejorar testabilidad
+**Sprint 10.1: Redis Caching (2 días)**
 
-2. **Implementar Paginación en Todos los Endpoints**
-   - **Problema:** Solo algunos endpoints tienen paginación
-   - **Solución:** Usar pagination.ts utility en todos los endpoints que retornan listas
-   - **Archivos:** ~15 endpoints sin paginación
-   - **Beneficio:** Performance, UX mejorada
+- Redis setup (Upstash)
+- Cache service: GET endpoints con TTL
+- Cache invalidation strategy
+- Cache headers en responses
 
-3. **Documentar Patrones de Testing**
-   - **Problema:** Conocimiento disperso, no documentado formalmente
-   - **Solución:** Wiki con 10 patrones identificados en Sprint 5.2
-   - **Contenido:** Mocking, validaciones, error handling, ownership
-   - **Ubicación:** docs/testing/PATTERNS.md
+**Sprint 10.2: APM Metrics (1 día)**
 
-### Prioridad Media
-
-4. **Refactorizar Validaciones Repetitivas**
-   - Crear middleware validateParams para validaciones comunes
-   - Centralizar regex patterns (UUID, email, etc.)
-
-5. **Mejorar Error Messages con i18n**
-   - Preparar ErrorMessages para internacionalización
-   - Soporte inglés/español
-
-6. **Optimizar Queries de Supabase**
-   - Añadir índices faltantes
-   - Optimizar joins complejos
-   - Cachear queries pesadas
-
-### Baja Prioridad
-
-7. **Migrar a TypeScript 5.0+**
-   - Aprovechar nuevas features
-   - Mejorar type safety
-
-8. **Implementar Feature Flags**
-   - Rollout gradual de features
-   - A/B testing
+- Prometheus + Grafana setup
+- Custom metrics: requests/sec, latency p95/p99
+- Database query performance tracking
 
 ---
 
-## 🐛 Issues Conocidos
+## 🚀 FASE 3: FEATURES AVANZADAS (Sprints 11+) ⏸️ BLOQUEADO
 
-### Técnicos
+**Estado:** ⏸️ BLOQUEADO hasta completar Fase 2  
+**Objetivo:** Features avanzadas con toda la infraestructura de calidad en place
 
-1. **handleError retorna formato diferente a tests antiguos**
-   - **Problema:** Tests esperan `{ error }` pero handleError retorna `{ error, code }`
-   - **Impacto:** Bajo (solo afecta a tests no actualizados)
-   - **Solución:** Actualizar tests gradualmente o crear adapter
+### ⏸️ Sprint 11: Dashboard Real-Time (3 días)
 
-2. **Paginación manual duplicada**
-   - **Problema:** Misma lógica de paginación en múltiples endpoints
-   - **Impacto:** Medio (código duplicado, mantenimiento)
-   - **Solución:** Aplicar pagination.ts utility (Sprint 6)
+**BLOQUEADO HASTA:** Sprint 10.2 completado
 
-3. **Filtrado fuera de servicios**
-   - **Problema:** Lógica de negocio en endpoints
-   - **Impacto:** Alto (violación de Clean Architecture)
-   - **Solución:** Refactorizar en Sprint 6
+- WebSocket connection para updates real-time
+- Dashboard widgets: Sales, stock, bookings
+- Chart.js/Recharts visualizations
+- Export to PDF/CSV
 
-### Deuda Técnica
+### ⏸️ Sprint 12: Reporting & Analytics (2 días)
 
-1. **Tests E2E faltantes**
-   - **Sprint:** 8.2 (planificado)
+**BLOQUEADO HASTA:** Sprint 11 completado
 
-2. **Caching no implementado**
-   - **Sprint:** 9.1 (planificado)
+- Analytics service: Agregaciones y métricas
+- Reports: Ventas por periodo, productos top, usuarios activos
+- Scheduled reports (email diario/semanal)
 
-3. **Rate limiting ausente**
-   - **Sprint:** 9.2 (planificado)
+### ⏸️ Sprint 13+: Auth, Notifications, Mobile, API Externa, ML
 
----
+**BLOQUEADO HASTA:** Sprint 12 completado
 
-## 📊 Dependencias Externas
-
-### Integradas
-
-- ✅ Supabase (Base de datos y Auth)
-- ✅ Stripe (Pagos)
-- ✅ Next.js (Framework)
-- ✅ TypeScript (Lenguaje)
-
-### Pendientes
-
-- ⏳ Redis (Caching - Sprint 9.1)
-- ⏳ Playwright (E2E Testing - Sprint 8.2)
-- ⏳ React Native (Mobile App - Sprint 13+)
+- Sprint 13: Auth avanzado (JWT refresh, SSO)
+- Sprint 14: Notifications (push, email, SMS)
+- Sprint 15: Mobile API optimization
+- Sprint 16: API externa para partners
+- Sprint 17: ML recommendations
 
 ---
 
-## 🎓 Documentación Relacionada
+## 📊 MÉTRICAS DE PROGRESO
 
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - Clean Architecture detallada
-- [SPRINT_5.1_COMPLETADO.md](./SPRINT_5.1_COMPLETADO.md) - Endpoints creados
-- [SPRINT_5.2_COMPLETADO.md](./SPRINT_5.2_COMPLETADO.md) - Tests implementados
-- [TEST_STATUS_REPORT.md](./TEST_STATUS_REPORT.md) - Estado de tests
-- [../README.md](../README.md) - Setup y quick start
-- [../CONTRIBUTING.md](../CONTRIBUTING.md) - Guía de contribución
+### Estado de Fases
+
+| Fase   | Sprints | Días | Estado       | Completado | Bloqueado Por        |
+| ------ | ------- | ---- | ------------ | ---------- | -------------------- |
+| Fase 1 | 6-7     | 8    | 🔴 PRÓXIMO   | 0%         | -                    |
+| Fase 2 | 8-10    | 12   | ⏸️ BLOQUEADO | 0%         | Fase 1 no completada |
+| Fase 3 | 11+     | 20+  | ⏸️ BLOQUEADO | 0%         | Fase 2 no completada |
+
+### Objetivos Fase 1 (CRÍTICO)
+
+| Métrica            | Antes | Objetivo | Bloqueante     |
+| ------------------ | ----- | -------- | -------------- |
+| asyncHandler       | 0%    | 100%     | ✅ Sí          |
+| console.log        | 30+   | 0        | ✅ Sí          |
+| Transacciones      | 0/5   | 5/5      | ✅ Sí          |
+| Rate Limiting      | ❌    | ✅       | ✅ Sí          |
+| Coverage Threshold | 50%   | 95%      | ⚠️ Recomendado |
 
 ---
 
-## 📋 PROCESO MANDATORY DE DOCUMENTACIÓN
+## 🎯 PRÓXIMA ACCIÓN: Sprint 6.1
 
-**CRITICAL:** Al finalizar CADA sprint o bloque de trabajo:
+**Sprint:** 6.1 - asyncHandler + Eliminar console.log  
+**Duración:** 2 días  
+**Prioridad:** 🔴 CRÍTICA - BLOQUEANTE  
+**Estado:** 🔴 PENDIENTE
 
-### 1. Generar CHANGELOG ✅ MANDATORY
+**Tareas Inmediatas:**
 
 ```bash
-# Al completar el sprint
-npm run release
-# o para especificar tipo
-npm run release:minor  # Nueva feature
-npm run release:major  # Breaking change
-npm run release:patch  # Bug fix
+# Día 1: asyncHandler Migration
+cd /Users/arcriado/Developer/camino
+mkdir -p scripts
+
+# 1. Crear script de migración
+cat > scripts/migrate-async-handler.sh << 'EOF'
+#!/bin/bash
+# Script automatizado de migración
+files=$(grep -rl "export default async function handler" pages/api/)
+for file in $files; do
+  cp "$file" "$file.bak"
+  # Transform with sed/awk
+  npm test -- "$file.test.ts" --silent
+  if [ $? -eq 0 ]; then
+    echo "✅ Migrated: $file"
+    rm "$file.bak"
+  else
+    echo "❌ Failed: $file - reverting"
+    mv "$file.bak" "$file"
+  fi
+done
+EOF
+
+chmod +x scripts/migrate-async-handler.sh
+
+# 2. Ejecutar migración
+./scripts/migrate-async-handler.sh
+
+# 3. Agregar ESLint rule
+# Editar eslint.config.mjs
+
+# 4. Validar tests
+npm test
 ```
 
-Esto generará automáticamente `CHANGELOG.md` con todos los commits del sprint.
+**Criterios de Completitud:**
 
-### 2. Crear Sprint Report ✅ MANDATORY
-
-```bash
-# Copiar template
-cp docs/templates/SPRINT_REPORT_TEMPLATE.md docs/sprints/SPRINT_X.X_COMPLETADO.md
-
-# Completar todas las secciones
-# - Resumen ejecutivo
-# - Tareas completadas por día
-# - Problemas y soluciones
-# - Métricas finales
-# - Lecciones aprendidas
-```
-
-### 3. Actualizar COMPLETED_SPRINTS.md ✅ MANDATORY
-
-Añadir entrada del sprint completado con:
-- Resumen ejecutivo
-- Métricas clave
-- Archivos creados/modificados
-- Tests status
-- Lecciones aprendidas
-
-### 4. Actualizar BACKLOG.md ✅ MANDATORY
-
-- [ ] Marcar tasks completadas como ✅
-- [ ] Mover tasks completadas a sección "Completed"
-- [ ] Añadir nuevas tasks identificadas
-- [ ] Actualizar prioridades si cambiaron
-- [ ] Mover tasks pendientes a sprints futuros
-
-### 5. Actualizar ROADMAP.md (este archivo) ✅ MANDATORY
-
-- [ ] Marcar sprint completado con ✅
-- [ ] Actualizar sección "Pendientes y Próximos Sprints"
-- [ ] Ajustar estimaciones si es necesario
-- [ ] Documentar cambios de prioridad
-
-### Checklist de Finalización de Sprint
-
-Antes de dar por finalizado un sprint:
-
-```markdown
-- [ ] `npm run release` ejecutado → CHANGELOG.md generado
-- [ ] Sprint report creado en docs/sprints/
-- [ ] COMPLETED_SPRINTS.md actualizado
-- [ ] BACKLOG.md actualizado (tasks movidas)
-- [ ] ROADMAP.md actualizado (sprint marcado ✅)
-- [ ] Tests: 100% pasando
-- [ ] Lint: 0 errors
-- [ ] Build: exitoso
-- [ ] Git commit: "chore(release): vX.X.X"
-- [ ] Git tag: vX.X.X
-```
-
-### Frecuencia
-
-- **Sprint completo (3-5 días):** Proceso completo MANDATORY
-- **Bloque de trabajo (1 día):** Actualizar BACKLOG.md mínimo
-- **Bug fix crítico:** CHANGELOG + BACKLOG.md
-
-### Responsable
-
-**Developer + GitHub Copilot** - Ambos son responsables de ejecutar el proceso.
+- [ ] Script ejecutado en 50+ endpoints
+- [ ] Tests passing: 2421/2421
+- [ ] ESLint rule agregado
+- [ ] Documento de sprint creado
+- [ ] CHANGELOG actualizado
+- [ ] Git commit + tag
 
 ---
 
-**Nota:** Este roadmap es un documento vivo. Se actualiza después de cada sprint con progreso real y ajustes basados en prioridades de negocio.
+## 📚 Referencias
 
-**Contacto:** Para sugerencias o cambios en prioridades, crear issue en el repositorio.
+**Documentos de Análisis:**
+
+- `docs/ANALISIS_INGENIERIA_OPTIMIZACION.md` - Análisis completo de red flags y mejoras
+- `docs/BACKLOG.md` v2.0 - Backlog reorganizado con 3 fases
+- `docs/COMPLETED_SPRINTS.md` - Histórico de sprints completados
+
+**Estándares de Calidad:**
+
+- `docs/CLEAN_ARCHITECTURE.md` - Arquitectura y patrones
+- `.github/copilot-instructions.md` - Reglas de desarrollo
+
+**Herramientas:**
+
+- Upstash Redis: Rate limiting + caching
+- Sentry: Error monitoring
+- Playwright: E2E testing
+- GitHub Actions: CI/CD
+
+---
+
+## 🚨 REGLA CRÍTICA: NO AVANZAR SIN COMPLETAR FASE 1
+
+**Esta organización es FINAL y NO NEGOCIABLE:**
+
+1. ✅ Sprint 6.1 (2d) → ✅ Sprint 6.2 (3d) → ✅ Sprint 7.1 (2d) → ✅ Sprint 7.2 (1d)
+2. ❌ **NO** se puede iniciar Sprint 8 sin completar Sprint 7.2
+3. ❌ **NO** se puede escribir nuevo código sin asyncHandler
+4. ❌ **NO** se puede usar console.log en nuevo código
+5. ❌ **NO** se puede hacer operación multi-tabla sin RPC
+
+**Razón:** Evitar refactoring masivo futuro. Establecer fundamentos AHORA para que TODO el código futuro siga best practices desde día 1.
+
+**Enforcement:** ESLint rules + PR checklist + CI/CD checks bloquearán código que viole estos estándares.
+
+---
+
+**Última actualización:** 13 de octubre de 2025  
+**Versión:** 2.0 (Post-Reorganización)  
+**Próximo Sprint:** 6.1 (asyncHandler + console.log) - 2 días
