@@ -1,0 +1,45 @@
+{
+  "path": "cz-conventional-changelog",
+  "types": {
+    "feat": {
+      "description": "Nueva característica",
+      "title": "Features"
+    },
+    "fix": {
+      "description": "Bug fix",
+      "title": "Bug Fixes"
+    },
+    "docs": {
+      "description": "Cambios en documentación",
+      "title": "Documentation"
+    },
+    "style": {
+      "description": "Cambios de formato (no afectan lógica)",
+      "title": "Styles"
+    },
+    "refactor": {
+      "description": "Refactoring de código (no fix ni feature)",
+      "title": "Code Refactoring"
+    },
+    "perf": {
+      "description": "Mejoras de performance",
+      "title": "Performance Improvements"
+    },
+    "test": {
+      "description": "Añadir o corregir tests",
+      "title": "Tests"
+    },
+    "build": {
+      "description": "Cambios en build system o dependencias",
+      "title": "Builds"
+    },
+    "ci": {
+      "description": "Cambios en CI/CD configuration",
+      "title": "Continuous Integrations"
+    },
+    "chore": {
+      "description": "Otras tareas de mantenimiento",
+      "title": "Chores"
+    }
+  }
+}

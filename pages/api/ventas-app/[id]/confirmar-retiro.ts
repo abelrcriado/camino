@@ -1,0 +1,153 @@
+// Endpoint para confirmar retiro de producto comprado
+import type { NextApiRequest, NextApiResponse } from "next";
+import { VentaAppService } from "@/services/venta_app.service";
+import { VentaAppRepository } from "@/repositories/venta_app.repository";
+
+/**
+ * @swagger
+ * /api/ventas-app/{id}/confirmar-retiro:
+ *   post:
+ *     summary: Confirmar retiro de producto
+ *     description: Marca la venta como retirada y consume el stock reservado
+ *     tags: [Ventas App]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID de la venta
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - codigo_retiro
+ *             properties:
+ *               codigo_retiro:
+ *                 type: string
+ *                 minLength: 6
+ *                 maxLength: 6
+ *                 pattern: '^[A-Z0-9]{6}$'
+ *                 description: Código de 6 dígitos para validar el retiro
+ *                 example: ABC123
+ *               confirmado_por:
+ *                 type: string
+ *                 format: uuid
+ *                 description: ID del usuario/empleado que confirma el retiro (opcional)
+ *     responses:
+ *       200:
+ *         description: Retiro confirmado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Retiro confirmado exitosamente
+ *                 venta:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                     estado:
+ *                       type: string
+ *                       enum: [retirada]
+ *                     fecha_retiro:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Código inválido, venta no está en estado válido, o ya fue retirada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Código de retiro inválido
+ *       404:
+ *         description: Venta no encontrada
+ *       500:
+ *         description: Error interno del servidor
+ */
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Método no permitido" });
+  }
+
+  try {
+    const { id } = req.query;
+    const { codigo_retiro } = req.body;
+
+    // Validar ID de venta
+    if (!id || typeof id !== "string") {
+      return res.status(400).json({ error: "ID de venta es requerido" });
+    }
+
+    // Validar formato UUID
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return res.status(400).json({ error: "ID de venta inválido" });
+    }
+
+    // Validar código de retiro
+    if (!codigo_retiro || typeof codigo_retiro !== "string") {
+      return res.status(400).json({ error: "Código de retiro es requerido" });
+    }
+
+    const codigoTrimmed = codigo_retiro.trim().toUpperCase();
+    if (!/^[A-Z0-9]{6}$/.test(codigoTrimmed)) {
+      return res.status(400).json({
+        error: "Código de retiro debe tener 6 caracteres alfanuméricos",
+      });
+    }
+
+    const repository = new VentaAppRepository();
+    const service = new VentaAppService(repository);
+
+    // Confirmar retiro
+    const result = await service.confirmarRetiro({
+      venta_id: id,
+      codigo_retiro: codigoTrimmed,
+    });
+
+    return res.status(200).json({
+      message: "Retiro confirmado exitosamente",
+      venta: {
+        id: result.venta_id,
+        estado: result.estado,
+        fecha_retiro: result.fecha_retiro,
+      },
+    });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido";
+    console.error("Error confirmando retiro:", errorMessage);
+
+    // Errores específicos del servicio
+    if (errorMessage.includes("no encontrado")) {
+      return res.status(404).json({ error: errorMessage });
+    }
+
+    if (
+      errorMessage.includes("código") ||
+      errorMessage.includes("estado") ||
+      errorMessage.includes("retirada")
+    ) {
+      return res.status(400).json({ error: errorMessage });
+    }
+
+    return res.status(500).json({
+      error: "Error al confirmar el retiro",
+    });
+  }
+}
+
+export default handler;

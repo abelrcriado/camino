@@ -1,0 +1,1 @@
+-- Backup de la BD antes de reset viernes, 10 de octubre de 2025, 10:17:34 CEST
