@@ -18,7 +18,7 @@ import type {
   CancelarVentaDto,
   CrearYPagarVentaDto,
 } from "@/dto/venta_app.dto";
-import { ValidationError } from "@/errors/custom-errors";
+import { ValidationError, NotFoundError, BusinessRuleError } from "@/errors/custom-errors";
 
 describe("VentaAppService", () => {
   let service: VentaAppService;
@@ -108,13 +108,13 @@ describe("VentaAppService", () => {
       );
     });
 
-    it("should pass through repository errors", async () => {
+    it("should wrap repository errors in DatabaseError", async () => {
       mockRepository.crearVenta.mockRejectedValue(
         new Error("Stock not available")
       );
 
       await expect(service.createVenta(mockDto)).rejects.toThrow(
-        "Stock not available"
+        "Error al crear venta"
       );
     });
   });
@@ -158,7 +158,7 @@ describe("VentaAppService", () => {
       });
 
       await expect(service.reservarStock(mockDto)).rejects.toThrow(
-        ValidationError
+        BusinessRuleError
       );
     });
   });
@@ -207,7 +207,7 @@ describe("VentaAppService", () => {
       });
 
       await expect(service.confirmarPago(mockDto)).rejects.toThrow(
-        ValidationError
+        BusinessRuleError
       );
     });
 
@@ -274,7 +274,7 @@ describe("VentaAppService", () => {
       });
 
       await expect(service.confirmarRetiro(mockDto)).rejects.toThrow(
-        ValidationError
+        BusinessRuleError
       );
     });
 
@@ -635,7 +635,7 @@ describe("VentaAppService", () => {
       mockRepository.findById.mockResolvedValue({ data: null, error: null });
 
       await expect(service.updateVenta(ventaId, mockDto)).rejects.toThrow(
-        ValidationError
+        NotFoundError
       );
     });
 
