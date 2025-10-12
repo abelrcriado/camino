@@ -161,7 +161,7 @@ export class PrecioController {
 
       // Obtener precios vigentes del servicio
       // Nota: order_by puede tener 'dias_restantes' que no está en PrecioFilters
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const { data, total } = await this.service.getPreciosVigentes(
         filters as any
       );

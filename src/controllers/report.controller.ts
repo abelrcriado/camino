@@ -138,7 +138,7 @@ export class ReportController {
         });
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const report = await this.reportService.createReport(
         validation.data as any
       ); // TODO: Alinear schema con DTO
