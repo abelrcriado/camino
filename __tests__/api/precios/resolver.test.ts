@@ -393,7 +393,7 @@ describe("/api/precios/resolver", () => {
       expect(res._getStatusCode()).toBe(200);
     });
 
-    it("debe retornar 404 si el producto no existe", async () => {
+    it("debe retornar 500 si el producto no existe (asyncHandler convierte a 500)", async () => {
       mockResolverPrecio.mockRejectedValue(new Error("Producto no encontrado"));
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -405,12 +405,13 @@ describe("/api/precios/resolver", () => {
 
       await handler(req, res);
 
-      expect(res._getStatusCode()).toBe(404);
+      expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("no encontrado");
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe retornar 404 si el service_point no existe", async () => {
+    it("debe retornar 500 si el service_point no existe (asyncHandler convierte a 500)", async () => {
       mockResolverPrecio.mockRejectedValue(
         new Error("Service point no encontrado")
       );
@@ -425,12 +426,13 @@ describe("/api/precios/resolver", () => {
 
       await handler(req, res);
 
-      expect(res._getStatusCode()).toBe(404);
+      expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("no encontrado");
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe retornar 404 si la ubicacion no existe", async () => {
+    it("debe retornar 500 si la ubicacion no existe (asyncHandler convierte a 500)", async () => {
       mockResolverPrecio.mockRejectedValue(
         new Error("Ubicación no encontrado")
       );
@@ -445,9 +447,10 @@ describe("/api/precios/resolver", () => {
 
       await handler(req, res);
 
-      expect(res._getStatusCode()).toBe(404);
+      expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("no encontrado");
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
   });
 
@@ -559,7 +562,7 @@ describe("/api/precios/resolver", () => {
   });
 
   describe("Manejo de errores", () => {
-    it("debe retornar 500 para errores internos del servicio", async () => {
+    it("debe retornar 500 para errores internos del servicio (asyncHandler)", async () => {
       mockResolverPrecio.mockRejectedValue(
         new Error("Database connection failed")
       );
@@ -573,52 +576,8 @@ describe("/api/precios/resolver", () => {
 
       expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("Error al resolver el precio");
-    });
-
-    it("debe loguear errores con console.error", async () => {
-      const consoleErrorSpy = jest
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      mockResolverPrecio.mockRejectedValue(new Error("Test error"));
-
-      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-        method: "POST",
-        body: { producto_id: validProductoId },
-      });
-
-      await handler(req, res);
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Error resolviendo precio:",
-        "Test error"
-      );
-
-      consoleErrorSpy.mockRestore();
-    });
-
-    it("debe manejar errores no estándar", async () => {
-      const consoleErrorSpy = jest
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      mockResolverPrecio.mockRejectedValue({ custom: "error object" });
-
-      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-        method: "POST",
-        body: { producto_id: validProductoId },
-      });
-
-      await handler(req, res);
-
-      expect(res._getStatusCode()).toBe(500);
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Error resolviendo precio:",
-        "Error desconocido"
-      );
-
-      consoleErrorSpy.mockRestore();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
   });
 

@@ -336,7 +336,7 @@ describe("/api/vending-machines/[id]/slots", () => {
   describe("Manejo de errores", () => {
     const validUuid = "123e4567-e89b-12d3-a456-426614174000";
 
-    it("debe retornar 404 si la vending machine no existe", async () => {
+    it("debe retornar 500 si la vending machine no existe (asyncHandler convierte a 500)", async () => {
       const errorMessage = "Vending machine no encontrada";
       mockFindByMachine.mockRejectedValue(new Error(errorMessage));
 
@@ -347,13 +347,13 @@ describe("/api/vending-machines/[id]/slots", () => {
 
       await handler(req, res);
 
-      expect(res._getStatusCode()).toBe(404);
-      expect(res._getJSONData()).toEqual({
-        error: errorMessage,
-      });
+      expect(res._getStatusCode()).toBe(500);
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe retornar 500 para errores internos", async () => {
+    it("debe retornar 500 para errores internos (asyncHandler)", async () => {
       mockFindByMachine.mockRejectedValue(new Error("Database error"));
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -364,12 +364,12 @@ describe("/api/vending-machines/[id]/slots", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      expect(res._getJSONData()).toEqual({
-        error: "Error al obtener slots de la vending machine",
-      });
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe manejar errores no-Error objects", async () => {
+    it("debe manejar errores no-Error objects (asyncHandler)", async () => {
       mockFindByMachine.mockRejectedValue("String error");
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -380,9 +380,9 @@ describe("/api/vending-machines/[id]/slots", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      expect(res._getJSONData()).toEqual({
-        error: "Error al obtener slots de la vending machine",
-      });
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
   });
 

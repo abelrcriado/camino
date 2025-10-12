@@ -350,7 +350,7 @@ describe("/api/vending-machines/[id]/slots/[slotId]", () => {
   });
 
   describe("Manejo de errores", () => {
-    it("debe retornar 500 para errores internos en GET", async () => {
+    it("debe retornar 500 para errores internos en GET (asyncHandler)", async () => {
       mockFindById.mockRejectedValue(new Error("Database error"));
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -361,12 +361,12 @@ describe("/api/vending-machines/[id]/slots/[slotId]", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      expect(res._getJSONData()).toEqual({
-        error: "Error al procesar la operación del slot",
-      });
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe retornar 500 para errores internos en PUT", async () => {
+    it("debe retornar 500 para errores internos en PUT (asyncHandler)", async () => {
       const existingSlot = {
         id: validSlotId,
         machine_id: validMachineId,
@@ -384,9 +384,12 @@ describe("/api/vending-machines/[id]/slots/[slotId]", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe retornar 500 para errores internos en DELETE", async () => {
+    it("debe retornar 500 para errores internos en DELETE (asyncHandler)", async () => {
       const existingSlot = {
         id: validSlotId,
         machine_id: validMachineId,
@@ -403,9 +406,12 @@ describe("/api/vending-machines/[id]/slots/[slotId]", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe manejar errores no-Error objects", async () => {
+    it("debe manejar errores no-Error objects (asyncHandler)", async () => {
       mockFindById.mockRejectedValue("String error");
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -416,6 +422,9 @@ describe("/api/vending-machines/[id]/slots/[slotId]", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
   });
 

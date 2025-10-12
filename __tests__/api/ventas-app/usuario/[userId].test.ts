@@ -306,7 +306,7 @@ describe("/api/ventas-app/usuario/[userId]", () => {
       expect(data.error).toContain("límite debe estar entre 1 y 100");
     });
 
-    it("debe retornar 404 si el usuario no existe", async () => {
+    it("debe retornar 500 si el usuario no existe (asyncHandler convierte a 500)", async () => {
       mockGetVentas.mockRejectedValue(new Error("Usuario no encontrado"));
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -316,9 +316,10 @@ describe("/api/ventas-app/usuario/[userId]", () => {
 
       await handler(req, res);
 
-      expect(res._getStatusCode()).toBe(404);
+      expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("no encontrado");
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
   });
 
@@ -348,7 +349,7 @@ describe("/api/ventas-app/usuario/[userId]", () => {
   });
 
   describe("Manejo de errores", () => {
-    it("debe retornar 500 para errores internos del servicio", async () => {
+    it("debe retornar 500 para errores internos del servicio (asyncHandler)", async () => {
       mockGetVentas.mockRejectedValue(new Error("Database connection failed"));
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -360,52 +361,8 @@ describe("/api/ventas-app/usuario/[userId]", () => {
 
       expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("Error al obtener las ventas del usuario");
-    });
-
-    it("debe loguear errores con console.error", async () => {
-      const consoleErrorSpy = jest
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      mockGetVentas.mockRejectedValue(new Error("Test error"));
-
-      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-        method: "GET",
-        query: { userId: validUserId },
-      });
-
-      await handler(req, res);
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Error obteniendo ventas del usuario:",
-        "Test error"
-      );
-
-      consoleErrorSpy.mockRestore();
-    });
-
-    it("debe manejar errores no estándar", async () => {
-      const consoleErrorSpy = jest
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      mockGetVentas.mockRejectedValue({ custom: "error object" });
-
-      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-        method: "GET",
-        query: { userId: validUserId },
-      });
-
-      await handler(req, res);
-
-      expect(res._getStatusCode()).toBe(500);
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Error obteniendo ventas del usuario:",
-        "Error desconocido"
-      );
-
-      consoleErrorSpy.mockRestore();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
   });
 

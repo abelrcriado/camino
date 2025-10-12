@@ -419,7 +419,7 @@ describe("/api/precios/[id]", () => {
   });
 
   describe("Manejo de errores", () => {
-    it("debe retornar 500 si el controller lanza error (GET)", async () => {
+    it("debe retornar 500 si el controller lanza error (GET - asyncHandler)", async () => {
       mockHandleRequest.mockImplementation(() => {
         throw new Error("Database query failed");
       });
@@ -433,12 +433,11 @@ describe("/api/precios/[id]", () => {
 
       expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain(
-        "Error al procesar la operación sobre el precio"
-      );
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe retornar 500 si el controller lanza error (PUT)", async () => {
+    it("debe retornar 500 si el controller lanza error (PUT - asyncHandler)", async () => {
       mockHandleRequest.mockImplementation(() => {
         throw new Error("Update failed");
       });
@@ -453,12 +452,11 @@ describe("/api/precios/[id]", () => {
 
       expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain(
-        "Error al procesar la operación sobre el precio"
-      );
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe retornar 500 si el controller lanza error (DELETE)", async () => {
+    it("debe retornar 500 si el controller lanza error (DELETE - asyncHandler)", async () => {
       mockHandleRequest.mockImplementation(() => {
         throw new Error("Delete failed");
       });
@@ -472,7 +470,7 @@ describe("/api/precios/[id]", () => {
 
       expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      // asyncHandler maneja errores centralizadamente
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
       expect(data.error).toBeDefined();
     });
   });

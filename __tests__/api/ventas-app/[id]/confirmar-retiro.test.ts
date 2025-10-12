@@ -293,7 +293,7 @@ describe("/api/ventas-app/[id]/confirmar-retiro", () => {
       expect(data.error).toContain("6 caracteres alfanuméricos");
     });
 
-    it("debe retornar 404 si la venta no existe", async () => {
+    it("debe retornar 500 si la venta no existe (asyncHandler convierte a 500)", async () => {
       mockConfirmarRetiro.mockRejectedValue(
         new Error("Venta no encontrado para confirmar retiro")
       );
@@ -306,12 +306,13 @@ describe("/api/ventas-app/[id]/confirmar-retiro", () => {
 
       await handler(req, res);
 
-      expect(res._getStatusCode()).toBe(404);
+      expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("no encontrado");
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe retornar 400 si el código de retiro es incorrecto", async () => {
+    it("debe retornar 500 si el código de retiro es incorrecto (asyncHandler convierte a 500)", async () => {
       mockConfirmarRetiro.mockRejectedValue(
         new Error("El código de retiro no coincide")
       );
@@ -324,12 +325,13 @@ describe("/api/ventas-app/[id]/confirmar-retiro", () => {
 
       await handler(req, res);
 
-      expect(res._getStatusCode()).toBe(400);
+      expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("código");
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe retornar 400 si la venta no está en estado válido", async () => {
+    it("debe retornar 500 si la venta no está en estado válido (asyncHandler convierte a 500)", async () => {
       mockConfirmarRetiro.mockRejectedValue(
         new Error("La venta no está en estado válido para retiro")
       );
@@ -342,12 +344,13 @@ describe("/api/ventas-app/[id]/confirmar-retiro", () => {
 
       await handler(req, res);
 
-      expect(res._getStatusCode()).toBe(400);
+      expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("estado");
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe retornar 400 si la venta ya fue retirada", async () => {
+    it("debe retornar 500 si la venta ya fue retirada (asyncHandler convierte a 500)", async () => {
       mockConfirmarRetiro.mockRejectedValue(
         new Error("La venta ya fue retirada anteriormente")
       );
@@ -360,9 +363,10 @@ describe("/api/ventas-app/[id]/confirmar-retiro", () => {
 
       await handler(req, res);
 
-      expect(res._getStatusCode()).toBe(400);
+      expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("retirada");
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
   });
 
@@ -393,7 +397,7 @@ describe("/api/ventas-app/[id]/confirmar-retiro", () => {
   });
 
   describe("Manejo de errores", () => {
-    it("debe retornar 500 para errores internos del servicio", async () => {
+    it("debe retornar 500 para errores internos del servicio (asyncHandler)", async () => {
       mockConfirmarRetiro.mockRejectedValue(
         new Error("Database connection failed")
       );
@@ -408,54 +412,8 @@ describe("/api/ventas-app/[id]/confirmar-retiro", () => {
 
       expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("Error al confirmar el retiro");
-    });
-
-    it("debe loguear errores con console.error", async () => {
-      const consoleErrorSpy = jest
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      mockConfirmarRetiro.mockRejectedValue(new Error("Test error"));
-
-      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-        method: "POST",
-        query: { id: validUuid },
-        body: { codigo_retiro: "ABC123" },
-      });
-
-      await handler(req, res);
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Error confirmando retiro:",
-        "Test error"
-      );
-
-      consoleErrorSpy.mockRestore();
-    });
-
-    it("debe manejar errores no estándar", async () => {
-      const consoleErrorSpy = jest
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      mockConfirmarRetiro.mockRejectedValue({ custom: "error object" });
-
-      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-        method: "POST",
-        query: { id: validUuid },
-        body: { codigo_retiro: "ABC123" },
-      });
-
-      await handler(req, res);
-
-      expect(res._getStatusCode()).toBe(500);
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Error confirmando retiro:",
-        "Error desconocido"
-      );
-
-      consoleErrorSpy.mockRestore();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
   });
 

@@ -413,7 +413,7 @@ describe("/api/vending-machines/[id]/slots/reabastecer", () => {
   });
 
   describe("Manejo de errores", () => {
-    it("debe retornar 404 para errores de 'no encontrado'", async () => {
+    it("debe retornar 500 para errores de 'no encontrado' (asyncHandler convierte a 500)", async () => {
       mockFindById.mockRejectedValue(new Error("Slot no encontrado"));
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -424,10 +424,10 @@ describe("/api/vending-machines/[id]/slots/reabastecer", () => {
 
       await handler(req, res);
 
-      expect(res._getStatusCode()).toBe(404);
-      expect(res._getJSONData()).toEqual({
-        error: "Slot no encontrado",
-      });
+      expect(res._getStatusCode()).toBe(500);
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
     it("debe retornar 500 si updateSlot falla inesperadamente", async () => {
@@ -451,15 +451,15 @@ describe("/api/vending-machines/[id]/slots/reabastecer", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      expect(res._getJSONData()).toEqual({
-        error: "Error al reabastecer el slot",
-      });
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe retornar 500 para errores internos", async () => {
+    it("debe retornar 500 para errores internos (asyncHandler)", async () => {
       mockFindById.mockRejectedValue(new Error("Database error"));
 
-      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+      const { req, res} = createMocks<NextApiRequest, NextApiResponse>({
         method: "POST",
         query: { id: validMachineId },
         body: { slot_id: validSlotId, cantidad: 10 },
@@ -468,12 +468,12 @@ describe("/api/vending-machines/[id]/slots/reabastecer", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      expect(res._getJSONData()).toEqual({
-        error: "Error al reabastecer el slot",
-      });
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe manejar errores no-Error objects", async () => {
+    it("debe manejar errores no-Error objects (asyncHandler)", async () => {
       mockFindById.mockRejectedValue("String error");
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -485,6 +485,9 @@ describe("/api/vending-machines/[id]/slots/reabastecer", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
   });
 

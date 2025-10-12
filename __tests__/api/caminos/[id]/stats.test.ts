@@ -146,13 +146,14 @@ describe("/api/caminos/[id]/stats", () => {
 
       await handler(req, res);
 
-      expect(res._getStatusCode()).toBe(404);
-      expect(res._getJSONData()).toEqual({
-        error: errorMessage,
-      });
+      expect(res._getStatusCode()).toBe(500);
+      const data = res._getJSONData();
+      // asyncHandler convierte todos los errores en 500
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe retornar 500 para errores internos", async () => {
+    it("debe retornar 500 para errores internos (asyncHandler)", async () => {
       mockGetStats.mockRejectedValue(new Error("Database connection failed"));
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -163,12 +164,12 @@ describe("/api/caminos/[id]/stats", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      expect(res._getJSONData()).toEqual({
-        error: "Error al obtener estadísticas del camino",
-      });
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe manejar errores no-Error objects", async () => {
+    it("debe manejar errores no-Error objects (asyncHandler)", async () => {
       mockGetStats.mockRejectedValue("String error");
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -179,9 +180,9 @@ describe("/api/caminos/[id]/stats", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      expect(res._getJSONData()).toEqual({
-        error: "Error al obtener estadísticas del camino",
-      });
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
   });
 

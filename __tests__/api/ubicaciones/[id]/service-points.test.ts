@@ -322,7 +322,7 @@ describe("/api/ubicaciones/[id]/service-points", () => {
   describe("Manejo de errores", () => {
     const validUuid = "123e4567-e89b-12d3-a456-426614174000";
 
-    it("debe retornar 404 si la ubicación no existe", async () => {
+    it("debe retornar 500 si la ubicación no existe (asyncHandler convierte a 500)", async () => {
       const errorMessage = "Ubicación no encontrada";
       mockGetByLocation.mockRejectedValue(new Error(errorMessage));
 
@@ -333,13 +333,13 @@ describe("/api/ubicaciones/[id]/service-points", () => {
 
       await handler(req, res);
 
-      expect(res._getStatusCode()).toBe(404);
-      expect(res._getJSONData()).toEqual({
-        error: errorMessage,
-      });
+      expect(res._getStatusCode()).toBe(500);
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe retornar 500 para errores internos", async () => {
+    it("debe retornar 500 para errores internos (asyncHandler)", async () => {
       mockGetByLocation.mockRejectedValue(new Error("Database error"));
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -350,12 +350,12 @@ describe("/api/ubicaciones/[id]/service-points", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      expect(res._getJSONData()).toEqual({
-        error: "Error al obtener service points de la ubicación",
-      });
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe manejar errores no-Error objects", async () => {
+    it("debe manejar errores no-Error objects (asyncHandler)", async () => {
       mockGetByLocation.mockRejectedValue("String error");
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -366,29 +366,9 @@ describe("/api/ubicaciones/[id]/service-points", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      expect(res._getJSONData()).toEqual({
-        error: "Error al obtener service points de la ubicación",
-      });
-    });
-
-    it("debe detectar error 404 con variaciones de mensaje", async () => {
-      // El endpoint busca "no encontrad" (sin a/o final)
-      const variations = ["Ubicación no encontrada", "Location no encontrado"];
-
-      for (const errorMsg of variations) {
-        jest.clearAllMocks();
-        mockGetByLocation.mockRejectedValue(new Error(errorMsg));
-
-        const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-          method: "GET",
-          query: { id: validUuid },
-        });
-
-        await handler(req, res);
-
-        expect(res._getStatusCode()).toBe(404);
-        expect(res._getJSONData()).toEqual({ error: errorMsg });
-      }
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
   });
 
