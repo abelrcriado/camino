@@ -27,7 +27,12 @@ import {
   VentaAppFull,
   EstadoVenta,
 } from "../dto/venta_app.dto";
-import { ValidationError } from "../errors/custom-errors";
+import {
+  ValidationError,
+  NotFoundError,
+  BusinessRuleError,
+  DatabaseError,
+} from "../errors/custom-errors";
 
 export class VentaAppService extends BaseService<VentaApp> {
   constructor(private ventaRepository: VentaAppRepository) {
@@ -53,7 +58,7 @@ export class VentaAppService extends BaseService<VentaApp> {
     const allowedTransitions = validTransitions[currentEstado] || [];
 
     if (!allowedTransitions.includes(newEstado)) {
-      throw new ValidationError(
+      throw new BusinessRuleError(
         `Transición de estado inválida: ${currentEstado} → ${newEstado}`
       );
     }
@@ -66,10 +71,7 @@ export class VentaAppService extends BaseService<VentaApp> {
     const result = await this.ventaRepository.findById(ventaId);
 
     if (result.error || !result.data) {
-      throw new ValidationError(
-        `Venta con ID ${ventaId} no encontrada`,
-        result.error
-      );
+      throw new NotFoundError("Venta", ventaId);
     }
 
     return result.data;
@@ -88,13 +90,12 @@ export class VentaAppService extends BaseService<VentaApp> {
       const venta = await this.ventaRepository.crearVenta(dto);
       return venta;
     } catch (error) {
-      if (error instanceof ValidationError) {
+      if (error instanceof ValidationError || error instanceof BusinessRuleError) {
         throw error;
       }
-      throw new Error(
-        `Error al crear venta: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al crear venta",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -113,13 +114,12 @@ export class VentaAppService extends BaseService<VentaApp> {
       const result = await this.ventaRepository.reservarStock(dto.venta_id);
       return result;
     } catch (error) {
-      if (error instanceof ValidationError) {
+      if (error instanceof NotFoundError || error instanceof BusinessRuleError) {
         throw error;
       }
-      throw new Error(
-        `Error al reservar stock: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al reservar stock",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -150,13 +150,12 @@ export class VentaAppService extends BaseService<VentaApp> {
       );
       return result;
     } catch (error) {
-      if (error instanceof ValidationError) {
+      if (error instanceof NotFoundError || error instanceof ValidationError || error instanceof BusinessRuleError) {
         throw error;
       }
-      throw new Error(
-        `Error al confirmar pago: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al confirmar pago",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -187,13 +186,12 @@ export class VentaAppService extends BaseService<VentaApp> {
       );
       return result;
     } catch (error) {
-      if (error instanceof ValidationError) {
+      if (error instanceof NotFoundError || error instanceof ValidationError || error instanceof BusinessRuleError) {
         throw error;
       }
-      throw new Error(
-        `Error al confirmar retiro: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al confirmar retiro",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -222,13 +220,12 @@ export class VentaAppService extends BaseService<VentaApp> {
       );
       return result;
     } catch (error) {
-      if (error instanceof ValidationError) {
+      if (error instanceof NotFoundError || error instanceof ValidationError || error instanceof BusinessRuleError) {
         throw error;
       }
-      throw new Error(
-        `Error al cancelar venta: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al cancelar venta",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -261,12 +258,12 @@ export class VentaAppService extends BaseService<VentaApp> {
 
       return pagoResult;
     } catch (error) {
-      // Si falla algún paso, intentar cancelar la venta
-      // (la función de cancelación manejará la liberación de stock si aplica)
-      throw new Error(
-        `Error en crear y pagar venta: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      if (error instanceof NotFoundError || error instanceof ValidationError || error instanceof BusinessRuleError) {
+        throw error;
+      }
+      throw new DatabaseError(
+        "Error en crear y pagar venta",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -283,12 +280,9 @@ export class VentaAppService extends BaseService<VentaApp> {
       const result = await this.ventaRepository.findAll(filters as any);
 
       if (result.error) {
-        throw new Error(
-          `Error al obtener ventas: ${
-            result.error instanceof Error
-              ? result.error.message
-              : "Error desconocido"
-          }`
+        throw new DatabaseError(
+          "Error al obtener ventas",
+          { originalError: result.error instanceof Error ? result.error.message : String(result.error) }
         );
       }
 
@@ -297,10 +291,12 @@ export class VentaAppService extends BaseService<VentaApp> {
         count: result.count || 0,
       };
     } catch (error) {
-      throw new Error(
-        `Error al obtener ventas: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      if (error instanceof DatabaseError) {
+        throw error;
+      }
+      throw new DatabaseError(
+        "Error al obtener ventas",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -319,10 +315,9 @@ export class VentaAppService extends BaseService<VentaApp> {
         count: result?.length || 0,
       };
     } catch (error) {
-      throw new Error(
-        `Error al obtener ventas full: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al obtener ventas full",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -335,10 +330,9 @@ export class VentaAppService extends BaseService<VentaApp> {
       const ventas = await this.ventaRepository.getVentasActivasUsuario(userId);
       return ventas;
     } catch (error) {
-      throw new Error(
-        `Error al obtener ventas activas: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al obtener ventas activas",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -370,10 +364,9 @@ export class VentaAppService extends BaseService<VentaApp> {
       if (error instanceof ValidationError) {
         throw error;
       }
-      throw new Error(
-        `Error al obtener ventas por expirar: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al obtener ventas por expirar",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -385,22 +378,11 @@ export class VentaAppService extends BaseService<VentaApp> {
     try {
       const result = await this.ventaRepository.getEstadisticas();
       return result;
-    } catch {
-      // Retornar estadísticas vacías en caso de error
-      return {
-        ventas_borrador: 0,
-        ventas_reservadas: 0,
-        ventas_pagadas: 0,
-        ventas_completadas: 0,
-        ventas_canceladas: 0,
-        ventas_expiradas: 0,
-        total_ventas: 0,
-        ingresos_completados: 0,
-        ingresos_pendientes: 0,
-        stock_actualmente_reservado: 0,
-        tiempo_promedio_retiro_minutos: 0,
-        expiraciones_ultimas_24h: 0,
-      };
+    } catch (error) {
+      throw new DatabaseError(
+        "Error al obtener estadísticas de ventas",
+        { originalError: error instanceof Error ? error.message : String(error) }
+      );
     }
   }
 
@@ -412,10 +394,9 @@ export class VentaAppService extends BaseService<VentaApp> {
       const result = await this.ventaRepository.liberarStockExpirado();
       return result;
     } catch (error) {
-      throw new Error(
-        `Error al liberar stock expirado: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al liberar stock expirado",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -445,10 +426,9 @@ export class VentaAppService extends BaseService<VentaApp> {
       if (error instanceof ValidationError) {
         throw error;
       }
-      throw new Error(
-        `Error al obtener notificaciones: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al obtener notificaciones",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -469,24 +449,20 @@ export class VentaAppService extends BaseService<VentaApp> {
       const result = await this.ventaRepository.findByCodigoRetiro(codigo);
 
       if (result.error) {
-        throw new Error(
-          `Error al buscar venta: ${
-            result.error instanceof Error
-              ? result.error.message
-              : "Error desconocido"
-          }`
+        throw new DatabaseError(
+          "Error al buscar venta",
+          { originalError: result.error instanceof Error ? result.error.message : String(result.error) }
         );
       }
 
       return result.data;
     } catch (error) {
-      if (error instanceof ValidationError) {
+      if (error instanceof ValidationError || error instanceof DatabaseError) {
         throw error;
       }
-      throw new Error(
-        `Error al buscar venta por código: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al buscar venta por código",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -520,25 +496,21 @@ export class VentaAppService extends BaseService<VentaApp> {
       const result = await this.ventaRepository.update(id, updateData);
 
       if (result.error || !result.data) {
-        throw new Error(
-          `Error al actualizar venta: ${
-            result.error instanceof Error
-              ? result.error.message
-              : "Error desconocido"
-          }`
+        throw new DatabaseError(
+          "Error al actualizar venta",
+          { originalError: result.error instanceof Error ? result.error.message : String(result.error) }
         );
       }
 
       // result.data es un array, necesitamos el primer elemento
       return Array.isArray(result.data) ? result.data[0] : result.data;
     } catch (error) {
-      if (error instanceof ValidationError) {
+      if (error instanceof NotFoundError || error instanceof ValidationError || error instanceof DatabaseError) {
         throw error;
       }
-      throw new Error(
-        `Error al actualizar venta: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al actualizar venta",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -561,24 +533,20 @@ export class VentaAppService extends BaseService<VentaApp> {
       const result = await this.ventaRepository.delete(id);
 
       if (result.error) {
-        throw new Error(
-          `Error al eliminar venta: ${
-            result.error instanceof Error
-              ? result.error.message
-              : "Error desconocido"
-          }`
+        throw new DatabaseError(
+          "Error al eliminar venta",
+          { originalError: result.error instanceof Error ? result.error.message : String(result.error) }
         );
       }
 
       return true;
     } catch (error) {
-      if (error instanceof ValidationError) {
+      if (error instanceof NotFoundError || error instanceof ValidationError || error instanceof DatabaseError) {
         throw error;
       }
-      throw new Error(
-        `Error al eliminar venta: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al eliminar venta",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -603,10 +571,9 @@ export class VentaAppService extends BaseService<VentaApp> {
       const result = await this.ventaRepository.countByEstado(estado);
       return result;
     } catch (error) {
-      throw new Error(
-        `Error al contar ventas: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al contar ventas",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -619,10 +586,9 @@ export class VentaAppService extends BaseService<VentaApp> {
       const result = await this.ventaRepository.countByUser(userId);
       return result;
     } catch (error) {
-      throw new Error(
-        `Error al contar ventas de usuario: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al contar ventas de usuario",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -635,10 +601,9 @@ export class VentaAppService extends BaseService<VentaApp> {
       const result = await this.ventaRepository.getIngresosByEstado(estado);
       return result;
     } catch (error) {
-      throw new Error(
-        `Error al obtener ingresos: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al obtener ingresos",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
