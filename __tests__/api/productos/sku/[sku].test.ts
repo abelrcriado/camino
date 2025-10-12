@@ -162,10 +162,10 @@ describe("/api/productos/sku/[sku]", () => {
       expect(mockFindBySku).toHaveBeenCalledWith(skuWithSpaces);
     });
 
-    it("debe retornar 500 para errores internos", async () => {
+    it("debe retornar 500 para errores internos (asyncHandler)", async () => {
       mockFindBySku.mockRejectedValue(new Error("Database connection failed"));
 
-      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+      const { req, res} = createMocks<NextApiRequest, NextApiResponse>({
         method: "GET",
         query: { sku: "BIKE-PUMP-001" },
       });
@@ -173,12 +173,12 @@ describe("/api/productos/sku/[sku]", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      expect(res._getJSONData()).toEqual({
-        error: "Error al buscar producto por SKU",
-      });
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
 
-    it("debe manejar errores no-Error objects", async () => {
+    it("debe manejar errores no-Error objects (asyncHandler)", async () => {
       mockFindBySku.mockRejectedValue("String error");
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -189,9 +189,9 @@ describe("/api/productos/sku/[sku]", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(500);
-      expect(res._getJSONData()).toEqual({
-        error: "Error al buscar producto por SKU",
-      });
+      const data = res._getJSONData();
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error).toBeDefined();
     });
   });
 

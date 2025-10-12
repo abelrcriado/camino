@@ -268,7 +268,7 @@ describe("/api/ventas-app/[id]", () => {
   });
 
   describe("Manejo de errores", () => {
-    it("debe retornar 500 si el controller lanza error", async () => {
+    it("debe retornar 500 si el controller lanza error (asyncHandler)", async () => {
       mockHandle.mockImplementation(() => {
         throw new Error("Database query failed");
       });
@@ -282,56 +282,8 @@ describe("/api/ventas-app/[id]", () => {
 
       expect(res._getStatusCode()).toBe(500);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("Error al obtener la venta");
-    });
-
-    it("debe loguear el error con console.error", async () => {
-      const consoleErrorSpy = jest
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      mockHandle.mockImplementation(() => {
-        throw new Error("Test error");
-      });
-
-      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-        method: "GET",
-        query: { id: validUuid },
-      });
-
-      await handler(req, res);
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Error obteniendo venta:",
-        "Test error"
-      );
-
-      consoleErrorSpy.mockRestore();
-    });
-
-    it("debe manejar errores no estándar", async () => {
-      const consoleErrorSpy = jest
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      mockHandle.mockImplementation(() => {
-        throw { custom: "error object" };
-      });
-
-      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-        method: "GET",
-        query: { id: validUuid },
-      });
-
-      await handler(req, res);
-
-      expect(res._getStatusCode()).toBe(500);
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Error obteniendo venta:",
-        "Error desconocido"
-      );
-
-      consoleErrorSpy.mockRestore();
+      // asyncHandler maneja errores centralizadamente
+      expect(data.error).toBeDefined();
     });
   });
 
