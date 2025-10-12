@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { PrecioService } from "@/services/precio.service";
 import { PrecioRepository } from "@/repositories/precio.repository";
 import { EntidadTipo } from "@/dto/precio.dto";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -95,88 +96,72 @@ import { EntidadTipo } from "@/dto/precio.dto";
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
-  try {
-    const { producto_id, service_point_id, ubicacion_id } = req.body;
+  const { producto_id, service_point_id, ubicacion_id } = req.body;
 
-    // Validar producto_id (requerido)
-    if (!producto_id || typeof producto_id !== "string") {
-      return res.status(400).json({ error: "producto_id es requerido" });
-    }
-
-    // Validar formato UUID
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-    if (!uuidRegex.test(producto_id)) {
-      return res.status(400).json({ error: "producto_id inválido" });
-    }
-
-    if (service_point_id && !uuidRegex.test(service_point_id)) {
-      return res.status(400).json({ error: "service_point_id inválido" });
-    }
-
-    if (ubicacion_id && !uuidRegex.test(ubicacion_id)) {
-      return res.status(400).json({ error: "ubicacion_id inválido" });
-    }
-
-    const repository = new PrecioRepository();
-    const service = new PrecioService(repository);
-
-    // Resolver precio jerárquico usando el servicio
-    // El servicio ya implementa la lógica de jerarquía
-    const precioResuelto = await service.resolverPrecio({
-      entidad_tipo: EntidadTipo.PRODUCTO,
-      entidad_id: producto_id,
-      ubicacion_id: ubicacion_id || undefined,
-      service_point_id: service_point_id || undefined,
-    });
-
-    // Determinar nivel aplicado desde el resultado
-    let nivelAplicado: "SERVICE_POINT" | "UBICACION" | "BASE" | "NINGUNO" =
-      "NINGUNO";
-
-    if (precioResuelto) {
-      // Mapear NivelPrecio al formato esperado
-      type NivelAplicadoType =
-        | "SERVICE_POINT"
-        | "UBICACION"
-        | "BASE"
-        | "NINGUNO";
-      const nivelMap: Record<string, NivelAplicadoType> = {
-        service_point: "SERVICE_POINT",
-        ubicacion: "UBICACION",
-        base: "BASE",
-      };
-      nivelAplicado = nivelMap[precioResuelto.nivel] || "NINGUNO";
-    }
-
-    return res.status(200).json({
-      precio: precioResuelto,
-      resolucion: {
-        nivel_aplicado: nivelAplicado,
-        producto_id,
-        service_point_id: service_point_id || null,
-        ubicacion_id: ubicacion_id || null,
-      },
-    });
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error desconocido";
-    console.error("Error resolviendo precio:", errorMessage);
-
-    if (errorMessage.includes("no encontrado")) {
-      return res.status(404).json({ error: errorMessage });
-    }
-
-    return res.status(500).json({
-      error: "Error al resolver el precio",
-    });
+  // Validar producto_id (requerido)
+  if (!producto_id || typeof producto_id !== "string") {
+    return res.status(400).json({ error: "producto_id es requerido" });
   }
-}
 
-export default handler;
+  // Validar formato UUID
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  if (!uuidRegex.test(producto_id)) {
+    return res.status(400).json({ error: "producto_id inválido" });
+  }
+
+  if (service_point_id && !uuidRegex.test(service_point_id)) {
+    return res.status(400).json({ error: "service_point_id inválido" });
+  }
+
+  if (ubicacion_id && !uuidRegex.test(ubicacion_id)) {
+    return res.status(400).json({ error: "ubicacion_id inválido" });
+  }
+
+  const repository = new PrecioRepository();
+  const service = new PrecioService(repository);
+
+  // Resolver precio jerárquico usando el servicio
+  // El servicio ya implementa la lógica de jerarquía
+  const precioResuelto = await service.resolverPrecio({
+    entidad_tipo: EntidadTipo.PRODUCTO,
+    entidad_id: producto_id,
+    ubicacion_id: ubicacion_id || undefined,
+    service_point_id: service_point_id || undefined,
+  });
+
+  // Determinar nivel aplicado desde el resultado
+  let nivelAplicado: "SERVICE_POINT" | "UBICACION" | "BASE" | "NINGUNO" =
+    "NINGUNO";
+
+  if (precioResuelto) {
+    // Mapear NivelPrecio al formato esperado
+    type NivelAplicadoType =
+      | "SERVICE_POINT"
+      | "UBICACION"
+      | "BASE"
+      | "NINGUNO";
+    const nivelMap: Record<string, NivelAplicadoType> = {
+      service_point: "SERVICE_POINT",
+      ubicacion: "UBICACION",
+      base: "BASE",
+    };
+    nivelAplicado = nivelMap[precioResuelto.nivel] || "NINGUNO";
+  }
+
+  return res.status(200).json({
+    precio: precioResuelto,
+    resolucion: {
+      nivel_aplicado: nivelAplicado,
+      producto_id,
+      service_point_id: service_point_id || null,
+      ubicacion_id: ubicacion_id || null,
+    },
+  });
+});

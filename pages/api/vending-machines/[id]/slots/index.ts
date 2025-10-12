@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { VendingMachineSlotService } from "../../../../../src/services/vending_machine_slot.service";
 import { VendingMachineSlotRepository } from "../../../../../src/repositories/vending_machine_slot.repository";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -91,69 +92,53 @@ import { VendingMachineSlotRepository } from "../../../../../src/repositories/ve
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
-  try {
-    const { id, numero_slot, producto_id } = req.query;
+  const { id, numero_slot, producto_id } = req.query;
 
-    // Validar ID de vending machine
-    if (!id || typeof id !== "string") {
-      return res
-        .status(400)
-        .json({ error: "ID de vending machine es requerido" });
-    }
-
-    // Validar formato UUID
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
-      return res.status(400).json({ error: "ID de vending machine inválido" });
-    }
-
-    // Obtener slots
-    const repository = new VendingMachineSlotRepository();
-    const service = new VendingMachineSlotService(repository);
-
-    // Obtener slots de la vending machine
-    const slots = await service.findByMachine(id);
-
-    // Aplicar filtros adicionales si existen
-    let filteredSlots = slots;
-    if (numero_slot && typeof numero_slot === "string") {
-      const slotNum = parseInt(numero_slot, 10);
-      if (!isNaN(slotNum)) {
-        filteredSlots = slots.filter((slot) => slot.slot_number === slotNum);
-      }
-    }
-    if (producto_id && typeof producto_id === "string") {
-      filteredSlots = filteredSlots.filter(
-        (slot) => slot.producto_id === producto_id
-      );
-    }
-
-    return res.status(200).json({
-      data: filteredSlots,
-      total: filteredSlots.length,
-      vending_machine: {
-        id,
-      },
-    });
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error desconocido";
-    console.error("Error obteniendo slots de vending machine:", errorMessage);
-
-    if (errorMessage.includes("no encontrad")) {
-      return res.status(404).json({ error: errorMessage });
-    }
-
-    return res.status(500).json({
-      error: "Error al obtener slots de la vending machine",
-    });
+  // Validar ID de vending machine
+  if (!id || typeof id !== "string") {
+    return res
+      .status(400)
+      .json({ error: "ID de vending machine es requerido" });
   }
-}
 
-export default handler;
+  // Validar formato UUID
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(id)) {
+    return res.status(400).json({ error: "ID de vending machine inválido" });
+  }
+
+  // Obtener slots
+  const repository = new VendingMachineSlotRepository();
+  const service = new VendingMachineSlotService(repository);
+
+  // Obtener slots de la vending machine
+  const slots = await service.findByMachine(id);
+
+  // Aplicar filtros adicionales si existen
+  let filteredSlots = slots;
+  if (numero_slot && typeof numero_slot === "string") {
+    const slotNum = parseInt(numero_slot, 10);
+    if (!isNaN(slotNum)) {
+      filteredSlots = slots.filter((slot) => slot.slot_number === slotNum);
+    }
+  }
+  if (producto_id && typeof producto_id === "string") {
+    filteredSlots = filteredSlots.filter(
+      (slot) => slot.producto_id === producto_id
+    );
+  }
+
+  return res.status(200).json({
+    data: filteredSlots,
+    total: filteredSlots.length,
+    vending_machine: {
+      id,
+    },
+  });
+});

@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ServicePointService } from "../../../../src/services/service-point.service";
 import { ServicePointRepository } from "../../../../src/repositories/service-point.repository";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -92,65 +93,45 @@ import { ServicePointRepository } from "../../../../src/repositories/service-poi
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
-  try {
-    const { id, type, status } = req.query;
+  const { id, type, status } = req.query;
 
-    // Validar ID de ubicación
-    if (!id || typeof id !== "string") {
-      return res.status(400).json({ error: "ID de ubicación es requerido" });
-    }
-
-    // Validar formato UUID
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
-      return res.status(400).json({ error: "ID de ubicación inválido" });
-    }
-
-    // Obtener service points
-    const repository = new ServicePointRepository();
-    const service = new ServicePointService(repository);
-
-    // Obtener service points de la ubicación
-    let servicePoints = await service.getByLocation(id);
-
-    // Aplicar filtros adicionales si existen
-    if (type && typeof type === "string") {
-      servicePoints = servicePoints.filter((sp) => sp.type === type);
-    }
-    if (status && typeof status === "string") {
-      servicePoints = servicePoints.filter((sp) => sp.status === status);
-    }
-
-    return res.status(200).json({
-      data: servicePoints,
-      total: servicePoints.length,
-      location: {
-        id,
-      },
-    });
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error desconocido";
-    console.error(
-      "Error obteniendo service points de ubicación:",
-      errorMessage
-    );
-
-    // Error específico de ubicación no encontrada
-    if (errorMessage.includes("no encontrad")) {
-      return res.status(404).json({ error: errorMessage });
-    }
-
-    return res.status(500).json({
-      error: "Error al obtener service points de la ubicación",
-    });
+  // Validar ID de ubicación
+  if (!id || typeof id !== "string") {
+    return res.status(400).json({ error: "ID de ubicación es requerido" });
   }
-}
 
-export default handler;
+  // Validar formato UUID
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(id)) {
+    return res.status(400).json({ error: "ID de ubicación inválido" });
+  }
+
+  // Obtener service points
+  const repository = new ServicePointRepository();
+  const service = new ServicePointService(repository);
+
+  // Obtener service points de la ubicación
+  let servicePoints = await service.getByLocation(id);
+
+  // Aplicar filtros adicionales si existen
+  if (type && typeof type === "string") {
+    servicePoints = servicePoints.filter((sp) => sp.type === type);
+  }
+  if (status && typeof status === "string") {
+    servicePoints = servicePoints.filter((sp) => sp.status === status);
+  }
+
+  return res.status(200).json({
+    data: servicePoints,
+    total: servicePoints.length,
+    location: {
+      id,
+    },
+  });
+});

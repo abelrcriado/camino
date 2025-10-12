@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { VendingMachineSlotService } from "@/services/vending_machine_slot.service";
 import { VendingMachineSlotRepository } from "@/repositories/vending_machine_slot.repository";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -87,124 +88,100 @@ import { VendingMachineSlotRepository } from "@/repositories/vending_machine_slo
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
-  try {
-    const { id } = req.query;
-    const { slot_id, cantidad } = req.body;
+  const { id } = req.query;
+  const { slot_id, cantidad } = req.body;
 
-    // Validar ID de vending machine
-    if (!id || typeof id !== "string") {
-      return res
-        .status(400)
-        .json({ error: "ID de vending machine es requerido" });
-    }
+  // Validar ID de vending machine
+  if (!id || typeof id !== "string") {
+    return res
+      .status(400)
+      .json({ error: "ID de vending machine es requerido" });
+  }
 
-    // Validar formato UUID
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
-      return res.status(400).json({ error: "ID de vending machine inválido" });
-    }
+  // Validar formato UUID
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(id)) {
+    return res.status(400).json({ error: "ID de vending machine inválido" });
+  }
 
-    // Validar slot_id
-    if (!slot_id || typeof slot_id !== "string") {
-      return res.status(400).json({ error: "ID de slot es requerido" });
-    }
+  // Validar slot_id
+  if (!slot_id || typeof slot_id !== "string") {
+    return res.status(400).json({ error: "ID de slot es requerido" });
+  }
 
-    if (!uuidRegex.test(slot_id)) {
-      return res.status(400).json({ error: "ID de slot inválido" });
-    }
+  if (!uuidRegex.test(slot_id)) {
+    return res.status(400).json({ error: "ID de slot inválido" });
+  }
 
-    // Validar cantidad
-    if (
-      cantidad === undefined ||
-      cantidad === null ||
-      typeof cantidad !== "number"
-    ) {
-      return res.status(400).json({ error: "Cantidad es requerida" });
-    }
+  // Validar cantidad
+  if (
+    cantidad === undefined ||
+    cantidad === null ||
+    typeof cantidad !== "number"
+  ) {
+    return res.status(400).json({ error: "Cantidad es requerida" });
+  }
 
-    if (cantidad <= 0) {
-      return res.status(400).json({ error: "La cantidad debe ser mayor a 0" });
-    }
+  if (cantidad <= 0) {
+    return res.status(400).json({ error: "La cantidad debe ser mayor a 0" });
+  }
 
-    if (!Number.isInteger(cantidad)) {
-      return res
-        .status(400)
-        .json({ error: "La cantidad debe ser un número entero" });
-    }
+  if (!Number.isInteger(cantidad)) {
+    return res
+      .status(400)
+      .json({ error: "La cantidad debe ser un número entero" });
+  }
 
-    const repository = new VendingMachineSlotRepository();
-    const service = new VendingMachineSlotService(repository);
+  const repository = new VendingMachineSlotRepository();
+  const service = new VendingMachineSlotService(repository);
 
-    // Verificar que el slot existe y pertenece a la vending machine
-    const slot = await service.findById(slot_id);
-    if (!slot) {
-      return res.status(404).json({ error: "Slot no encontrado" });
-    }
+  // Verificar que el slot existe y pertenece a la vending machine
+  const slot = await service.findById(slot_id);
+  if (!slot) {
+    return res.status(404).json({ error: "Slot no encontrado" });
+  }
 
-    if (slot.machine_id !== id) {
-      return res
-        .status(404)
-        .json({ error: "Slot no encontrado en esta vending machine" });
-    }
+  if (slot.machine_id !== id) {
+    return res
+      .status(404)
+      .json({ error: "Slot no encontrado en esta vending machine" });
+  }
 
-    // Verificar capacidad
-    const stockAnterior = slot.stock_disponible;
-    const stockNuevo = stockAnterior + cantidad;
+  // Verificar capacidad
+  const stockAnterior = slot.stock_disponible;
+  const stockNuevo = stockAnterior + cantidad;
 
-    if (stockNuevo + slot.stock_reservado > slot.capacidad_maxima) {
-      return res.status(400).json({
-        error: `La cantidad excede la capacidad máxima del slot (${slot.capacidad_maxima})`,
-      });
-    }
-
-    // Reabastecer slot (actualizar stock disponible)
-    const updatedSlot = await service.updateSlot({
-      id: slot_id,
-      stock_disponible: stockNuevo,
-    });
-
-    return res.status(200).json({
-      message: "Slot reabastecido exitosamente",
-      slot: {
-        id: updatedSlot.id,
-        slot_number: updatedSlot.slot_number,
-        stock_disponible: updatedSlot.stock_disponible,
-        stock_reservado: updatedSlot.stock_reservado,
-        capacidad_maxima: updatedSlot.capacidad_maxima,
-      },
-      reabastecimiento: {
-        cantidad_agregada: cantidad,
-        stock_anterior: stockAnterior,
-        stock_nuevo: updatedSlot.stock_disponible,
-      },
-    });
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error desconocido";
-    console.error("Error reabasteciendo slot:", errorMessage);
-
-    // Errores específicos del servicio
-    if (errorMessage.includes("no encontrado")) {
-      return res.status(404).json({ error: errorMessage });
-    }
-
-    if (
-      errorMessage.includes("capacidad") ||
-      errorMessage.includes("cantidad")
-    ) {
-      return res.status(400).json({ error: errorMessage });
-    }
-
-    return res.status(500).json({
-      error: "Error al reabastecer el slot",
+  if (stockNuevo + slot.stock_reservado > slot.capacidad_maxima) {
+    return res.status(400).json({
+      error: `La cantidad excede la capacidad máxima del slot (${slot.capacidad_maxima})`,
     });
   }
-}
 
-export default handler;
+  // Reabastecer slot (actualizar stock disponible)
+  const updatedSlot = await service.updateSlot({
+    id: slot_id,
+    stock_disponible: stockNuevo,
+  });
+
+  return res.status(200).json({
+    message: "Slot reabastecido exitosamente",
+    slot: {
+      id: updatedSlot.id,
+      slot_number: updatedSlot.slot_number,
+      stock_disponible: updatedSlot.stock_disponible,
+      stock_reservado: updatedSlot.stock_reservado,
+      capacidad_maxima: updatedSlot.capacidad_maxima,
+    },
+    reabastecimiento: {
+      cantidad_agregada: cantidad,
+      stock_anterior: stockAnterior,
+      stock_nuevo: updatedSlot.stock_disponible,
+    },
+  });
+});

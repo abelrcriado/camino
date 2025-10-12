@@ -5,6 +5,7 @@ import { VendingMachineSlotRepository } from "@/repositories/vending_machine_slo
 import { validateUUIDs } from "@/middlewares/validate-uuid";
 import { validateSlotOwnership } from "@/utils/validate-ownership";
 import { ErrorMessages } from "@/constants/error-messages";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -136,86 +137,74 @@ import { ErrorMessages } from "@/constants/error-messages";
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    const { id, slotId } = req.query;
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
+  const { id, slotId } = req.query;
 
-    // Validar UUIDs usando middleware centralizado
-    const validationError = validateUUIDs(
-      { id, slotId },
-      {
-        customNames: {
-          id: "vending machine",
-          slotId: "slot",
-        },
-      }
-    );
-    if (validationError) {
-      return res.status(400).json({ error: validationError });
+  // Validar UUIDs usando middleware centralizado
+  const validationError = validateUUIDs(
+    { id, slotId },
+    {
+      customNames: {
+        id: "vending machine",
+        slotId: "slot",
+      },
     }
-
-    const repository = new VendingMachineSlotRepository();
-    const service = new VendingMachineSlotService(repository);
-
-    switch (req.method) {
-      case "GET": {
-        const slot = await service.findById(slotId as string);
-
-        // Validar ownership usando utility centralizado
-        const ownershipError = validateSlotOwnership(slot, id as string);
-        if (ownershipError) {
-          return res
-            .status(ownershipError.status)
-            .json({ error: ownershipError.message });
-        }
-
-        return res.status(200).json(slot);
-      }
-
-      case "PUT": {
-        // Verificar que el slot existe y pertenece a la vending machine
-        const existing = await service.findById(slotId as string);
-        
-        const ownershipError = validateSlotOwnership(existing, id as string);
-        if (ownershipError) {
-          return res
-            .status(ownershipError.status)
-            .json({ error: ownershipError.message });
-        }
-
-        const updated = await service.update(slotId as string, req.body);
-        return res.status(200).json({ data: [updated] });
-      }
-
-      case "DELETE": {
-        // Verificar que el slot existe y pertenece a la vending machine
-        const existing = await service.findById(slotId as string);
-        
-        const ownershipError = validateSlotOwnership(existing, id as string);
-        if (ownershipError) {
-          return res
-            .status(ownershipError.status)
-            .json({ error: ownershipError.message });
-        }
-
-        await service.delete(slotId as string);
-        return res.status(200).json({ message: "Slot eliminado exitosamente" });
-      }
-
-      default:
-        return res
-          .status(405)
-          .json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
-    }
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error desconocido";
-    console.error("Error en operación de slot:", errorMessage);
-
-    return res.status(500).json({
-      error: "Error al procesar la operación del slot",
-    });
+  );
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
   }
-}
 
-export default handler;
+  const repository = new VendingMachineSlotRepository();
+  const service = new VendingMachineSlotService(repository);
+
+  switch (req.method) {
+    case "GET": {
+      const slot = await service.findById(slotId as string);
+
+      // Validar ownership usando utility centralizado
+      const ownershipError = validateSlotOwnership(slot, id as string);
+      if (ownershipError) {
+        return res
+          .status(ownershipError.status)
+          .json({ error: ownershipError.message });
+      }
+
+      return res.status(200).json(slot);
+    }
+
+    case "PUT": {
+      // Verificar que el slot existe y pertenece a la vending machine
+      const existing = await service.findById(slotId as string);
+      
+      const ownershipError = validateSlotOwnership(existing, id as string);
+      if (ownershipError) {
+        return res
+          .status(ownershipError.status)
+          .json({ error: ownershipError.message });
+      }
+
+      const updated = await service.update(slotId as string, req.body);
+      return res.status(200).json({ data: [updated] });
+    }
+
+    case "DELETE": {
+      // Verificar que el slot existe y pertenece a la vending machine
+      const existing = await service.findById(slotId as string);
+      
+      const ownershipError = validateSlotOwnership(existing, id as string);
+      if (ownershipError) {
+        return res
+          .status(ownershipError.status)
+          .json({ error: ownershipError.message });
+      }
+
+      await service.delete(slotId as string);
+      return res.status(200).json({ message: "Slot eliminado exitosamente" });
+    }
+
+    default:
+      return res
+        .status(405)
+        .json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
+  }
+});

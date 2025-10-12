@@ -1,6 +1,7 @@
 // Endpoint para obtener detalle de una venta específica
 import type { NextApiRequest, NextApiResponse } from "next";
 import { VentaAppController } from "@/controllers/venta_app.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -72,38 +73,26 @@ import { VentaAppController } from "@/controllers/venta_app.controller";
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
-  try {
-    const { id } = req.query;
+  const { id } = req.query;
 
-    if (!id || typeof id !== "string") {
-      return res.status(400).json({ error: "ID de venta es requerido" });
-    }
-
-    // Validar formato UUID
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
-      return res.status(400).json({ error: "ID de venta inválido" });
-    }
-
-    // Delegar al controller con ID inyectado
-    req.query = { ...req.query, id };
-    const controller = new VentaAppController();
-    return controller.handle(req, res);
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error desconocido";
-    console.error("Error obteniendo venta:", errorMessage);
-
-    return res.status(500).json({
-      error: "Error al obtener la venta",
-    });
+  if (!id || typeof id !== "string") {
+    return res.status(400).json({ error: "ID de venta es requerido" });
   }
-}
 
-export default handler;
+  // Validar formato UUID
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(id)) {
+    return res.status(400).json({ error: "ID de venta inválido" });
+  }
+
+  // Delegar al controller con ID inyectado
+  req.query = { ...req.query, id };
+  const controller = new VentaAppController();
+  return controller.handle(req, res);
+});

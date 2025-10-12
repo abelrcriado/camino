@@ -1,6 +1,7 @@
 // Endpoint para operaciones sobre precios individuales
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PrecioController } from "@/controllers/precio.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -133,45 +134,33 @@ import { PrecioController } from "@/controllers/precio.controller";
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const allowedMethods = ["GET", "PUT", "DELETE"];
 
   if (!allowedMethods.includes(req.method || "")) {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
-  try {
-    const { id } = req.query;
+  const { id } = req.query;
 
-    if (!id || typeof id !== "string") {
-      return res.status(400).json({ error: "ID de precio es requerido" });
-    }
-
-    // Validar formato UUID
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
-      return res.status(400).json({ error: "ID de precio inválido" });
-    }
-
-    // Inyectar ID en el body para PUT y en query para todos
-    if (req.method === "PUT") {
-      req.body = { ...req.body, id };
-    }
-    req.query = { ...req.query, id };
-
-    // Delegar al controller
-    const controller = new PrecioController();
-    return controller.handleRequest(req, res);
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error desconocido";
-    console.error("Error en endpoint de precio individual:", errorMessage);
-
-    return res.status(500).json({
-      error: "Error al procesar la operación sobre el precio",
-    });
+  if (!id || typeof id !== "string") {
+    return res.status(400).json({ error: "ID de precio es requerido" });
   }
-}
 
-export default handler;
+  // Validar formato UUID
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(id)) {
+    return res.status(400).json({ error: "ID de precio inválido" });
+  }
+
+  // Inyectar ID en el body para PUT y en query para todos
+  if (req.method === "PUT") {
+    req.body = { ...req.body, id };
+  }
+  req.query = { ...req.query, id };
+
+  // Delegar al controller
+  const controller = new PrecioController();
+  return controller.handleRequest(req, res);
+});

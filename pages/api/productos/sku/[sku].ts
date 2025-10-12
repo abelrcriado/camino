@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ProductoService } from "../../../../src/services/producto.service";
 import { ProductoRepository } from "../../../../src/repositories/producto.repository";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -88,42 +89,30 @@ import { ProductoRepository } from "../../../../src/repositories/producto.reposi
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
-  try {
-    const { sku } = req.query;
+  const { sku } = req.query;
 
-    // Validar SKU
-    if (!sku || typeof sku !== "string") {
-      return res.status(400).json({ error: "SKU es requerido" });
-    }
-
-    if (sku.trim().length === 0) {
-      return res.status(400).json({ error: "SKU no puede estar vacío" });
-    }
-
-    // Buscar producto por SKU
-    const repository = new ProductoRepository();
-    const service = new ProductoService(repository);
-    const producto = await service.findBySku(sku);
-
-    if (!producto) {
-      return res.status(404).json({ error: "Producto no encontrado" });
-    }
-
-    return res.status(200).json(producto);
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error desconocido";
-    console.error("Error buscando producto por SKU:", errorMessage);
-
-    return res.status(500).json({
-      error: "Error al buscar producto por SKU",
-    });
+  // Validar SKU
+  if (!sku || typeof sku !== "string") {
+    return res.status(400).json({ error: "SKU es requerido" });
   }
-}
 
-export default handler;
+  if (sku.trim().length === 0) {
+    return res.status(400).json({ error: "SKU no puede estar vacío" });
+  }
+
+  // Buscar producto por SKU
+  const repository = new ProductoRepository();
+  const service = new ProductoService(repository);
+  const producto = await service.findBySku(sku);
+
+  if (!producto) {
+    return res.status(404).json({ error: "Producto no encontrado" });
+  }
+
+  return res.status(200).json(producto);
+});

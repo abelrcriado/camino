@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { VentaAppService } from "@/services/venta_app.service";
 import { VentaAppRepository } from "@/repositories/venta_app.repository";
 import type { VentaAppFilters } from "@/dto/venta_app.dto";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -109,88 +110,72 @@ import type { VentaAppFilters } from "@/dto/venta_app.dto";
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
-  try {
-    const { userId } = req.query;
-    const { estado, page, limit } = req.query;
+  const { userId } = req.query;
+  const { estado, page, limit } = req.query;
 
-    // Validar userId
-    if (!userId || typeof userId !== "string") {
-      return res.status(400).json({ error: "ID de usuario es requerido" });
-    }
-
-    // Validar formato UUID
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(userId)) {
-      return res.status(400).json({ error: "ID de usuario inválido" });
-    }
-
-    // Preparar filtros
-    const filters: VentaAppFilters = {
-      user_id: userId,
-    };
-
-    if (estado && typeof estado === "string") {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      filters.estado = estado as any;
-    }
-
-    // Preparar paginación
-    const pageNum = page ? parseInt(page as string, 10) : 1;
-    const limitNum = limit ? parseInt(limit as string, 10) : 10;
-
-    if (pageNum < 1) {
-      return res
-        .status(400)
-        .json({ error: "El número de página debe ser mayor a 0" });
-    }
-
-    if (limitNum < 1 || limitNum > 100) {
-      return res
-        .status(400)
-        .json({ error: "El límite debe estar entre 1 y 100" });
-    }
-
-    const repository = new VentaAppRepository();
-    const service = new VentaAppService(repository);
-
-    // Obtener ventas
-    const result = await service.getVentas(filters);
-
-    // Calcular paginación manual
-    const total = result.count;
-    const totalPages = Math.ceil(total / limitNum);
-
-    return res.status(200).json({
-      data: result.data,
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total,
-        totalPages,
-      },
-      user: {
-        id: userId,
-      },
-    });
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error desconocido";
-    console.error("Error obteniendo ventas del usuario:", errorMessage);
-
-    if (errorMessage.includes("no encontrado")) {
-      return res.status(404).json({ error: errorMessage });
-    }
-
-    return res.status(500).json({
-      error: "Error al obtener las ventas del usuario",
-    });
+  // Validar userId
+  if (!userId || typeof userId !== "string") {
+    return res.status(400).json({ error: "ID de usuario es requerido" });
   }
-}
 
-export default handler;
+  // Validar formato UUID
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(userId)) {
+    return res.status(400).json({ error: "ID de usuario inválido" });
+  }
+
+  // Preparar filtros
+  const filters: VentaAppFilters = {
+    user_id: userId,
+  };
+
+  if (estado && typeof estado === "string") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    filters.estado = estado as any;
+  }
+
+  // Preparar paginación
+  const pageNum = page ? parseInt(page as string, 10) : 1;
+  const limitNum = limit ? parseInt(limit as string, 10) : 10;
+
+  if (pageNum < 1) {
+    return res
+      .status(400)
+      .json({ error: "El número de página debe ser mayor a 0" });
+  }
+
+  if (limitNum < 1 || limitNum > 100) {
+    return res
+      .status(400)
+      .json({ error: "El límite debe estar entre 1 y 100" });
+  }
+
+  const repository = new VentaAppRepository();
+  const service = new VentaAppService(repository);
+
+  // Obtener ventas
+  const result = await service.getVentas(filters);
+
+  // Calcular paginación manual
+  const total = result.count;
+  const totalPages = Math.ceil(total / limitNum);
+
+  return res.status(200).json({
+    data: result.data,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total,
+      totalPages,
+    },
+    user: {
+      id: userId,
+    },
+  });
+});
