@@ -65,75 +65,124 @@
 
 ---
 
-### Sprint 6.2: asyncHandler Migration (2 días) 🔴 PENDIENTE
+### Sprint 6.2: AppError Migration (2 días) 🔴 EN PROGRESO
 
-**Descripción:** Migrar endpoints restantes a asyncHandler con approach manual y seguro
+**Descripción:** Migrar servicios de `throw new Error()` genéricos a jerarquía AppError para códigos HTTP correctos
+
+**Guía Completa:** `docs/guides/APPERRROR_MIGRATION_GUIDE.md`
 
 **Estado Actual:**
 
-- 20/122 endpoints usan asyncHandler (16%) ✅ Pre-existentes
-- 102 endpoints pendientes (84%) ❌ Por migrar
+- 1/22 servicios migrados (venta_app ✅)
+- 21 servicios pendientes con 124 instancias de `throw new Error()`
+- 0% adoption → 100% adoption objetivo
 
-**Por qué ahora:**
+**Por qué ahora (CRÍTICO):**
 
-- ✅ Wrapper `asyncHandler` YA EXISTE en `src/middlewares/error-handler.ts`
-- ✅ Lecciones aprendidas de Sprint 6.1 (no usar scripts automáticos)
-- ✅ Todo código futuro usará este patrón desde día 1
+- 🔴 **Problema:** Todos los errores retornan HTTP 500 → Viola REST standards
+- ✅ **Solución:** Usar AppError hierarchy (404, 400, 409, 500) según contexto
+- ✅ Jerarquía YA EXISTE en `src/errors/custom-errors.ts`
+- ✅ Middleware YA MANEJA AppError en `src/middlewares/error-handler.ts`
+- ✅ Frontend necesita diferenciar 404 (no encontrado) vs 500 (error servidor)
 
-**Tasks DÍA 1 (Análisis y Primeros 30):**
+**Jerarquía AppError:**
 
-- [ ] Categorizar endpoints por patrón (simple, try/catch, nested)
-- [ ] Crear transformation templates para cada patrón
-- [ ] Migrar manualmente 30 endpoints simples (sin try/catch)
-- [ ] Validar tests después de cada 10 endpoints
+| Clase                  | HTTP | Uso                            |
+| ---------------------- | ---- | ------------------------------ |
+| `NotFoundError`        | 404  | Recurso no existe en BD        |
+| `ValidationError`      | 400  | Input validation failed        |
+| `BusinessRuleError`    | 400  | Violación regla de negocio     |
+| `ConflictError`        | 409  | Duplicado/conflicto            |
+| `DatabaseError`        | 500  | Error inesperado DB            |
+| `ExternalServiceError` | 503  | Servicio externo no disponible |
 
-**Tasks DÍA 2 (Resto + Validación):**
+**Tasks DÍA 1 (10-12 servicios prioritarios):**
 
-- [ ] Migrar 40 endpoints con try/catch
-- [ ] Migrar 32 endpoints restantes
-- [ ] Crear regla ESLint custom para requerir asyncHandler
-- [ ] Validar 2410/2410 tests pasando
+- [x] Identificar servicios por prioridad (endpoints activos primero)
+- [ ] Migrar `precio.service.ts` (endpoints `/api/precios`)
+- [ ] Migrar `vending_machine_slot.service.ts` (endpoints `/api/vending-machines/[id]/slots`)
+- [ ] Migrar `ubicacion.service.ts` (endpoints `/api/ubicaciones`)
+- [ ] Migrar `producto.service.ts` (endpoints `/api/productos`)
+- [ ] Migrar `camino.service.ts` (endpoints `/api/caminos`)
+- [ ] Migrar 5-7 servicios adicionales de alta prioridad
+- [ ] Tests después de cada 3-4 servicios: `npm test`
 
-**Patrón de migración manual:**
+**Tasks DÍA 2 (10-12 servicios restantes):**
+
+- [ ] Migrar servicios auxiliares restantes
+- [ ] Validación grep: `grep "throw new Error(" src/services/ | wc -l` → 0
+- [ ] Tests finales: 2410/2410 pasando
+- [ ] Documento: `docs/sprints/SPRINT_6.2_APPERRROR_MIGRATION.md`
+
+**Patrón de migración (según guía):**
 
 ```typescript
-// ANTES (patrón simple)
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Método no permitido" });
-  }
-  return controller.list(req, res);
+// ❌ ANTES (INCORRECTO - Todo retorna 500)
+if (!result.data) {
+  throw new Error(`Producto con ID ${id} no encontrado`);
+}
+if (precio < 0) {
+  throw new Error("Precio no puede ser negativo");
 }
 
-// DESPUÉS
-import { asyncHandler } from "@/middlewares/error-handler";
+// ✅ DESPUÉS (CORRECTO - Códigos HTTP semánticos)
+import { NotFoundError, ValidationError, DatabaseError } from "@/errors/custom-errors";
 
-export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Método no permitido" });
+if (!result.data) {
+  throw new NotFoundError("Producto", id); // → 404
+}
+if (precio < 0) {
+  throw new ValidationError("Precio no puede ser negativo"); // → 400
+}
+
+// Catch blocks: Preservar errores específicos
+} catch (error) {
+  if (error instanceof NotFoundError || error instanceof ValidationError) {
+    throw error; // Mantener código HTTP original
   }
-  return controller.list(req, res);
-});
+  throw new DatabaseError("Error al crear producto", { originalError: error }); // → 500
+}
 ```
 
 **Criterios de Éxito:**
 
-- ✅ 102 endpoints migrados a asyncHandler
-- ✅ 122/122 endpoints usando asyncHandler (100%)
+- ✅ 22/22 servicios migrados (100%)
+- ✅ 0 instancias de `throw new Error()` genéricos
 - ✅ Tests: 2410/2410 pasando (100%)
-- ✅ ESLint rule custom configurada
-- ✅ Reducción de código: ~300 líneas (eliminación try/catch)
+- ✅ API REST con códigos HTTP correctos (404, 400, 500, etc.)
+- ✅ Reducción de código: ~50 líneas (mensajes más concisos)
 
 **Impacto en código futuro:**
 
-- ✅ TODOS los endpoints DEBEN usar asyncHandler (validado por ESLint)
-- ✅ No más try/catch duplicado
-- ✅ Error handling centralizado
-- ✅ Stack traces completos en logs
+- ✅ Frontend puede diferenciar tipos de error (UX mejorado)
+- ✅ Monitoreo alerta correctamente (404 = esperado, 500 = crítico)
+- ✅ Logs estructurados con `code` y `details`
+- ✅ Cumple REST/HTTP standards
+- ✅ Tests validan códigos HTTP esperados
+
+**Servicios Prioritarios (Día 1):**
+
+1. `precio.service.ts` - 8+ errores
+2. `vending_machine_slot.service.ts` - 6+ errores
+3. `ubicacion.service.ts` - 5+ errores
+4. `producto.service.ts` - 4+ errores
+5. `camino.service.ts` - 4+ errores
+6. `service-product.service.ts` - 20+ errores
+7. `warehouse-inventory.service.ts` - 5+ errores
 
 ---
 
-### Sprint 6.3: Coverage Threshold + Aplicar Utilidades (3 días)
+### Sprint 6.3: asyncHandler Migration (2 días) 🔴 DIFERIDO
+
+**Descripción:** Migrar 102 endpoints restantes a asyncHandler wrapper (diferido de Sprint 6.2)
+
+**Estado:** Postponed hasta completar AppError migration
+
+**Razón:** AppError tiene mayor impacto en calidad de API (códigos HTTP correctos)
+
+---
+
+### Sprint 6.4: Coverage Threshold + Aplicar Utilidades (3 días)
 
 **Descripción:** Ajustar thresholds y refactorizar endpoints con utilities de Sprint 5.3
 

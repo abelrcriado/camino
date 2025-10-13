@@ -5,6 +5,11 @@ import {
   type ProductCategoryUpdate,
   type ProductCategoryFilters,
 } from "@/repositories/product-category.repository";
+import {
+  NotFoundError,
+  ValidationError,
+  ConflictError,
+} from "@/errors/custom-errors";
 
 export class ProductCategoryService {
   private repository: ProductCategoryRepository;
@@ -34,7 +39,7 @@ export class ProductCategoryService {
     const category = await this.repository.findById(id);
 
     if (!category) {
-      throw new Error("Category not found");
+      throw new NotFoundError("Product Category", id);
     }
 
     return category;
@@ -47,7 +52,7 @@ export class ProductCategoryService {
     const category = await this.repository.findByCode(code);
 
     if (!category) {
-      throw new Error("Category not found");
+      throw new NotFoundError("Product Category", `code: ${code}`);
     }
 
     return category;
@@ -63,7 +68,9 @@ export class ProductCategoryService {
     // Verificar que el código no exista
     const codeExists = await this.repository.codeExists(data.code);
     if (codeExists) {
-      throw new Error(`Category with code '${data.code}' already exists`);
+      throw new ConflictError(
+        `Category with code '${data.code}' already exists`
+      );
     }
 
     // Si no se proporciona sort_order, asignar el siguiente
@@ -87,14 +94,16 @@ export class ProductCategoryService {
 
     // Validaciones
     if (data.code || data.name) {
-      await this.validateCategoryData(data as ProductCategoryInsert, id);
+      await this.validateCategoryData(data as ProductCategoryInsert);
     }
 
     // Si se está actualizando el código, verificar que no exista
     if (data.code) {
       const codeExists = await this.repository.codeExists(data.code, id);
       if (codeExists) {
-        throw new Error(`Category with code '${data.code}' already exists`);
+        throw new ConflictError(
+          `Category with code '${data.code}' already exists`
+        );
       }
     }
 
@@ -147,32 +156,36 @@ export class ProductCategoryService {
    * Validar datos de categoría
    */
   private async validateCategoryData(
-    data: Partial<ProductCategoryInsert>,
-    excludeId?: string
+    data: Partial<ProductCategoryInsert>
+    // _excludeId?: string  // Reserved for future use
   ): Promise<void> {
     if (data.code) {
       // Validar formato del código (solo letras minúsculas, números y guiones bajos)
       if (!/^[a-z0-9_]+$/.test(data.code)) {
-        throw new Error(
+        throw new ValidationError(
           "Category code must contain only lowercase letters, numbers, and underscores"
         );
       }
 
       // Longitud mínima y máxima
       if (data.code.length < 2 || data.code.length > 50) {
-        throw new Error("Category code must be between 2 and 50 characters");
+        throw new ValidationError(
+          "Category code must be between 2 and 50 characters"
+        );
       }
     }
 
     if (data.name) {
       // Longitud mínima y máxima
       if (data.name.length < 2 || data.name.length > 200) {
-        throw new Error("Category name must be between 2 and 200 characters");
+        throw new ValidationError(
+          "Category name must be between 2 and 200 characters"
+        );
       }
     }
 
     if (data.sort_order !== undefined && data.sort_order < 0) {
-      throw new Error("Sort order must be a positive number");
+      throw new ValidationError("Sort order must be a positive number");
     }
   }
 }

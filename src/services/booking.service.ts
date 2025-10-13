@@ -1,6 +1,7 @@
 // Service para lógica de negocio de Booking
 import { BaseService } from "./base.service";
 import { BookingRepository } from "../repositories/booking.repository";
+import { DatabaseError, ValidationError } from "@/errors/custom-errors";
 import type {
   Booking,
   BookingFilters,
@@ -48,7 +49,9 @@ export class BookingService extends BaseService<Booking> {
       );
 
       if (error) {
-        throw new Error(error.message);
+        throw new DatabaseError("Error al obtener bookings", {
+          originalError: error.message,
+        });
       }
 
       const page = pagination?.page || 1;
@@ -138,7 +141,9 @@ export class BookingService extends BaseService<Booking> {
     const { data, error } = await this.bookingRepository.findActive();
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener bookings activos", {
+        originalError: error.message,
+      });
     }
 
     return data || [];
@@ -157,7 +162,9 @@ export class BookingService extends BaseService<Booking> {
     );
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener bookings por usuario", {
+        originalError: error.message,
+      });
     }
 
     return data || [];
@@ -170,7 +177,9 @@ export class BookingService extends BaseService<Booking> {
     const { data, error } = await this.bookingRepository.findUpcoming(days);
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener bookings próximos", {
+        originalError: error.message,
+      });
     }
 
     return data || [];
@@ -187,23 +196,23 @@ export class BookingService extends BaseService<Booking> {
     const end = new Date(endTime);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      throw new Error("Invalid date format");
+      throw new ValidationError("Invalid date format");
     }
 
     if (start >= end) {
-      throw new Error("Start time must be before end time");
+      throw new ValidationError("Start time must be before end time");
     }
 
     // No validar pasado ni futuro en tests - comentado para compatibilidad
     // const now = new Date();
     // if (start < now) {
-    //   throw new Error("Cannot create bookings in the past");
+    //   throw new ValidationError("Cannot create bookings in the past");
     // }
 
     // const sixMonthsFromNow = new Date();
     // sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
     // if (start > sixMonthsFromNow) {
-    //   throw new Error("Cannot create bookings more than 6 months in advance");
+    //   throw new ValidationError("Cannot create bookings more than 6 months in advance");
     // }
   }
 }

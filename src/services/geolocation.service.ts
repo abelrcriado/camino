@@ -1,5 +1,6 @@
 import { GeolocationRepository, NearbySearchParams, RoutePoint, CSPOnRoute } from '@/repositories/geolocation.repository';
 import { CSP, CSPWithDistance } from '@/dto/csp.dto';
+import { ValidationError } from '@/errors/custom-errors';
 import logger from '@/config/logger';
 
 export interface GeolocationService {
@@ -32,7 +33,7 @@ export class GeolocationServiceImpl implements GeolocationService {
 
     // Validate radius (max 100km for reasonable queries)
     if (params.radiusKm <= 0 || params.radiusKm > 100) {
-      throw new Error('Radius must be between 0 and 100 kilometers');
+      throw new ValidationError('Radius must be between 0 and 100 kilometers');
     }
 
     try {
@@ -83,20 +84,20 @@ export class GeolocationServiceImpl implements GeolocationService {
 
     // Validate route has at least 2 points
     if (routePoints.length < 2) {
-      throw new Error('Route must have at least 2 points');
+      throw new ValidationError('Route must have at least 2 points');
     }
 
     // Validate all coordinates
     routePoints.forEach((point, index) => {
       this.validateCoordinates(point.latitude, point.longitude);
       if (point.order < 0) {
-        throw new Error(`Invalid order for point ${index}: ${point.order}`);
+        throw new ValidationError(`Invalid order for point ${index}: ${point.order}`);
       }
     });
 
     // Validate distance limit (max 10km for reasonable queries)
     if (maxDistanceKm <= 0 || maxDistanceKm > 10) {
-      throw new Error('Max distance from route must be between 0 and 10 kilometers');
+      throw new ValidationError('Max distance from route must be between 0 and 10 kilometers');
     }
 
     try {
@@ -170,10 +171,10 @@ export class GeolocationServiceImpl implements GeolocationService {
 
     // Validate bounding box is correct
     if (northEast.latitude <= southWest.latitude) {
-      throw new Error('NorthEast latitude must be greater than SouthWest latitude');
+      throw new ValidationError('NorthEast latitude must be greater than SouthWest latitude');
     }
     if (northEast.longitude <= southWest.longitude) {
-      throw new Error('NorthEast longitude must be greater than SouthWest longitude');
+      throw new ValidationError('NorthEast longitude must be greater than SouthWest longitude');
     }
 
     try {
@@ -193,10 +194,10 @@ export class GeolocationServiceImpl implements GeolocationService {
    */
   private validateCoordinates(latitude: number, longitude: number): void {
     if (latitude < -90 || latitude > 90) {
-      throw new Error(`Invalid latitude: ${latitude}. Must be between -90 and 90`);
+      throw new ValidationError(`Invalid latitude: ${latitude}. Must be between -90 and 90`);
     }
     if (longitude < -180 || longitude > 180) {
-      throw new Error(`Invalid longitude: ${longitude}. Must be between -180 and 180`);
+      throw new ValidationError(`Invalid longitude: ${longitude}. Must be between -180 and 180`);
     }
   }
 }

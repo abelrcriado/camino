@@ -4,6 +4,11 @@ import {
   type UpdateWarehouseDTO,
   type Warehouse,
 } from "@/repositories/warehouse.repository";
+import {
+  NotFoundError,
+  ValidationError,
+  ConflictError,
+} from "@/errors/custom-errors";
 
 export class WarehouseService {
   private warehouseRepository: WarehouseRepository;
@@ -28,7 +33,7 @@ export class WarehouseService {
     const warehouse = await this.warehouseRepository.findById(id);
 
     if (!warehouse) {
-      throw new Error("Warehouse not found");
+      throw new NotFoundError("Warehouse", id);
     }
 
     return warehouse;
@@ -41,7 +46,7 @@ export class WarehouseService {
     const warehouse = await this.warehouseRepository.findByCode(code);
 
     if (!warehouse) {
-      throw new Error("Warehouse not found");
+      throw new NotFoundError("Warehouse", `code: ${code}`);
     }
 
     return warehouse;
@@ -56,7 +61,7 @@ export class WarehouseService {
       warehouseData.code
     );
     if (existing) {
-      throw new Error(
+      throw new ConflictError(
         `Warehouse with code ${warehouseData.code} already exists`
       );
     }
@@ -83,7 +88,7 @@ export class WarehouseService {
         warehouseData.code
       );
       if (existing && existing.id !== id) {
-        throw new Error(
+        throw new ConflictError(
           `Warehouse with code ${warehouseData.code} already exists`
         );
       }
@@ -115,7 +120,7 @@ export class WarehouseService {
   /**
    * Obtener almacén con estadísticas
    */
-  async getWarehouseWithStats(id: string): Promise<any> {
+  async getWarehouseWithStats(id: string): Promise<unknown> {
     // Verificar que existe
     await this.getWarehouseById(id);
 
@@ -131,7 +136,7 @@ export class WarehouseService {
     if ("code" in data && data.code) {
       // Validar formato de código (solo letras, números y guiones)
       if (!/^[A-Z0-9-]+$/.test(data.code)) {
-        throw new Error(
+        throw new ValidationError(
           "Warehouse code must contain only uppercase letters, numbers, and hyphens"
         );
       }
@@ -140,7 +145,9 @@ export class WarehouseService {
     if ("name" in data && data.name) {
       // Validar longitud del nombre
       if (data.name.length < 3) {
-        throw new Error("Warehouse name must be at least 3 characters long");
+        throw new ValidationError(
+          "Warehouse name must be at least 3 characters long"
+        );
       }
     }
 
@@ -148,19 +155,19 @@ export class WarehouseService {
       // Validar formato de email
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(data.contact_email)) {
-        throw new Error("Invalid email format");
+        throw new ValidationError("Invalid email format");
       }
     }
 
     if ("latitude" in data && data.latitude !== undefined) {
       if (data.latitude < -90 || data.latitude > 90) {
-        throw new Error("Latitude must be between -90 and 90");
+        throw new ValidationError("Latitude must be between -90 and 90");
       }
     }
 
     if ("longitude" in data && data.longitude !== undefined) {
       if (data.longitude < -180 || data.longitude > 180) {
-        throw new Error("Longitude must be between -180 and 180");
+        throw new ValidationError("Longitude must be between -180 and 180");
       }
     }
   }

@@ -1,11 +1,12 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { BookingService } from '../../src/services/booking.service';
 import { BookingRepository } from '../../src/repositories/booking.repository';
-import type { CreateBookingDto, UpdateBookingDto, Booking, BookingFilters } from '../../src/dto/booking.dto';
-import type { PaginationParams } from '../../src/types/common.types';
+import type { CreateBookingDto, Booking } from '../../src/dto/booking.dto';
+import { DatabaseError } from '../../src/errors/custom-errors';
 
 describe('BookingService', () => {
   let service: BookingService;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockRepository: any;
 
   beforeEach(() => {
@@ -206,7 +207,7 @@ describe('BookingService', () => {
         error: { message: 'Database error' },
       });
 
-      await expect(service.findActiveBookings()).rejects.toThrow('Database error');
+      await expect(service.findActiveBookings()).rejects.toThrow(DatabaseError);
     });
   });
 
@@ -251,7 +252,7 @@ describe('BookingService', () => {
         error: { message: 'Database error' },
       });
 
-      await expect(service.findByUserAndStatus('user-123', 'pending')).rejects.toThrow('Database error');
+      await expect(service.findByUserAndStatus('user-123', 'pending')).rejects.toThrow(DatabaseError);
     });
   });
 
@@ -297,7 +298,7 @@ describe('BookingService', () => {
         error: { message: 'Database error' },
       });
 
-      await expect(service.findUpcomingBookings()).rejects.toThrow('Database error');
+      await expect(service.findUpcomingBookings()).rejects.toThrow(DatabaseError);
     });
   });
 
