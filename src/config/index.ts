@@ -1,5 +1,8 @@
-// Config placeholder
-export const config = {
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+import { config } from "./app.config";
+
+const appConfig = {
+  supabaseUrl: config.supabase.url,
+  supabaseKey: config.supabase.anonKey,
 };
+
+export default appConfig;

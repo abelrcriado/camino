@@ -9,6 +9,7 @@ import { NextApiResponse, NextApiRequest } from "next";
 import { AppError } from "../errors/custom-errors";
 import { ZodError } from "zod";
 import logger from "../config/logger";
+import { isProduction } from "@/config/app.config";
 
 /**
  * Maneja errores de forma centralizada
@@ -64,8 +65,6 @@ export function handleError(error: unknown, res: NextApiResponse) {
     });
 
     // No exponer detalles internos en producción
-    const isProduction = process.env.NODE_ENV === "production";
-
     return res.status(500).json({
       error: "Error interno del servidor",
       code: "INTERNAL_SERVER_ERROR",

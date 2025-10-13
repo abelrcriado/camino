@@ -1,9 +1,7 @@
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 import path from "path";
-
-// Determinar si estamos en producción
-const isProduction = process.env.NODE_ENV === "production";
+import { config, isProduction } from "@/config/app.config";
 
 // Formato para desarrollo (legible)
 const devFormat = winston.format.combine(
@@ -87,7 +85,7 @@ export const logger = winston.createLogger({
 
 // Log de inicio
 logger.info("Logger initialized", {
-  environment: process.env.NODE_ENV || "development",
+  environment: config.app.env,
   level: logger.level,
 });
 

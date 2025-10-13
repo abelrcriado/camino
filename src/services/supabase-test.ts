@@ -1,19 +1,18 @@
 // Test de conexión a Supabase
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
+import { config } from "@/config/app.config";
+import logger from "@/config/logger";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Variables de entorno de Supabase no definidas");
-}
+const supabaseUrl = config.supabase.url;
+const supabaseKey = config.supabase.anonKey;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 (async () => {
   const { data, error } = await supabase.from("profiles").select("*").limit(1);
   if (error) {
-    console.error("Error de conexión a Supabase:", error.message);
+    logger.error("Error de conexión a Supabase:", { error: error.message });
   } else {
-    console.log("Conexión exitosa. Primer perfil:", data);
+    logger.info("Conexión exitosa. Primer perfil:", { data });
   }
 })();

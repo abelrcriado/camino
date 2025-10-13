@@ -3,6 +3,7 @@
  */
 
 import logger from "@/config/logger";
+import { config } from "@/config/app.config";
 import Stripe from "stripe";
 import { BaseService } from "./base.service";
 import { PaymentRepository } from "../repositories/payment.repository";
@@ -11,7 +12,6 @@ import {
   ValidationError,
   BusinessRuleError,
   DatabaseError,
-  ExternalServiceError,
 } from "@/errors/custom-errors";
 import {
   Payment,
@@ -26,7 +26,7 @@ import {
 } from "../dto/payment.dto";
 
 // Configuración de Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+const stripe = new Stripe(config.stripe.secretKey, {
   apiVersion: "2025-09-30.clover",
 });
 
@@ -442,7 +442,7 @@ export class PaymentService extends BaseService<Payment> {
     payload: string,
     signature: string
   ): StripeWebhookEvent {
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
+    const webhookSecret = config.stripe.webhookSecret;
 
     try {
       return this.stripe.webhooks.constructEvent(
