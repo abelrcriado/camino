@@ -5,6 +5,10 @@ import {
   ServiceAvailability,
   CSPAvailabilityStatus,
 } from "@/dto/availability.dto";
+import {
+  ValidationError,
+  BusinessRuleError,
+} from "@/errors/custom-errors";
 
 export class AvailabilityService {
   private repository: AvailabilityRepository;
@@ -18,7 +22,7 @@ export class AvailabilityService {
    */
   async isCSPOpen(cspId: string, checkTime?: Date): Promise<boolean> {
     if (!this.isValidUUID(cspId)) {
-      throw new Error("Invalid CSP ID format");
+      throw new ValidationError("Invalid CSP ID format");
     }
 
     return this.repository.isCSPOpenNow(cspId, checkTime);
@@ -32,7 +36,7 @@ export class AvailabilityService {
     checkTime?: Date
   ): Promise<CSPAvailabilityStatus | null> {
     if (!this.isValidUUID(cspId)) {
-      throw new Error("Invalid CSP ID format");
+      throw new ValidationError("Invalid CSP ID format");
     }
 
     return this.repository.getCSPAvailabilityStatus(cspId, checkTime);
@@ -43,7 +47,7 @@ export class AvailabilityService {
    */
   async getOpeningHours(cspId: string): Promise<OpeningHours[]> {
     if (!this.isValidUUID(cspId)) {
-      throw new Error("Invalid CSP ID format");
+      throw new ValidationError("Invalid CSP ID format");
     }
 
     return this.repository.getOpeningHoursForCSP(cspId);
@@ -60,7 +64,7 @@ export class AvailabilityService {
     >[]
   ): Promise<OpeningHours[]> {
     if (!this.isValidUUID(cspId)) {
-      throw new Error("Invalid CSP ID format");
+      throw new ValidationError("Invalid CSP ID format");
     }
 
     // Validate opening hours
@@ -88,11 +92,11 @@ export class AvailabilityService {
     toDate?: Date
   ): Promise<SpecialClosure[]> {
     if (!this.isValidUUID(cspId)) {
-      throw new Error("Invalid CSP ID format");
+      throw new ValidationError("Invalid CSP ID format");
     }
 
     if (fromDate && toDate && fromDate > toDate) {
-      throw new Error("fromDate must be before toDate");
+      throw new BusinessRuleError("fromDate must be before toDate");
     }
 
     return this.repository.getSpecialClosuresForCSP(cspId, fromDate, toDate);
@@ -106,12 +110,12 @@ export class AvailabilityService {
     closure: Omit<SpecialClosure, "id" | "csp_id" | "created_at" | "updated_at">
   ): Promise<SpecialClosure> {
     if (!this.isValidUUID(cspId)) {
-      throw new Error("Invalid CSP ID format");
+      throw new ValidationError("Invalid CSP ID format");
     }
 
     // Validate dates
     if (closure.start_date > closure.end_date) {
-      throw new Error("start_date must be before or equal to end_date");
+      throw new BusinessRuleError("start_date must be before or equal to end_date");
     }
 
     return this.repository.createSpecialClosure({
@@ -125,7 +129,7 @@ export class AvailabilityService {
    */
   async deleteSpecialClosure(closureId: string): Promise<void> {
     if (!this.isValidUUID(closureId)) {
-      throw new Error("Invalid closure ID format");
+      throw new ValidationError("Invalid closure ID format");
     }
 
     await this.repository.deleteSpecialClosure(closureId);
@@ -139,7 +143,7 @@ export class AvailabilityService {
     serviceType?: string
   ): Promise<ServiceAvailability[]> {
     if (!this.isValidUUID(cspId)) {
-      throw new Error("Invalid CSP ID format");
+      throw new ValidationError("Invalid CSP ID format");
     }
 
     return this.repository.getServiceAvailability(cspId, serviceType);
@@ -158,7 +162,7 @@ export class AvailabilityService {
     }>
   ): Promise<ServiceAvailability> {
     if (!this.isValidUUID(serviceId)) {
-      throw new Error("Invalid service ID format");
+      throw new ValidationError("Invalid service ID format");
     }
 
     // Validate available_slots
@@ -166,7 +170,7 @@ export class AvailabilityService {
       availability.available_slots !== undefined &&
       availability.available_slots < 0
     ) {
-      throw new Error("available_slots cannot be negative");
+      throw new BusinessRuleError("available_slots cannot be negative");
     }
 
     return this.repository.updateServiceAvailability(serviceId, availability);
@@ -182,15 +186,15 @@ export class AvailabilityService {
     durationMinutes: number = 60
   ): Promise<boolean> {
     if (!this.isValidUUID(cspId)) {
-      throw new Error("Invalid CSP ID format");
+      throw new ValidationError("Invalid CSP ID format");
     }
 
     if (!serviceType || serviceType.trim().length === 0) {
-      throw new Error("Service type is required");
+      throw new BusinessRuleError("Service type is required");
     }
 
     if (durationMinutes <= 0 || durationMinutes > 1440) {
-      throw new Error("Duration must be between 1 and 1440 minutes");
+      throw new BusinessRuleError("Duration must be between 1 and 1440 minutes");
     }
 
     return this.repository.checkSlotAvailability(
@@ -215,7 +219,7 @@ export class AvailabilityService {
     for (const hour of hours) {
       // Validate day_of_week
       if (hour.day_of_week < 0 || hour.day_of_week > 6) {
-        throw new Error(
+        throw new BusinessRuleError(
           "day_of_week must be between 0 (Sunday) and 6 (Saturday)"
         );
       }
@@ -223,7 +227,7 @@ export class AvailabilityService {
       // Validate times if not closed
       if (!hour.is_closed) {
         if (!hour.open_time || !hour.close_time) {
-          throw new Error(
+          throw new BusinessRuleError(
             "open_time and close_time are required when is_closed is false"
           );
         }
@@ -231,19 +235,19 @@ export class AvailabilityService {
         // Validate time format (HH:MM:SS)
         const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
         if (!timeRegex.test(hour.open_time)) {
-          throw new Error(
+          throw new BusinessRuleError(
             `Invalid open_time format: ${hour.open_time}. Expected HH:MM:SS`
           );
         }
         if (!timeRegex.test(hour.close_time)) {
-          throw new Error(
+          throw new BusinessRuleError(
             `Invalid close_time format: ${hour.close_time}. Expected HH:MM:SS`
           );
         }
 
         // Check that close_time is after open_time
         if (hour.open_time >= hour.close_time) {
-          throw new Error("close_time must be after open_time");
+          throw new BusinessRuleError("close_time must be after open_time");
         }
       }
     }
@@ -252,7 +256,7 @@ export class AvailabilityService {
     const days = hours.map((h) => h.day_of_week);
     const uniqueDays = new Set(days);
     if (days.length !== uniqueDays.size) {
-      throw new Error("Duplicate day_of_week values found");
+      throw new BusinessRuleError("Duplicate day_of_week values found");
     }
   }
 }
