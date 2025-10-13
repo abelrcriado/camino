@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.2](///compare/v0.3.1...v0.3.2) (2025-10-13)
+
+### 📚 Documentation
+
+- update sprint documentation for Sprint 6.2 completion 215e6c4
+
+### 🧹 Chores
+
+- remove backup file from AppError migration 757a7a7
+
+### ♻️ Code Refactoring
+
+- **endpoints:** migrate batch 1 to asyncHandler (7 endpoints) 73c63bb
+- **endpoints:** migrate batch 2 to asyncHandler (8 endpoints) f3d445d
+- **endpoints:** migrate batch 3 to asyncHandler (9 endpoints) 45e6936
+- **endpoints:** migrate batch 4 to asyncHandler (14 endpoints) f8085bd
+- **endpoints:** migrate final 64 endpoints to asyncHandler (mega-batch) ceff39a
+
 ### [0.3.1](///compare/v0.3.0...v0.3.1) (2025-10-13)
 
 ### 📚 Documentation
