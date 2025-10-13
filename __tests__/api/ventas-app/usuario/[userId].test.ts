@@ -247,7 +247,7 @@ describe("/api/ventas-app/usuario/[userId]", () => {
       expect(mockGetVentas).not.toHaveBeenCalled();
       expect(res._getStatusCode()).toBe(400);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("ID de usuario es requerido");
+      expect(data.error).toContain("ID debe ser un string");
     });
 
     it("debe retornar 400 si userId no es UUID válido", async () => {
@@ -261,7 +261,7 @@ describe("/api/ventas-app/usuario/[userId]", () => {
       expect(mockGetVentas).not.toHaveBeenCalled();
       expect(res._getStatusCode()).toBe(400);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("ID de usuario inválido");
+      expect(data.error).toContain("usuario debe ser un UUID válido");
     });
 
     it("debe retornar 400 si page es menor a 1", async () => {

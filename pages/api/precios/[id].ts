@@ -2,6 +2,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PrecioController } from "@/controllers/precio.controller";
 import { asyncHandler } from "@/middlewares/error-handler";
+import { ErrorMessages } from "@/constants/error-messages";
+import { validateUUID } from "@/middlewares/validate-uuid";
 
 /**
  * @swagger
@@ -138,20 +140,15 @@ export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) =>
   const allowedMethods = ["GET", "PUT", "DELETE"];
 
   if (!allowedMethods.includes(req.method || "")) {
-    return res.status(405).json({ error: "Método no permitido" });
+    return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 
   const { id } = req.query;
 
-  if (!id || typeof id !== "string") {
-    return res.status(400).json({ error: "ID de precio es requerido" });
-  }
-
-  // Validar formato UUID
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(id)) {
-    return res.status(400).json({ error: "ID de precio inválido" });
+  // Validar UUID usando utilidad centralizada
+  const validationError = validateUUID(id, "precio");
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
   }
 
   // Inyectar ID en el body para PUT y en query para todos

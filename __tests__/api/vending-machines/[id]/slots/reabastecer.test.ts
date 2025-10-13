@@ -193,7 +193,7 @@ describe("/api/vending-machines/[id]/slots/reabastecer", () => {
 
       expect(res._getStatusCode()).toBe(400);
       expect(res._getJSONData()).toEqual({
-        error: "ID de vending machine inválido",
+        error: "vending machine debe ser un UUID válido",
       });
     });
 
@@ -235,7 +235,7 @@ describe("/api/vending-machines/[id]/slots/reabastecer", () => {
 
       expect(res._getStatusCode()).toBe(400);
       expect(res._getJSONData()).toEqual({
-        error: "ID de slot inválido",
+        error: "slot debe ser un UUID válido",
       });
     });
 
@@ -369,7 +369,7 @@ describe("/api/vending-machines/[id]/slots/reabastecer", () => {
 
       expect(res._getStatusCode()).toBe(404);
       expect(res._getJSONData()).toEqual({
-        error: "Slot no encontrado en esta vending machine",
+        error: "Slot no encontrado en este vending machine",
       });
     });
   });

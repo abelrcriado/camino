@@ -283,7 +283,7 @@ describe("/api/precios/resolver", () => {
       expect(mockResolverPrecio).not.toHaveBeenCalled();
       expect(res._getStatusCode()).toBe(400);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("producto_id es requerido");
+      expect(data.error).toContain("ID de producto es requerido");
     });
 
     it("debe retornar 400 si producto_id es null", async () => {
@@ -300,7 +300,7 @@ describe("/api/precios/resolver", () => {
       expect(mockResolverPrecio).not.toHaveBeenCalled();
       expect(res._getStatusCode()).toBe(400);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("producto_id es requerido");
+      expect(data.error).toContain("ID de producto es requerido");
     });
 
     it("debe retornar 400 si producto_id no es string", async () => {
@@ -316,7 +316,7 @@ describe("/api/precios/resolver", () => {
       expect(mockResolverPrecio).not.toHaveBeenCalled();
       expect(res._getStatusCode()).toBe(400);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("producto_id es requerido");
+      expect(data.error).toContain("ID debe ser un string");
     });
 
     it("debe retornar 400 si producto_id no es UUID válido", async () => {
@@ -332,7 +332,7 @@ describe("/api/precios/resolver", () => {
       expect(mockResolverPrecio).not.toHaveBeenCalled();
       expect(res._getStatusCode()).toBe(400);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("producto_id inválido");
+      expect(data.error).toContain("producto debe ser un UUID válido");
     });
 
     it("debe retornar 400 si service_point_id no es UUID válido", async () => {
@@ -349,7 +349,7 @@ describe("/api/precios/resolver", () => {
       expect(mockResolverPrecio).not.toHaveBeenCalled();
       expect(res._getStatusCode()).toBe(400);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("service_point_id inválido");
+      expect(data.error).toContain("service point debe ser un UUID válido");
     });
 
     it("debe retornar 400 si ubicacion_id no es UUID válido", async () => {
@@ -366,7 +366,7 @@ describe("/api/precios/resolver", () => {
       expect(mockResolverPrecio).not.toHaveBeenCalled();
       expect(res._getStatusCode()).toBe(400);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("ubicacion_id inválido");
+      expect(data.error).toContain("ubicación debe ser un UUID válido");
     });
 
     it("debe permitir service_point_id y ubicacion_id opcionales", async () => {

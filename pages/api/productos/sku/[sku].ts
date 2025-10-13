@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { ProductoService } from "../../../../src/services/producto.service";
 import { ProductoRepository } from "../../../../src/repositories/producto.repository";
 import { asyncHandler } from "@/middlewares/error-handler";
+import { ErrorMessages } from "@/constants/error-messages";
 
 /**
  * @swagger
@@ -91,7 +92,7 @@ import { asyncHandler } from "@/middlewares/error-handler";
  */
 export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "GET") {
-    return res.status(405).json({ error: "Método no permitido" });
+    return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 
   const { sku } = req.query;
@@ -111,7 +112,7 @@ export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) =>
   const producto = await service.findBySku(sku);
 
   if (!producto) {
-    return res.status(404).json({ error: "Producto no encontrado" });
+    return res.status(404).json({ error: ErrorMessages.PRODUCTO_NOT_FOUND });
   }
 
   return res.status(200).json(producto);

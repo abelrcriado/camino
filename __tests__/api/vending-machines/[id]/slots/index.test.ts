@@ -297,7 +297,7 @@ describe("/api/vending-machines/[id]/slots", () => {
 
       expect(res._getStatusCode()).toBe(400);
       expect(res._getJSONData()).toEqual({
-        error: "ID de vending machine es requerido",
+        error: "ID debe ser un string",
       });
       expect(mockFindByMachine).not.toHaveBeenCalled();
     });
@@ -312,7 +312,7 @@ describe("/api/vending-machines/[id]/slots", () => {
 
       expect(res._getStatusCode()).toBe(400);
       expect(res._getJSONData()).toEqual({
-        error: "ID de vending machine inválido",
+        error: "vending machine debe ser un UUID válido",
       });
       expect(mockFindByMachine).not.toHaveBeenCalled();
     });

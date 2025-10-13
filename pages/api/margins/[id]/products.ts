@@ -1,20 +1,24 @@
 import { marginController } from "@/controllers/margin.controller";
 import { asyncHandler } from "@/middlewares/error-handler";
+import { ErrorMessages } from "@/constants/error-messages";
+import { validateUUID } from "@/middlewares/validate-uuid";
 
 export default asyncHandler(async (req, res) => {
   const { id } = req.query;
 
-  if (!id || typeof id !== "string") {
+  // Validar UUID usando utilidad centralizada
+  const validationError = validateUUID(id, "punto de servicio");
+  if (validationError) {
     return res.status(400).json({
       success: false,
-      error: "ID de punto de servicio requerido",
+      error: validationError,
     });
   }
 
   if (req.method !== "PUT") {
     return res.status(405).json({
       success: false,
-      error: `Método ${req.method} no permitido`,
+      error: ErrorMessages.METHOD_NOT_ALLOWED,
     });
   }
 
@@ -31,7 +35,7 @@ export default asyncHandler(async (req, res) => {
   }
 
   const result = await marginController.updateProductMargins(
-    id,
+    id as string,
     product_specific_margins
   );
 

@@ -12,6 +12,7 @@ import { PaymentRepository } from "../../../src/repositories/payment.repository"
 import { createClient } from "@supabase/supabase-js";
 import { buffer } from "micro";
 import { asyncHandler } from "../../../src/middlewares/error-handler";
+import { ErrorMessages } from "../../../src/constants/error-messages";
 
 // Disable default body parsing so we can get raw body for Stripe signature verification
 export const config = {
@@ -33,7 +34,7 @@ const controller = new PaymentController(service);
 export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
-    return res.status(405).json({ error: "Method Not Allowed" });
+    return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 
   // Get raw body as buffer for Stripe signature verification

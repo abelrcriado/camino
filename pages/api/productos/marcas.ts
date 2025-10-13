@@ -22,12 +22,13 @@
 
 import { ProductoService } from "@/services/producto.service";
 import { asyncHandler } from "@/middlewares/error-handler";
+import { ErrorMessages } from "@/constants/error-messages";
 
 const productoService = new ProductoService();
 
 export default asyncHandler(async (req, res) => {
   if (req.method !== "GET") {
-    return res.status(405).json({ message: "Método no permitido" });
+    return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 
   const marcas = await productoService.getMarcas();

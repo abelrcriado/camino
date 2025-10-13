@@ -140,7 +140,7 @@ describe("/api/ventas-app/[id]/confirmar-retiro", () => {
     });
 
     it("debe retornar 400 si el ID no está presente", async () => {
-      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+      const { req, res} = createMocks<NextApiRequest, NextApiResponse>({
         method: "POST",
         query: {},
         body: { codigo_retiro: "ABC123" },
@@ -166,7 +166,7 @@ describe("/api/ventas-app/[id]/confirmar-retiro", () => {
       expect(mockConfirmarRetiro).not.toHaveBeenCalled();
       expect(res._getStatusCode()).toBe(400);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("ID de venta es requerido");
+      expect(data.error).toContain("ID debe ser un string");
     });
 
     it("debe retornar 400 si el ID no es UUID válido", async () => {
@@ -181,7 +181,7 @@ describe("/api/ventas-app/[id]/confirmar-retiro", () => {
       expect(mockConfirmarRetiro).not.toHaveBeenCalled();
       expect(res._getStatusCode()).toBe(400);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("ID de venta inválido");
+      expect(data.error).toContain("venta debe ser un UUID válido");
     });
 
     it("debe retornar 400 si codigo_retiro no está presente", async () => {

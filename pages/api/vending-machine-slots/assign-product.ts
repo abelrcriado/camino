@@ -52,6 +52,7 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from "next";
+import { ErrorMessages } from "@/constants/error-messages";
 import { VendingMachineSlotController } from "@/controllers/vending_machine_slot.controller";
 import { asyncHandler } from "@/middlewares/error-handler";
 
@@ -59,7 +60,7 @@ const controller = new VendingMachineSlotController();
 
 export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método no permitido" });
+    return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 
   return controller.assignProduct(req, res);

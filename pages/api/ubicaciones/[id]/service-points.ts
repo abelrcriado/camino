@@ -3,6 +3,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { ServicePointService } from "../../../../src/services/service-point.service";
 import { ServicePointRepository } from "../../../../src/repositories/service-point.repository";
 import { asyncHandler } from "@/middlewares/error-handler";
+import { ErrorMessages } from "@/constants/error-messages";
+import { validateUUID } from "@/middlewares/validate-uuid";
 
 /**
  * @swagger
@@ -95,21 +97,15 @@ import { asyncHandler } from "@/middlewares/error-handler";
  */
 export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "GET") {
-    return res.status(405).json({ error: "Método no permitido" });
+    return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 
   const { id, type, status } = req.query;
 
-  // Validar ID de ubicación
-  if (!id || typeof id !== "string") {
-    return res.status(400).json({ error: "ID de ubicación es requerido" });
-  }
-
-  // Validar formato UUID
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(id)) {
-    return res.status(400).json({ error: "ID de ubicación inválido" });
+  // Validar UUID usando utilidad centralizada
+  const validationError = validateUUID(id, "ubicación");
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
   }
 
   // Obtener service points
@@ -117,7 +113,7 @@ export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) =>
   const service = new ServicePointService(repository);
 
   // Obtener service points de la ubicación
-  let servicePoints = await service.getByLocation(id);
+  let servicePoints = await service.getByLocation(id as string);
 
   // Aplicar filtros adicionales si existen
   if (type && typeof type === "string") {

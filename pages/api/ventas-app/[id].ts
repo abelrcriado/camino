@@ -2,6 +2,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { VentaAppController } from "@/controllers/venta_app.controller";
 import { asyncHandler } from "@/middlewares/error-handler";
+import { validateUUID } from "@/middlewares/validate-uuid";
+import { ErrorMessages } from "@/constants/error-messages";
 
 /**
  * @swagger
@@ -75,20 +77,15 @@ import { asyncHandler } from "@/middlewares/error-handler";
  */
 export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "GET") {
-    return res.status(405).json({ error: "Método no permitido" });
+    return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 
   const { id } = req.query;
 
-  if (!id || typeof id !== "string") {
-    return res.status(400).json({ error: "ID de venta es requerido" });
-  }
-
-  // Validar formato UUID
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(id)) {
-    return res.status(400).json({ error: "ID de venta inválido" });
+  // Validar UUID usando utilidad centralizada
+  const validationError = validateUUID(id, "venta");
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
   }
 
   // Delegar al controller con ID inyectado

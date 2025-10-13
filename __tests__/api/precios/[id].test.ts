@@ -120,7 +120,7 @@ describe("/api/precios/[id]", () => {
       expect(mockHandleRequest).not.toHaveBeenCalled();
       expect(res._getStatusCode()).toBe(400);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("ID de precio es requerido");
+      expect(data.error).toContain("ID debe ser un string");
     });
 
     it("debe retornar 400 si el ID no es UUID válido", async () => {
@@ -134,7 +134,7 @@ describe("/api/precios/[id]", () => {
       expect(mockHandleRequest).not.toHaveBeenCalled();
       expect(res._getStatusCode()).toBe(400);
       const data = JSON.parse(res._getData());
-      expect(data.error).toContain("ID de precio inválido");
+      expect(data.error).toContain("precio debe ser un UUID válido");
     });
 
     it("debe inyectar el ID en req.query antes de delegar", async () => {

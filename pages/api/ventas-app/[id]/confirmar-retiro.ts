@@ -3,6 +3,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { VentaAppService } from "@/services/venta_app.service";
 import { VentaAppRepository } from "@/repositories/venta_app.repository";
 import { asyncHandler } from "@/middlewares/error-handler";
+import { ErrorMessages } from "@/constants/error-messages";
+import { validateUUID } from "@/middlewares/validate-uuid";
 
 /**
  * @swagger
@@ -79,27 +81,21 @@ import { asyncHandler } from "@/middlewares/error-handler";
  */
 export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método no permitido" });
+    return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 
   const { id } = req.query;
   const { codigo_retiro } = req.body;
 
-  // Validar ID de venta
-  if (!id || typeof id !== "string") {
-    return res.status(400).json({ error: "ID de venta es requerido" });
-  }
-
-  // Validar formato UUID
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(id)) {
-    return res.status(400).json({ error: "ID de venta inválido" });
+  // Validar UUID usando utilidad centralizada
+  const validationError = validateUUID(id, "venta");
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
   }
 
   // Validar código de retiro
   if (!codigo_retiro || typeof codigo_retiro !== "string") {
-    return res.status(400).json({ error: "Código de retiro es requerido" });
+    return res.status(400).json({ error: ErrorMessages.REQUIRED_CODIGO_RETIRO });
   }
 
   const codigoTrimmed = codigo_retiro.trim().toUpperCase();
@@ -114,7 +110,7 @@ export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) =>
 
   // Confirmar retiro
   const result = await service.confirmarRetiro({
-    venta_id: id,
+    venta_id: id as string,
     codigo_retiro: codigoTrimmed,
   });
 

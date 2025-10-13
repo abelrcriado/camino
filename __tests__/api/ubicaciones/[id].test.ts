@@ -84,7 +84,7 @@ describe("/api/ubicaciones/[id]", () => {
 
       expect(res._getStatusCode()).toBe(400);
       expect(res._getJSONData()).toEqual({
-        error: "ID de ubicación es requerido",
+        error: "ID debe ser un string",
       });
       expect(mockHandle).not.toHaveBeenCalled();
     });

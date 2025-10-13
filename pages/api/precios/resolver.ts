@@ -4,6 +4,8 @@ import { PrecioService } from "@/services/precio.service";
 import { PrecioRepository } from "@/repositories/precio.repository";
 import { EntidadTipo } from "@/dto/precio.dto";
 import { asyncHandler } from "@/middlewares/error-handler";
+import { ErrorMessages } from "@/constants/error-messages";
+import { validateUUID } from "@/middlewares/validate-uuid";
 
 /**
  * @swagger
@@ -98,30 +100,31 @@ import { asyncHandler } from "@/middlewares/error-handler";
  */
 export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método no permitido" });
+    return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 
   const { producto_id, service_point_id, ubicacion_id } = req.body;
 
   // Validar producto_id (requerido)
-  if (!producto_id || typeof producto_id !== "string") {
-    return res.status(400).json({ error: "producto_id es requerido" });
+  const productoError = validateUUID(producto_id, "producto");
+  if (productoError) {
+    return res.status(400).json({ error: productoError });
   }
 
-  // Validar formato UUID
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-  if (!uuidRegex.test(producto_id)) {
-    return res.status(400).json({ error: "producto_id inválido" });
+  // Validar service_point_id (opcional)
+  if (service_point_id) {
+    const servicePointError = validateUUID(service_point_id, "service point");
+    if (servicePointError) {
+      return res.status(400).json({ error: servicePointError });
+    }
   }
 
-  if (service_point_id && !uuidRegex.test(service_point_id)) {
-    return res.status(400).json({ error: "service_point_id inválido" });
-  }
-
-  if (ubicacion_id && !uuidRegex.test(ubicacion_id)) {
-    return res.status(400).json({ error: "ubicacion_id inválido" });
+  // Validar ubicacion_id (opcional)
+  if (ubicacion_id) {
+    const ubicacionError = validateUUID(ubicacion_id, "ubicación");
+    if (ubicacionError) {
+      return res.status(400).json({ error: ubicacionError });
+    }
   }
 
   const repository = new PrecioRepository();

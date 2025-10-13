@@ -89,7 +89,7 @@ describe("/api/caminos/[id]/stats", () => {
 
       expect(res._getStatusCode()).toBe(400);
       expect(res._getJSONData()).toEqual({
-        error: "ID de camino es requerido",
+        error: "ID debe ser un string",
       });
       expect(mockGetStats).not.toHaveBeenCalled();
     });
@@ -104,7 +104,7 @@ describe("/api/caminos/[id]/stats", () => {
 
       expect(res._getStatusCode()).toBe(400);
       expect(res._getJSONData()).toEqual({
-        error: "ID de camino inválido",
+        error: "camino debe ser un UUID válido",
       });
       expect(mockGetStats).not.toHaveBeenCalled();
     });
@@ -128,7 +128,7 @@ describe("/api/caminos/[id]/stats", () => {
 
         expect(res._getStatusCode()).toBe(400);
         expect(res._getJSONData()).toEqual({
-          error: "ID de camino inválido",
+          error: "camino debe ser un UUID válido",
         });
       }
 

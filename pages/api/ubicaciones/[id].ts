@@ -2,6 +2,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { LocationController } from "../../../src/controllers/location.controller";
 import { asyncHandler } from "../../../src/middlewares/error-handler";
+import { ErrorMessages } from "@/constants/error-messages";
+import { validateUUID } from "@/middlewares/validate-uuid";
 
 /**
  * @swagger
@@ -104,8 +106,10 @@ export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) =>
   const controller = new LocationController();
   const { id } = req.query;
 
-  if (!id || typeof id !== "string") {
-    return res.status(400).json({ error: "ID de ubicación es requerido" });
+  // Validar UUID usando utilidad centralizada
+  const validationError = validateUUID(id, "ubicación");
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
   }
 
   // Mapear método HTTP a operación del controller
@@ -123,6 +127,6 @@ export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) =>
       return controller.handle(req, res);
 
     default:
-      return res.status(405).json({ error: "Método no permitido" });
+      return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 });

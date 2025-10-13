@@ -3,6 +3,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { VendingMachineSlotService } from "../../../../../src/services/vending_machine_slot.service";
 import { VendingMachineSlotRepository } from "../../../../../src/repositories/vending_machine_slot.repository";
 import { asyncHandler } from "@/middlewares/error-handler";
+import { ErrorMessages } from "@/constants/error-messages";
+import { validateUUID } from "@/middlewares/validate-uuid";
 
 /**
  * @swagger
@@ -94,23 +96,15 @@ import { asyncHandler } from "@/middlewares/error-handler";
  */
 export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "GET") {
-    return res.status(405).json({ error: "Método no permitido" });
+    return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 
   const { id, numero_slot, producto_id } = req.query;
 
-  // Validar ID de vending machine
-  if (!id || typeof id !== "string") {
-    return res
-      .status(400)
-      .json({ error: "ID de vending machine es requerido" });
-  }
-
-  // Validar formato UUID
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(id)) {
-    return res.status(400).json({ error: "ID de vending machine inválido" });
+  // Validar UUID usando utilidad centralizada
+  const validationError = validateUUID(id, "vending machine");
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
   }
 
   // Obtener slots
@@ -118,7 +112,7 @@ export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) =>
   const service = new VendingMachineSlotService(repository);
 
   // Obtener slots de la vending machine
-  const slots = await service.findByMachine(id);
+  const slots = await service.findByMachine(id as string);
 
   // Aplicar filtros adicionales si existen
   let filteredSlots = slots;

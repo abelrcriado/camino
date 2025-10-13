@@ -4,6 +4,8 @@ import { VentaAppService } from "@/services/venta_app.service";
 import { VentaAppRepository } from "@/repositories/venta_app.repository";
 import type { VentaAppFilters } from "@/dto/venta_app.dto";
 import { asyncHandler } from "@/middlewares/error-handler";
+import { ErrorMessages } from "@/constants/error-messages";
+import { validateUUID } from "@/middlewares/validate-uuid";
 
 /**
  * @swagger
@@ -112,27 +114,21 @@ import { asyncHandler } from "@/middlewares/error-handler";
  */
 export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "GET") {
-    return res.status(405).json({ error: "Método no permitido" });
+    return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 
   const { userId } = req.query;
   const { estado, page, limit } = req.query;
 
-  // Validar userId
-  if (!userId || typeof userId !== "string") {
-    return res.status(400).json({ error: "ID de usuario es requerido" });
-  }
-
-  // Validar formato UUID
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(userId)) {
-    return res.status(400).json({ error: "ID de usuario inválido" });
+  // Validar UUID usando utilidad centralizada
+  const validationError = validateUUID(userId, "usuario");
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
   }
 
   // Preparar filtros
   const filters: VentaAppFilters = {
-    user_id: userId,
+    user_id: userId as string,
   };
 
   if (estado && typeof estado === "string") {

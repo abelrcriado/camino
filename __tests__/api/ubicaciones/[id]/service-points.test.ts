@@ -283,7 +283,7 @@ describe("/api/ubicaciones/[id]/service-points", () => {
 
       expect(res._getStatusCode()).toBe(400);
       expect(res._getJSONData()).toEqual({
-        error: "ID de ubicación es requerido",
+        error: "ID debe ser un string",
       });
       expect(mockGetByLocation).not.toHaveBeenCalled();
     });
@@ -298,7 +298,7 @@ describe("/api/ubicaciones/[id]/service-points", () => {
 
       expect(res._getStatusCode()).toBe(400);
       expect(res._getJSONData()).toEqual({
-        error: "ID de ubicación inválido",
+        error: "ubicación debe ser un UUID válido",
       });
       expect(mockGetByLocation).not.toHaveBeenCalled();
     });

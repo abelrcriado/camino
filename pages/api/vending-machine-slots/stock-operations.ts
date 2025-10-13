@@ -96,12 +96,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { VendingMachineSlotController } from "@/controllers/vending_machine_slot.controller";
 import { asyncHandler } from "@/middlewares/error-handler";
+import { ErrorMessages } from "@/constants/error-messages";
 
 const controller = new VendingMachineSlotController();
 
 export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método no permitido" });
+    return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 
   const { pathname } = new URL(req.url || "", `http://${req.headers.host}`);
@@ -114,5 +115,5 @@ export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) =>
     return controller.consumeStock(req, res);
   }
 
-  return res.status(404).json({ error: "Endpoint no encontrado" });
+  return res.status(404).json({ error: ErrorMessages.NOT_FOUND });
 });

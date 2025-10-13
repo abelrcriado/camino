@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { WarehouseController } from "@/controllers/warehouse.controller";
 import { asyncHandler } from "@/middlewares/error-handler";
+import { ErrorMessages } from "@/constants/error-messages";
 
 const controller = new WarehouseController();
 
@@ -24,7 +25,7 @@ export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) =>
       res.setHeader("Allow", ["GET", "PUT", "DELETE", "PATCH"]);
       return res.status(405).json({
         success: false,
-        error: `Method ${method} Not Allowed`,
+        error: ErrorMessages.METHOD_NOT_ALLOWED,
       });
   }
 });

@@ -3,6 +3,9 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { VendingMachineSlotService } from "@/services/vending_machine_slot.service";
 import { VendingMachineSlotRepository } from "@/repositories/vending_machine_slot.repository";
 import { asyncHandler } from "@/middlewares/error-handler";
+import { ErrorMessages } from "@/constants/error-messages";
+import { validateUUIDs } from "@/middlewares/validate-uuid";
+import { validateSlotOwnership } from "@/utils/validate-ownership";
 
 /**
  * @swagger
@@ -90,33 +93,19 @@ import { asyncHandler } from "@/middlewares/error-handler";
  */
 export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método no permitido" });
+    return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
 
   const { id } = req.query;
   const { slot_id, cantidad } = req.body;
 
-  // Validar ID de vending machine
-  if (!id || typeof id !== "string") {
-    return res
-      .status(400)
-      .json({ error: "ID de vending machine es requerido" });
-  }
-
-  // Validar formato UUID
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(id)) {
-    return res.status(400).json({ error: "ID de vending machine inválido" });
-  }
-
-  // Validar slot_id
-  if (!slot_id || typeof slot_id !== "string") {
-    return res.status(400).json({ error: "ID de slot es requerido" });
-  }
-
-  if (!uuidRegex.test(slot_id)) {
-    return res.status(400).json({ error: "ID de slot inválido" });
+  // Validar UUIDs usando utilidad centralizada
+  const validationError = validateUUIDs(
+    { id, slot_id },
+    { customNames: { id: "vending machine", slot_id: "slot" } }
+  );
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
   }
 
   // Validar cantidad
@@ -144,13 +133,13 @@ export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) =>
   // Verificar que el slot existe y pertenece a la vending machine
   const slot = await service.findById(slot_id);
   if (!slot) {
-    return res.status(404).json({ error: "Slot no encontrado" });
+    return res.status(404).json({ error: ErrorMessages.SLOT_NOT_FOUND });
   }
 
-  if (slot.machine_id !== id) {
-    return res
-      .status(404)
-      .json({ error: "Slot no encontrado en esta vending machine" });
+  // Validar ownership usando utilidad centralizada
+  const ownershipError = validateSlotOwnership(slot, id as string);
+  if (ownershipError) {
+    return res.status(ownershipError.status).json({ error: ownershipError.message });
   }
 
   // Verificar capacidad
@@ -165,7 +154,7 @@ export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) =>
 
   // Reabastecer slot (actualizar stock disponible)
   const updatedSlot = await service.updateSlot({
-    id: slot_id,
+    id: slot_id as string,
     stock_disponible: stockNuevo,
   });
 
