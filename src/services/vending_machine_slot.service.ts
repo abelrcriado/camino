@@ -16,6 +16,11 @@ import {
   SlotReservation,
   SlotStockSummary,
 } from "@/dto/vending_machine_slot.dto";
+import {
+  NotFoundError,
+  BusinessRuleError,
+  DatabaseError,
+} from "@/errors/custom-errors";
 
 export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
   private slotRepository: VendingMachineSlotRepository;
@@ -39,7 +44,7 @@ export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
     );
 
     if (slotExists) {
-      throw new Error(
+      throw new BusinessRuleError(
         `El slot ${data.slot_number} ya existe en la máquina ${data.machine_id}`
       );
     }
@@ -50,7 +55,7 @@ export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
     const reservado = data.stock_reservado ?? 0;
 
     if (disponible + reservado > capacidad) {
-      throw new Error(
+      throw new BusinessRuleError(
         `Stock total (${
           disponible + reservado
         }) excede capacidad máxima (${capacidad})`
@@ -70,7 +75,7 @@ export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
     // Verificar que el slot existe
     const existing = await this.findById(data.id);
     if (!existing) {
-      throw new Error(`Slot con ID ${data.id} no encontrado`);
+      throw new NotFoundError("Slot", data.id);
     }
 
     // Validar stock total <= capacidad (si se actualiza alguno de estos campos)
@@ -84,7 +89,7 @@ export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
       const newReservado = data.stock_reservado ?? existing.stock_reservado;
 
       if (newDisponible + newReservado > newCapacidad) {
-        throw new Error(
+        throw new BusinessRuleError(
           `Stock total (${
             newDisponible + newReservado
           }) excede capacidad máxima (${newCapacidad})`
@@ -119,12 +124,12 @@ export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
     // Verificar que el slot existe
     const slot = await this.findById(data.slot_id);
     if (!slot) {
-      throw new Error(`Slot con ID ${data.slot_id} no encontrado`);
+      throw new NotFoundError("Slot", data.slot_id);
     }
 
     // Validar que stock_inicial <= capacidad_maxima
     if (data.stock_inicial > slot.capacidad_maxima) {
-      throw new Error(
+      throw new BusinessRuleError(
         `Stock inicial (${data.stock_inicial}) excede capacidad máxima del slot (${slot.capacidad_maxima})`
       );
     }
@@ -143,7 +148,7 @@ export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
     );
 
     if (stockDisponible < params.cantidad) {
-      throw new Error(
+      throw new BusinessRuleError(
         `Stock insuficiente. Disponible: ${stockDisponible}, Solicitado: ${params.cantidad}`
       );
     }
@@ -202,7 +207,7 @@ export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
   async getStockSummary(slotId: string): Promise<SlotStockSummary> {
     const slot = await this.findById(slotId);
     if (!slot) {
-      throw new Error(`Slot con ID ${slotId} no encontrado`);
+      throw new NotFoundError("Slot", slotId);
     }
 
     const stockTotal = slot.stock_disponible + slot.stock_reservado;
@@ -235,12 +240,12 @@ export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
     // Validar que el slot existe
     const slot = await this.findById(slotId);
     if (!slot) {
-      throw new Error(`Slot con ID ${slotId} no encontrado`);
+      throw new NotFoundError("Slot", slotId);
     }
 
     // Validar que precio es positivo si no es null
     if (precioOverride !== null && precioOverride <= 0) {
-      throw new Error("Precio override debe ser mayor a 0");
+      throw new BusinessRuleError("Precio override debe ser mayor a 0");
     }
 
     return await this.slotRepository.updatePrecio(slotId, precioOverride);
@@ -256,7 +261,7 @@ export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
     // Validar que el slot existe
     const slot = await this.findById(slotId);
     if (!slot) {
-      throw new Error(`Slot con ID ${slotId} no encontrado`);
+      throw new NotFoundError("Slot", slotId);
     }
 
     return await this.slotRepository.toggleActivo(slotId, activo);
@@ -269,12 +274,12 @@ export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
     // Validar que el slot existe
     const slot = await this.findById(slotId);
     if (!slot) {
-      throw new Error(`Slot con ID ${slotId} no encontrado`);
+      throw new NotFoundError("Slot", slotId);
     }
 
     // No permitir vaciar si hay stock reservado
     if (slot.stock_reservado > 0) {
-      throw new Error(
+      throw new BusinessRuleError(
         `No se puede vaciar el slot. Hay ${slot.stock_reservado} unidades reservadas`
       );
     }
