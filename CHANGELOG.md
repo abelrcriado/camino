@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](///compare/v0.3.0...v0.3.1) (2025-10-13)
+
+### 📚 Documentation
+
+- complete Sprint 6.1 documentation with accurate metrics 4508ab0
+
+### ♻️ Code Refactoring
+
+- **services:** finalize AppError migration (final 4 services) cad3776
+- **services:** migrate batch 3 to AppError (warehouse, product-category, geolocation, booking) 0283bc9
+- **services:** migrate batch 4 to AppError (4 services) 3f83b94
+- **services:** migrate batch 5 to AppError (5 services) 8bfb58d
+- **services:** migrate payment and product-subcategory to AppError 969d84b
+- **services:** migrate service and service_assignment to AppError d1cb266
+
 ## [0.3.0](///compare/v0.2.0...v0.3.0) (2025-10-13)
 
 ### ⚠ BREAKING CHANGES
