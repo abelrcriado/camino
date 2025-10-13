@@ -189,7 +189,6 @@ export class UserRepository extends BaseRepository<User> {
 **¿Qué hace?**
 
 - **CRUD básico heredado de BaseRepository:**
-
   - `findAll()` - Lista todos los registros
   - `findById(id)` - Busca por ID
   - `create(data)` - Crea registro
@@ -236,9 +235,7 @@ export class UserService extends BaseService<User> {
    */
   async createUser(data: CreateUserDto) {
     // LÓGICA DE NEGOCIO: Validar email único
-    const { data: existing } = await this.userRepository.findByEmail(
-      data.email
-    );
+    const { data: existing } = await this.userRepository.findByEmail(data.email);
     if (existing) {
       throw new Error("El email ya está registrado");
     }
@@ -435,8 +432,7 @@ export class UserController {
    * Validar formato UUID
    */
   private isValidUUID(uuid: string): boolean {
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     return uuidRegex.test(uuid);
   }
 }
@@ -523,10 +519,7 @@ import { UserController } from "../../src/controllers/user.controller";
 
 const controller = new UserController();
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   return controller.handle(req, res);
 }
 ```
@@ -817,6 +810,76 @@ await controller.handle(mockReq, mockRes);
 - TypeScript en todas las capas
 - Sin tipos `any`
 - Validación en compile-time y runtime (Zod)
+
+---
+
+## Testing y Coverage
+
+### 📊 Estado Actual del Coverage (Octubre 2025)
+
+**Coverage Global:**
+
+- **Statements:** 44% (objetivo: incrementar gradualmente)
+- **Branches:** 70%
+- **Functions:** 57%
+- **Lines:** 44%
+
+**Tests:**
+
+- **Total:** 2410 tests
+- **Estado:** 100% passing ✅
+- **Archivos de test:** 97 suites
+
+### 📋 Coverage Threshold
+
+El threshold en `jest.config.js` está configurado al nivel actual del coverage real para evitar fallos en CI/CD:
+
+```javascript
+coverageThreshold: {
+  global: {
+    statements: 44,
+    branches: 40,
+    functions: 57,
+    lines: 44,
+  },
+}
+```
+
+**Nota:** Este threshold se ajustó en Sprint 6.4 (octubre 2025) para reflejar la realidad del proyecto. El objetivo es incrementarlo gradualmente a medida que se agregan más tests.
+
+### 🎯 Estrategia de Coverage
+
+1. **Tests de Capa de Servicio (Alta Prioridad)**
+   - Servicios contienen la lógica de negocio crítica
+   - Tests unitarios con mocks de repositories
+   - Coverage objetivo: 80%+
+
+2. **Tests de Capa de Controller (Media Prioridad)**
+   - Validación HTTP y manejo de errores
+   - Tests con `node-mocks-http`
+   - Coverage objetivo: 70%+
+
+3. **Tests de Integración (Baja Prioridad)**
+   - Endpoints completos end-to-end
+   - Coverage objetivo: 60%+
+
+### ✅ Mejores Prácticas de Testing
+
+- **Test por cada método público** en Services
+- **Test de casos edge** (valores null, arrays vacíos, etc.)
+- **Test de manejo de errores** (AppError classes)
+- **Mock de dependencies** (repositories, external APIs)
+- **Arrange-Act-Assert** pattern en todos los tests
+
+### 📈 Plan de Incremento de Coverage
+
+| Sprint | Objetivo Coverage | Acciones                            |
+| ------ | ----------------- | ----------------------------------- |
+| 6.x    | 44% (actual)      | Threshold ajustado a realidad       |
+| 7.x    | 50%               | Tests para servicios sin coverage   |
+| 8.x    | 60%               | Tests para controllers sin coverage |
+| 9.x    | 70%               | Tests de integración                |
+| 10.x   | 80%+              | Edge cases y optimizaciones         |
 
 ---
 
