@@ -6,6 +6,7 @@ import type {
   CreateWorkshopDto,
   UpdateWorkshopDto,
 } from "../dto/workshop.dto";
+import { DatabaseError } from "../errors/custom-errors";
 
 export class WorkshopService extends BaseService<Workshop> {
   private workshopRepository: WorkshopRepository;
@@ -40,7 +41,9 @@ export class WorkshopService extends BaseService<Workshop> {
     );
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener workshops por service point", {
+        originalError: error.message,
+      });
     }
 
     return data || [];

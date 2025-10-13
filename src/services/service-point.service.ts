@@ -73,7 +73,9 @@ export class ServicePointService {
     const servicePoint = await this.repository.findById(id);
 
     if (!servicePoint) {
-      throw new Error("Service point not found");
+      // Use centralized NotFoundError for consistency
+      const { NotFoundError } = await import("../errors/custom-errors");
+      throw new NotFoundError("Service Point", id);
     }
 
     return await this.repository.getRevenueStats(id, startDate, endDate);

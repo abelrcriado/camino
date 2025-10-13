@@ -6,6 +6,7 @@ import type {
   UpdatePartnerDto,
   Partner,
 } from "../../src/dto/partner.dto";
+import { DatabaseError } from "../../src/errors/custom-errors";
 
 describe("PartnerService", () => {
   let service: PartnerService;
@@ -153,7 +154,7 @@ describe("PartnerService", () => {
       });
 
       await expect(service.findByType("bike_shop")).rejects.toThrow(
-        "Database error"
+        DatabaseError
       );
     });
   });

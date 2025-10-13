@@ -6,6 +6,7 @@ import type {
   CreatePartnerDto,
   UpdatePartnerDto,
 } from "../dto/partner.dto";
+import { DatabaseError } from "../errors/custom-errors";
 
 export class PartnerService extends BaseService<Partner> {
   private partnerRepository: PartnerRepository;
@@ -38,7 +39,9 @@ export class PartnerService extends BaseService<Partner> {
     const { data, error } = await this.partnerRepository.findByType(type);
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener partners por tipo", {
+        originalError: error.message,
+      });
     }
 
     return data || [];

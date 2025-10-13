@@ -2,6 +2,7 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { WorkshopService } from '../../src/services/workshop.service';
 import { WorkshopRepository } from '../../src/repositories/workshop.repository';
 import type { CreateWorkshopDto, UpdateWorkshopDto, Workshop } from '../../src/dto/workshop.dto';
+import { DatabaseError } from '../../src/errors/custom-errors';
 
 describe('WorkshopService', () => {
   let service: WorkshopService;
@@ -146,7 +147,7 @@ describe('WorkshopService', () => {
         error: { message: 'Database error' },
       });
 
-      await expect(service.findByServicePoint('sp-123')).rejects.toThrow('Database error');
+      await expect(service.findByServicePoint('sp-123')).rejects.toThrow(DatabaseError);
     });
   });
 

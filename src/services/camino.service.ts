@@ -12,6 +12,7 @@ import {
   DatabaseError,
   NotFoundError,
 } from "../errors/custom-errors";
+import { ValidationError } from "../errors/custom-errors";
 
 export class CaminoService extends BaseService<Camino> {
   private caminoRepository: CaminoRepository;
@@ -227,7 +228,7 @@ export class CaminoService extends BaseService<Camino> {
       "planificado",
     ];
     if (!estadosValidos.includes(estado)) {
-      throw new Error(
+      throw new ValidationError(
         `Estado operativo inválido: ${estado}. Debe ser uno de: ${estadosValidos.join(
           ", "
         )}`
