@@ -5,6 +5,7 @@ import {
   ServiceAssignmentFilters,
   ServiceAssignment,
 } from "@/repositories/service-assignment.repository";
+import { NotFoundError, ConflictError } from "@/errors/custom-errors";
 
 export class ServiceAssignmentService {
   /**
@@ -35,7 +36,9 @@ export class ServiceAssignmentService {
     );
 
     if (exists) {
-      throw new Error("Service is already assigned to this location");
+      throw new ConflictError(
+        "Service is already assigned to this location"
+      );
     }
 
     return serviceAssignmentRepository.create(dto);
@@ -50,7 +53,7 @@ export class ServiceAssignmentService {
   ): Promise<ServiceAssignment> {
     const existing = await serviceAssignmentRepository.findById(id);
     if (!existing) {
-      throw new Error("Service assignment not found");
+      throw new NotFoundError("Service Assignment", id);
     }
 
     return serviceAssignmentRepository.update(id, updates);
@@ -77,7 +80,7 @@ export class ServiceAssignmentService {
   async delete(id: string): Promise<void> {
     const existing = await serviceAssignmentRepository.findById(id);
     if (!existing) {
-      throw new Error("Service assignment not found");
+      throw new NotFoundError("Service Assignment", id);
     }
 
     return serviceAssignmentRepository.delete(id);

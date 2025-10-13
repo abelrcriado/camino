@@ -6,6 +6,7 @@ import type {
   CreateVendingMachineDto,
   UpdateVendingMachineDto,
 } from "../dto/vending_machine.dto";
+import { DatabaseError } from "../errors/custom-errors";
 
 export class VendingMachineService extends BaseService<VendingMachine> {
   private vendingMachineRepository: VendingMachineRepository;
@@ -43,7 +44,9 @@ export class VendingMachineService extends BaseService<VendingMachine> {
       await this.vendingMachineRepository.findByServicePoint(servicePointId);
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener vending machines por service point", {
+        originalError: error.message,
+      });
     }
 
     return data || [];
@@ -58,7 +61,9 @@ export class VendingMachineService extends BaseService<VendingMachine> {
     );
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener vending machines por estado", {
+        originalError: error.message,
+      });
     }
 
     return data || [];

@@ -6,6 +6,7 @@ import type {
   UpdateVendingMachineDto,
   VendingMachine,
 } from "../../src/dto/vending_machine.dto";
+import { DatabaseError } from "../../src/errors/custom-errors";
 
 describe("VendingMachineService", () => {
   let service: VendingMachineService;
@@ -167,7 +168,7 @@ describe("VendingMachineService", () => {
       });
 
       await expect(service.findByServicePoint("sp-123")).rejects.toThrow(
-        "Database error"
+        DatabaseError
       );
     });
   });
@@ -236,7 +237,7 @@ describe("VendingMachineService", () => {
       });
 
       await expect(service.findByStatus("operational")).rejects.toThrow(
-        "Database error"
+        DatabaseError
       );
     });
   });

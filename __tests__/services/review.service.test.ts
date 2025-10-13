@@ -6,6 +6,7 @@ import type {
   UpdateReviewDto,
   Review,
 } from "../../src/dto/review.dto";
+import { DatabaseError } from "../../src/errors/custom-errors";
 
 describe("ReviewService", () => {
   let service: ReviewService;
@@ -151,7 +152,7 @@ describe("ReviewService", () => {
       });
 
       await expect(service.findByUser("user-123")).rejects.toThrow(
-        "Database error"
+        DatabaseError
       );
     });
   });
@@ -200,7 +201,7 @@ describe("ReviewService", () => {
       });
 
       await expect(service.findByServicePoint("sp-123")).rejects.toThrow(
-        "Query failed"
+        DatabaseError
       );
     });
   });
@@ -262,7 +263,7 @@ describe("ReviewService", () => {
       });
 
       await expect(service.findByWorkshop("workshop-123")).rejects.toThrow(
-        "Connection lost"
+        DatabaseError
       );
     });
   });
@@ -321,7 +322,7 @@ describe("ReviewService", () => {
         error: { message: "Invalid rating" },
       });
 
-      await expect(service.findByRating(3)).rejects.toThrow("Invalid rating");
+      await expect(service.findByRating(3)).rejects.toThrow(DatabaseError);
     });
   });
 

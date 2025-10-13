@@ -3,6 +3,7 @@ import {
   CreateVendingMachineDTO,
   UpdateVendingMachineDTO,
 } from "../repositories/vending-machine.repository";
+import { NotFoundError, ValidationError } from "../errors/custom-errors";
 
 export class VendingMachineService {
   private vendingMachineRepository: VendingMachineRepository;
@@ -18,7 +19,7 @@ export class VendingMachineService {
   async getById(id: string) {
     const machine = await this.vendingMachineRepository.findById(id);
     if (!machine) {
-      throw new Error("Vending machine not found");
+      throw new NotFoundError("Vending Machine", id);
     }
     return machine;
   }
@@ -26,15 +27,15 @@ export class VendingMachineService {
   async create(machineData: CreateVendingMachineDTO) {
     // Validaciones
     if (!machineData.service_point_id) {
-      throw new Error("Service point ID is required");
+      throw new ValidationError("Service point ID is required");
     }
 
     if (!machineData.machine_code) {
-      throw new Error("Machine code is required");
+      throw new ValidationError("Machine code is required");
     }
 
     if (!machineData.name) {
-      throw new Error("Machine name is required");
+      throw new ValidationError("Machine name is required");
     }
 
     return this.vendingMachineRepository.create(machineData);

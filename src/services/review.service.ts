@@ -6,6 +6,7 @@ import type {
   CreateReviewDto,
   UpdateReviewDto,
 } from "../dto/review.dto";
+import { DatabaseError } from "../errors/custom-errors";
 
 export class ReviewService extends BaseService<Review> {
   private reviewRepository: ReviewRepository;
@@ -38,7 +39,9 @@ export class ReviewService extends BaseService<Review> {
     const { data, error } = await this.reviewRepository.findByUser(userId);
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener reviews por usuario", {
+        originalError: error.message,
+      });
     }
 
     return data || [];
@@ -53,7 +56,9 @@ export class ReviewService extends BaseService<Review> {
     );
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener reviews por service point", {
+        originalError: error.message,
+      });
     }
 
     return data || [];
@@ -68,7 +73,9 @@ export class ReviewService extends BaseService<Review> {
     );
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener reviews por workshop", {
+        originalError: error.message,
+      });
     }
 
     return data || [];
@@ -81,7 +88,9 @@ export class ReviewService extends BaseService<Review> {
     const { data, error } = await this.reviewRepository.findByRating(rating);
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener reviews por rating", {
+        originalError: error.message,
+      });
     }
 
     return data || [];
