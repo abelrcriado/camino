@@ -1,7 +1,7 @@
 # 🗺️ ROADMAP - Camino Service Backend
 
 **Última actualización:** 13 de octubre de 2025  
-**Versión:** 3.0 (Post-Sprint 6.4: Utilities Refactoring completado)  
+**Versión:** 3.1 (Post-Sprint 6.4: Added Sprint 7 Abstraction before Features)  
 **Versión del código:** v0.3.2
 
 > ⚠️ **CAMBIO ESTRATÉGICO v3.0:** ROADMAP reorganizado siguiendo **"FEATURES PRIMERO, OPTIMIZACIONES DESPUÉS"**.
@@ -92,25 +92,27 @@
 
 ### 📈 Métricas del Sistema
 
-| Métrica               | Valor Actual                  | Objetivo Fase 2 (Features) |
-| --------------------- | ----------------------------- | -------------------------- |
-| **Tablas en BD**      | 42 tablas                     | 50+ tablas                 |
-| **Endpoints API**     | 102 endpoints activos         | 130+ endpoints             |
-| **Tests**             | 2410 tests (100% passing)     | 3000+ (100% passing)       |
-| **Coverage**          | 44% actual                    | 50%+ incremental           |
-| **asyncHandler**      | ✅**100% adoption (102/102)** | **100% adoption** ✅       |
-| **console.log**       | ✅ 0 instancias (v0.3.0)      | **0 instancias** ✅        |
-| **AppError**          | ✅ 100% adoption (v0.3.1)     | **100% adoption** ✅       |
-| **Utilities**         | ✅ 50% adoption (v0.3.2)      | **100% adoption** 🎯       |
-| **Transacciones**     | ⏸️ 0/5 operaciones            | ⏸️ **Diferido a Fase 3**   |
-| **Rate Limiting**     | ⏸️ No implementado            | ⏸️ **Diferido a Fase 3**   |
-| **DTOs**              | 29 interfaces                 | 35+ interfaces             |
-| **Repositories**      | 29 clases                     | 35+ clases                 |
-| **Services**          | 25 clases                     | 32+ clases                 |
-| **Controllers**       | 13 clases                     | 18+ clases                 |
-| **Arquitectura**      | Clean Architecture 5-layer    | Clean Architecture         |
-| **TypeScript Errors** | 0                             | 0                          |
-| **Lint Errors**       | 0                             | 0                          |
+| Métrica               | Valor Actual                  | Objetivo Fase 1 (Final) | Objetivo Fase 2 (Features) |
+| --------------------- | ----------------------------- | ----------------------- | -------------------------- |
+| **Tablas en BD**      | 42 tablas                     | 42 tablas               | 50+ tablas                 |
+| **Endpoints API**     | 102 endpoints activos         | 102 endpoints           | 130+ endpoints             |
+| **Tests**             | 2410 tests (100% passing)     | 2410 tests              | 3000+ (100% passing)       |
+| **Coverage**          | 44% actual                    | 44% actual              | 50%+ incremental           |
+| **asyncHandler**      | ✅**100% adoption (102/102)** | **100% adoption** ✅    | **100% adoption** ✅       |
+| **console.log**       | ✅ 0 instancias (v0.3.0)      | **0 instancias** ✅     | **0 instancias** ✅        |
+| **AppError**          | ✅ 100% adoption (v0.3.1)     | **100% adoption** ✅    | **100% adoption** ✅       |
+| **Utilities**         | ✅ 50% adoption (v0.3.2)      | **100% adoption** 🎯    | **100% adoption** 🎯       |
+| **Config**            | ⏳ process.env.\* scattered   | **✅ Type-safe Zod**    | **✅ Centralized**         |
+| **Test Factories**    | ⏳ Inline data creation       | **✅ Faker factories**  | **✅ Faker factories**     |
+| **Transacciones**     | ⏸️ 0/5 operaciones            | ⏸️ **Diferido**         | ⏸️ **Diferido a Fase 3**   |
+| **Rate Limiting**     | ⏸️ No implementado            | ⏸️ **Diferido**         | ⏸️ **Diferido a Fase 3**   |
+| **DTOs**              | 29 interfaces                 | 35+ interfaces          |
+| **Repositories**      | 29 clases                     | 35+ clases              |
+| **Services**          | 25 clases                     | 32+ clases              |
+| **Controllers**       | 13 clases                     | 18+ clases              |
+| **Arquitectura**      | Clean Architecture 5-layer    | Clean Architecture      |
+| **TypeScript Errors** | 0                             | 0                       |
+| **Lint Errors**       | 0                             | 0                       |
 
 ---
 
@@ -160,13 +162,14 @@ Del análisis de ingeniería original, se identificaron **5 Red Flags**. Estado 
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  ✅ FASE 1: CALIDAD DE CÓDIGO (6 días) ✅ COMPLETADO   │
+│  ✅ FASE 1: CALIDAD DE CÓDIGO (8 días) ⏳ EN PROGRESO │
 │  ├─ Sprint 6.1: console.log elimination ✅              │
 │  ├─ Sprint 6.2: AppError migration ✅                   │
 │  ├─ Sprint 6.3: asyncHandler adoption ✅                │
-│  └─ Sprint 6.4: Utilities refactoring ✅                │
+│  ├─ Sprint 6.4: Utilities refactoring ✅                │
+│  └─ Sprint 7: Config + Factories (2-3 días) 🔴 PRÓXIMO│
 │                                                           │
-│  � FASE 2: FEATURES CORE (20+ días) 🔴 PRÓXIMO        │
+│  📦 FASE 2: FEATURES CORE (20+ días) ⏸️ BLOQUEADO     │
 │  ├─ Sprint 8: Inventory Advanced (5 días)               │
 │  ├─ Sprint 9: Dashboard & Analytics (5 días)            │
 │  ├─ Sprint 10: Testing & Observability (4 días)         │
@@ -179,19 +182,21 @@ Del análisis de ingeniería original, se identificaron **5 Red Flags**. Estado 
 │  ├─ Sprint 15: Auth Avanzado (3 días)                   │
 │  └─ Sprint 16+: Notificaciones, Mobile, API Externa     │
 │                                                           │
-│  ⚠️ CAMBIO: Transacciones y Rate Limiting movidos a     │
-│             Fase 3 (después de features core)            │
+│  ⚠️ CAMBIO v3.1: Sprint 7 (Abstraction) insertado       │
+│                  ANTES de Sprint 8 (Features)            │
 └─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ✅ FASE 1: CALIDAD DE CÓDIGO (Sprints 6.1-6.4) ✅ COMPLETADO
+## ✅ FASE 1: CALIDAD DE CÓDIGO (Sprints 6.1-7) ⏳ EN PROGRESO
 
-**Duración Total:** 6 días  
-**Estado:** ✅ COMPLETADO (13 de octubre 2025)  
-**Objetivo:** Establecer infraestructura de calidad y eliminar código duplicado  
-**Versión liberada:** v0.3.2
+**Duración Total:** 8-9 días  
+**Estado:** ⏳ EN PROGRESO (Sprint 7 pendiente)  
+**Objetivo:** Establecer infraestructura de calidad y abstracción ANTES de features  
+**Versión actual:** v0.3.2
+
+> ⚠️ **CAMBIO v3.1:** Sprint 7 (Config + Factories) añadido a Fase 1 para completar fundaciones de abstracción ANTES de iniciar features. Esto previene reescritura masiva de tests en el futuro.
 
 ### ✅ Sprint 6.1: Eliminación console.log (1 día) ✅ COMPLETADO
 
@@ -408,17 +413,430 @@ Del análisis de ingeniería original, se identificaron **5 Red Flags**. Estado 
 
 ---
 
-## � FASE 2: FEATURES CORE (Sprints 8-12) 🔴 PRÓXIMO
+### 🔴 Sprint 7: Config Centralizada + Test Factories (2-3 días) 🔴 PRÓXIMO
+
+**Fecha inicio:** 14 de octubre de 2025 (estimado)  
+**Duración:** 2-3 días  
+**Estado:** 🔴 PRÓXIMO - Abstracción quirúrgica ANTES de features  
+**Prioridad:** CRÍTICA - Evitar reescritura masiva de tests en el futuro
+
+> 🎯 **OBJETIVO ESTRATÉGICO:** Completar fundaciones de abstracción (Config + Factories) SIN romper tests existentes. Esto permite desarrollo de features (Sprint 8+) con infraestructura sólida y mantenible. **ZERO test breakage guaranteed.**
+
+**Problema Identificado:**
+
+- ❌ `process.env.*` hardcoded en 30+ lugares (no validation, not type-safe)
+- ❌ Stripe client instanciado fuera de constructor
+- ❌ Test data creada inline (duplication masiva)
+- ❌ Sin type-safe config system
+
+**Solución Quirúrgica:**
+
+- ✅ Config Centralizada con Zod validation (0 tests rotos)
+- ✅ Test Factories con Faker (additive, 0 tests rotos)
+- ✅ External Services Abstraction (opcional, backward compatible)
+
+---
+
+#### Sprint 7.1: Config Centralizada (1 día) 🔴 PRÓXIMO
+
+**Objetivo:** Type-safe configuration con validación Zod
+
+**Día 1 - Config Implementation:**
+
+**1. Crear `src/config/app.config.ts` (1 hora):**
+
+```typescript
+import { z } from "zod";
+
+// Schema Zod para validación
+const configSchema = z.object({
+  supabase: z.object({
+    url: z.string().url(),
+    anonKey: z.string().min(1),
+    serviceRoleKey: z.string().min(1),
+  }),
+  stripe: z.object({
+    secretKey: z.string().startsWith("sk_"),
+    webhookSecret: z.string().startsWith("whsec_"),
+    publishableKey: z.string().startsWith("pk_").optional(),
+  }),
+  app: z.object({
+    env: z.enum(["development", "production", "test"]),
+    port: z.coerce.number().default(3000),
+    logLevel: z.enum(["error", "warn", "info", "debug"]).default("info"),
+  }),
+});
+
+// Validar y exportar config
+export const config = configSchema.parse({
+  supabase: {
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  },
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY,
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+    publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+  },
+  app: {
+    env: process.env.NODE_ENV as "development" | "production" | "test",
+    port: process.env.PORT,
+    logLevel: process.env.LOG_LEVEL,
+  },
+});
+
+// Type inference
+export type AppConfig = z.infer<typeof configSchema>;
+```
+
+**2. Replace process.env.\* en services (2 horas):**
+
+**Archivos a actualizar (30+ archivos):**
+
+- `src/services/supabase.ts`: `config.supabase.*`
+- `src/services/payment.service.ts`: `config.stripe.secretKey`
+- `src/config/stripe.ts`: `config.stripe.*`
+- Búsqueda sistemática: `grep -r "process.env." src/`
+
+**Patrón de reemplazo:**
+
+```typescript
+// ANTES
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-06-20" });
+
+// DESPUÉS
+import { config } from "@/config/app.config";
+const supabaseUrl = config.supabase.url;
+const stripe = new Stripe(config.stripe.secretKey, { apiVersion: "2024-06-20" });
+```
+
+**3. Validar tests (30 min):**
+
+```bash
+npm test
+# Expectativa: 2410/2410 passing ✅
+# IMPACTO EN TESTS: CERO (tests no usan process.env.*)
+```
+
+**4. Commit + Documentation (30 min):**
+
+```bash
+git add src/config/app.config.ts src/services/* src/config/*
+git commit -m "feat(config): centralized type-safe config with Zod validation
+
+- Created src/config/app.config.ts with Zod schema
+- Replaced 30+ process.env.* with config.* imports
+- Added validation at startup (fail fast if missing config)
+- Type-safe config exports for Supabase, Stripe, App settings
+- ZERO tests broken (tests don't use process.env.*)
+
+Refs: Sprint 7.1 Config Centralizada
+Tests: 2410/2410 passing
+"
+```
+
+**Entregables:**
+
+- ✅ `src/config/app.config.ts` con Zod validation
+- ✅ 30+ archivos refactorizados (process.env → config)
+- ✅ Type-safe config exports
+- ✅ Startup validation (fail fast)
+- ✅ Tests passing: 2410/2410 (100%)
+
+**Criterios de Éxito:**
+
+- ✅ Zod schema validando todas las env vars
+- ✅ Zero `process.env.*` en src/ (excepto config file)
+- ✅ Tests passing: 2410/2410
+- ✅ Type safety: AppConfig interface exportada
+- ✅ **ZERO tests broken** (guaranteed)
+
+---
+
+#### Sprint 7.2: Test Factories (1 día)
+
+**Objetivo:** Factories para data generation con Faker.js
+
+**Día 1 - Factories Implementation:**
+
+**1. Install Faker (10 min):**
+
+```bash
+npm install --save-dev @faker-js/faker
+```
+
+**2. Crear `__tests__/helpers/factories.ts` (2 horas):**
+
+```typescript
+import { faker } from "@faker-js/faker";
+import { v4 as uuidv4 } from "uuid";
+import type { User } from "@/dto/user.dto";
+import type { Booking } from "@/dto/booking.dto";
+import type { Payment } from "@/dto/payment.dto";
+// ... más imports
+
+// User Factory
+export const UserFactory = {
+  build: (overrides?: Partial<User>): User => ({
+    id: uuidv4(),
+    email: faker.internet.email(),
+    name: faker.person.fullName(),
+    role: "user",
+    created_at: faker.date.past().toISOString(),
+    updated_at: faker.date.recent().toISOString(),
+    ...overrides,
+  }),
+  buildList: (count: number, overrides?: Partial<User>): User[] => Array.from({ length: count }, () => UserFactory.build(overrides)),
+};
+
+// Booking Factory
+export const BookingFactory = {
+  build: (overrides?: Partial<Booking>): Booking => ({
+    id: uuidv4(),
+    user_id: uuidv4(),
+    workshop_id: uuidv4(),
+    service_id: uuidv4(),
+    booking_date: faker.date.future().toISOString(),
+    status: "pending",
+    total_price: faker.number.float({ min: 10, max: 500, precision: 0.01 }),
+    created_at: faker.date.past().toISOString(),
+    ...overrides,
+  }),
+  buildList: (count: number, overrides?: Partial<Booking>): Booking[] => Array.from({ length: count }, () => BookingFactory.build(overrides)),
+};
+
+// Payment Factory
+export const PaymentFactory = {
+  build: (overrides?: Partial<Payment>): Payment => ({
+    id: uuidv4(),
+    booking_id: uuidv4(),
+    amount: faker.number.float({ min: 10, max: 500, precision: 0.01 }),
+    status: "pending",
+    payment_intent_id: `pi_${faker.string.alphanumeric(24)}`,
+    created_at: faker.date.past().toISOString(),
+    ...overrides,
+  }),
+  buildList: (count: number, overrides?: Partial<Payment>): Payment[] => Array.from({ length: count }, () => PaymentFactory.build(overrides)),
+};
+
+// ... 7+ factories más (Product, Service, Inventory, etc.)
+```
+
+**3. Refactor 5-10 tests como ejemplo (1 hora):**
+
+**Elegir tests con más duplicación:**
+
+- `__tests__/services/payment.service.test.ts`
+- `__tests__/services/booking.service.test.ts`
+- `__tests__/controllers/user.controller.test.ts`
+
+**Patrón de uso:**
+
+```typescript
+// ANTES
+const mockPayment = {
+  id: "123e4567-e89b-12d3-a456-426614174000",
+  booking_id: "123e4567-e89b-12d3-a456-426614174001",
+  amount: 100.5,
+  status: "completed" as const,
+  payment_intent_id: "pi_1234567890",
+  created_at: "2025-01-01T00:00:00Z",
+};
+
+// DESPUÉS
+import { PaymentFactory } from "@/__tests__/helpers/factories";
+const mockPayment = PaymentFactory.build({
+  amount: 100.5,
+  status: "completed",
+});
+```
+
+**4. Documentar en `docs/guides/TEST_FACTORIES.md` (30 min):**
+
+- Cómo usar factories
+- Patrones de override
+- Best practices
+- Lista de factories disponibles
+
+**5. Validar tests (30 min):**
+
+```bash
+npm test
+# Expectativa: 2410/2410 passing ✅
+# IMPACTO: CERO (factories son additive, tests viejos siguen funcionando)
+```
+
+**6. Commit + Documentation (30 min):**
+
+```bash
+git add __tests__/helpers/factories.ts __tests__/services/* docs/guides/TEST_FACTORIES.md
+git commit -m "feat(testing): test factories with Faker.js
+
+- Created __tests__/helpers/factories.ts with 10 entity factories
+- Installed @faker-js/faker for realistic data generation
+- Refactored 5-10 tests as demonstration of factory pattern
+- Documented usage in docs/guides/TEST_FACTORIES.md
+- ZERO tests broken (additive feature, old tests unchanged)
+
+Factories: User, Booking, Payment, Product, Service, Inventory, etc.
+Tests: 2410/2410 passing
+Refs: Sprint 7.2 Test Factories
+"
+```
+
+**Entregables:**
+
+- ✅ `__tests__/helpers/factories.ts` con 10+ factories
+- ✅ @faker-js/faker instalado
+- ✅ 5-10 tests refactorizados
+- ✅ `docs/guides/TEST_FACTORIES.md` documentación
+- ✅ Tests passing: 2410/2410 (100%)
+
+**Criterios de Éxito:**
+
+- ✅ Factories para 10+ entidades principales
+- ✅ Faker.js generando datos realistas
+- ✅ Tests refactorizados usando factories
+- ✅ Documentation completa
+- ✅ **ZERO tests broken** (guaranteed)
+
+---
+
+#### Sprint 7.3: External Services Abstraction (1 día) OPCIONAL
+
+**Objetivo:** Abstraer Stripe/Supabase clients (solo si hay tiempo)
+
+**NOTA:** Este sprint es OPCIONAL. Config + Factories ya resuelven el problema principal. Solo implementar si quedan días en Sprint 7.
+
+**Día 1 - Client Abstraction (si aplica):**
+
+**1. Crear `src/lib/stripe.client.ts`:**
+
+```typescript
+import Stripe from "stripe";
+import { config } from "@/config/app.config";
+
+export const createStripeClient = (): Stripe => {
+  return new Stripe(config.stripe.secretKey, {
+    apiVersion: "2024-06-20",
+  });
+};
+
+// Singleton instance
+export const stripe = createStripeClient();
+```
+
+**2. Crear `src/lib/supabase.client.ts`:**
+
+```typescript
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { config } from "@/config/app.config";
+
+export const createSupabaseClient = (): SupabaseClient => {
+  return createClient(config.supabase.url, config.supabase.serviceRoleKey);
+};
+
+// Singleton instance
+export const supabase = createSupabaseClient();
+```
+
+**3. Update services (backward compatible):**
+
+```typescript
+// ANTES
+import { stripe } from "@/config/stripe";
+export class PaymentService extends BaseService<Payment> {
+  private stripe: Stripe;
+  constructor(repository?: PaymentRepository) {
+    super(repository || new PaymentRepository());
+    this.stripe = stripe; // Hardcoded external dependency
+  }
+}
+
+// DESPUÉS (optional injection, backward compatible)
+import { stripe as defaultStripe } from "@/lib/stripe.client";
+export class PaymentService extends BaseService<Payment> {
+  private stripe: Stripe;
+  constructor(
+    repository?: PaymentRepository,
+    stripeClient?: Stripe, // ✅ Optional injection
+  ) {
+    super(repository || new PaymentRepository());
+    this.stripe = stripeClient || defaultStripe; // ✅ Fallback to default
+  }
+}
+```
+
+**IMPACTO EN TESTS: CERO** (backward compatible, tests siguen funcionando sin cambios)
+
+**Entregables (opcional):**
+
+- ✅ `src/lib/stripe.client.ts`
+- ✅ `src/lib/supabase.client.ts`
+- ✅ Services con optional client injection
+- ✅ Tests passing: 2410/2410 (100%)
+
+---
+
+### Sprint 7: Entregables Finales
+
+**Duración Total:** 2-3 días  
+**Tests rotos:** 0 (zero)  
+**Riesgo:** BAJO
+
+**Artifacts:**
+
+- ✅ `src/config/app.config.ts` - Type-safe config con Zod
+- ✅ `__tests__/helpers/factories.ts` - 10+ test factories
+- ✅ `docs/guides/TEST_FACTORIES.md` - Documentation
+- ⏸️ `src/lib/*.client.ts` - External clients (opcional)
+- ✅ Sprint report: `docs/sprints/SPRINT_7_COMPLETADO.md`
+- ✅ CHANGELOG.md: v0.4.0 (Config + Factories milestone)
+
+**Criterios de Completitud:**
+
+- [ ] Config Zod validando todas env vars
+- [ ] Zero `process.env.*` en src/ (excepto config)
+- [ ] 10+ test factories implementadas
+- [ ] 5-10 tests refactorizados con factories
+- [ ] Documentation completa
+- [ ] Tests passing: 2410/2410 (100%)
+- [ ] **ZERO tests broken** ✅ GUARANTEED
+- [ ] Sprint report creado
+- [ ] Git tag: v0.4.0
+
+**Impacto:**
+
+- 🎯 **Abstracción:** Config centralizada, type-safe, validated
+- 🎯 **Mantenibilidad:** Test data DRY (factories vs inline creation)
+- 🎯 **Type Safety:** Zod inference + TypeScript strict types
+- 🎯 **Fail Fast:** Startup validation catches config errors early
+- 🎯 **Zero Breakage:** NO tests rewritten, backward compatible
+
+**Lecciones Esperadas:**
+
+- Config centralizada es low-risk, high-value
+- Test factories son additive (no destructive)
+- Optional injection pattern preserva backward compatibility
+- Zod validation prevents runtime config errors
+
+---
+
+## 📦 FASE 2: FEATURES CORE (Sprints 8-12) ⏸️ BLOQUEADO
 
 **Duración Total:** 20+ días  
-**Estado:** 🔴 PRÓXIMO - Desarrollo activo del modelo de negocio  
-**Objetivo:** Implementar features core usando infraestructura de calidad ya establecida
+**Estado:** ⏸️ BLOQUEADO - Iniciar después de Sprint 7 completado  
+**Objetivo:** Implementar features core usando infraestructura de calidad y abstracción
 
+> ⚠️ **BLOQUEADO HASTA:** Sprint 7 completado (Config + Factories operacionales)
+>
 > 💡 **Nota:** Esta fase se enfoca en **completar el modelo de negocio** antes de añadir complejidad de producción (transacciones, rate limiting). Permite iteración rápida y cambios de schema sin overhead transaccional.
 
-### 🔴 Sprint 8: Inventory Advanced (5 días) 🔴 PRÓXIMO
+### ⏸️ Sprint 8: Inventory Advanced (5 días) ⏸️ BLOQUEADO
 
-**Estado:** 🔴 PRÓXIMO - Iniciar después de Sprint 6.4  
+**Estado:** ⏸️ BLOQUEADO - Iniciar después de Sprint 7 completado  
 **Prioridad:** ALTA - Sistema de inventario es core del negocio
 
 #### Sprint 8.1: Stock Movements (3 días)
@@ -786,31 +1204,33 @@ Del análisis de ingeniería original, se identificaron **5 Red Flags**. Estado 
 
 ### Estado de Fases
 
-| Fase   | Sprints | Días | Estado            | Completado | Bloqueado Por        |
-| ------ | ------- | ---- | ----------------- | ---------- | -------------------- |
-| Fase 1 | 6.1-6.4 | 6    | ✅ **COMPLETADO** | 100%       | -                    |
-| Fase 2 | 8-12    | 20+  | 🔴 **PRÓXIMO**    | 0%         | -                    |
-| Fase 3 | 13-16   | 8+   | ⏸️ **BLOQUEADO**  | 0%         | Fase 2 no completada |
+| Fase   | Sprints | Días | Estado             | Completado | Bloqueado Por        |
+| ------ | ------- | ---- | ------------------ | ---------- | -------------------- |
+| Fase 1 | 6.1-7   | 8-9  | ⏳ **EN PROGRESO** | 80%        | Sprint 7 pendiente   |
+| Fase 2 | 8-12    | 20+  | ⏸️ **BLOQUEADO**   | 0%         | Sprint 7 incompleto  |
+| Fase 3 | 13-16   | 8+   | ⏸️ **BLOQUEADO**   | 0%         | Fase 2 no completada |
 
-### Objetivos Fase 1 (COMPLETADO ✅)
+### Objetivos Fase 1 (EN PROGRESO ⏳)
 
-| Métrica            | Antes | Objetivo | Resultado            |
-| ------------------ | ----- | -------- | -------------------- |
-| asyncHandler       | 0%    | 100%     | ✅ **100%** (v0.3.2) |
-| console.log        | 211   | 0        | ✅ **0** (v0.3.0)    |
-| AppError           | 0%    | 100%     | ✅ **100%** (v0.3.1) |
-| Utilities          | 0%    | 50%+     | ✅ **50%** (v0.3.2)  |
-| Coverage Threshold | 95%   | Realista | ✅ **44%** (v0.3.2)  |
+| Métrica            | Antes              | Sprint 6.4 Resultado | Sprint 7 Objetivo          |
+| ------------------ | ------------------ | -------------------- | -------------------------- |
+| asyncHandler       | 0%                 | ✅ **100%** (v0.3.2) | ✅ **100%**                |
+| console.log        | 211 instancias     | ✅ **0** (v0.3.0)    | ✅ **0**                   |
+| AppError           | 0%                 | ✅ **100%** (v0.3.1) | ✅ **100%**                |
+| Utilities          | 0%                 | ✅ **50%** (v0.3.2)  | ✅ **100%** (mantener)     |
+| Coverage Threshold | 95% (irreal)       | ✅ **44%** (v0.3.2)  | ✅ **44%** (mantener)      |
+| **Config**         | ⏳ process.env.\*  | ⏳ **Scattered**     | ✅ **Type-safe Zod**       |
+| **Test Factories** | ⏳ Inline creation | ⏳ **Duplicación**   | ✅ **Faker 10+ factories** |
 
-### Objetivos Fase 2 (EN PROGRESO 🔴)
+### Objetivos Fase 2 (BLOQUEADO ⏸️)
 
-| Métrica           | Actual | Objetivo    | Prioridad |
-| ----------------- | ------ | ----------- | --------- |
-| Stock Movements   | ❌     | ✅          | ALTA      |
-| Restock Rules     | ❌     | ✅          | ALTA      |
-| Dashboard Backend | ❌     | ✅          | MEDIA     |
-| E2E Tests         | 0      | 10+         | ALTA      |
-| Cache Strategy    | ❌     | ✅ (manual) | MEDIA     |
+| Métrica           | Actual | Objetivo    | Bloqueado Por       |
+| ----------------- | ------ | ----------- | ------------------- |
+| Stock Movements   | ❌     | ✅          | Sprint 7 incompleto |
+| Restock Rules     | ❌     | ✅          | Sprint 7 incompleto |
+| Dashboard Backend | ❌     | ✅          | Sprint 7 incompleto |
+| E2E Tests         | 0      | 10+         | Sprint 7 incompleto |
+| Cache Strategy    | ❌     | ✅ (manual) | Sprint 7 incompleto |
 
 ### Objetivos Fase 3 (DIFERIDO ⏸️)
 
@@ -822,69 +1242,113 @@ Del análisis de ingeniería original, se identificaron **5 Red Flags**. Estado 
 
 ---
 
-## 🎯 PRÓXIMA ACCIÓN: Sprint 8.1 - Stock Movements
+## 🎯 PRÓXIMA ACCIÓN: Sprint 7.1 - Config Centralizada
 
-**Sprint:** 8.1 - Stock Movements (Inventory Advanced)  
-**Duración:** 3 días  
-**Prioridad:** 🔴 ALTA - Core del sistema de inventario  
-**Estado:** 🔴 PRÓXIMO - Listo para iniciar
+**Sprint:** 7.1 - Config Centralizada (Abstraction Infrastructure)  
+**Duración:** 1 día  
+**Prioridad:** 🔴 CRÍTICA - Fundación de abstracción ANTES de features  
+**Estado:** 🔴 PRÓXIMO - Listo para iniciar mañana (14 oct 2025)
 
-**Tareas Inmediatas:**
+> 🎯 **OBJETIVO:** Type-safe configuration con Zod validation. Reemplazar 30+ `process.env.*` hardcoded por config centralizada. **ZERO tests broken guaranteed.**
 
-**Día 1 - Database Schema:**
+**Tareas Inmediates (Día 1):**
+
+**1. Crear `src/config/app.config.ts` con Zod schema (1 hora):**
 
 ```bash
-# 1. Crear backup pre-migration
-cd /Users/arcriado/Developer/camino
-mkdir -p backups
-echo "-- Backup $(date)" > backups/backup_pre_stock_movements_$(date +%Y%m%d_%H%M%S).sql
+# Crear archivo de config centralizada
+cat > src/config/app.config.ts << 'EOF'
+import { z } from 'zod';
 
-# 2. Crear migration file
-cat > supabase/migrations/$(date +%Y%m%d_%H%M%S)_create_stock_movements.sql << 'EOF'
--- Stock Movements Table
-CREATE TABLE stock_movements (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  movement_type VARCHAR(20) NOT NULL CHECK (movement_type IN ('ENTRADA', 'SALIDA', 'TRANSFERENCIA', 'AJUSTE')),
-  product_id UUID NOT NULL REFERENCES products(id),
-  quantity INTEGER NOT NULL CHECK (quantity > 0),
-  from_location UUID REFERENCES ubicaciones(id),
-  to_location UUID REFERENCES ubicaciones(id),
-  reason TEXT,
-  reference_id UUID,
-  user_id UUID NOT NULL REFERENCES usuarios(id),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+const configSchema = z.object({
+  supabase: z.object({
+    url: z.string().url(),
+    anonKey: z.string().min(1),
+    serviceRoleKey: z.string().min(1),
+  }),
+  stripe: z.object({
+    secretKey: z.string().startsWith('sk_'),
+    webhookSecret: z.string().startsWith('whsec_'),
+  }),
+  app: z.object({
+    env: z.enum(['development', 'production', 'test']),
+    port: z.coerce.number().default(3000),
+    logLevel: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
+  }),
+});
 
--- Indexes
-CREATE INDEX idx_stock_movements_product ON stock_movements(product_id);
-CREATE INDEX idx_stock_movements_type ON stock_movements(movement_type);
-CREATE INDEX idx_stock_movements_date ON stock_movements(created_at DESC);
-CREATE INDEX idx_stock_movements_reference ON stock_movements(reference_id);
+export const config = configSchema.parse({
+  supabase: {
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  },
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY,
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+  },
+  app: {
+    env: process.env.NODE_ENV as any,
+    port: process.env.PORT,
+    logLevel: process.env.LOG_LEVEL,
+  },
+});
+
+export type AppConfig = z.infer<typeof configSchema>;
 EOF
-
-# 3. Aplicar migration
-echo "SELECT * FROM stock_movements LIMIT 1;" | psql "postgresql://..." < supabase/migrations/*.sql
 ```
 
-**Día 2 - Backend Implementation:**
+**2. Replace process.env.\* en 30+ archivos (2 horas):**
 
-- DTO + Repository + Service + Controller completo
-- Validaciones de negocio
-- Winston logging en todos los métodos
-- asyncHandler en controller
+```bash
+# Encontrar todos los archivos con process.env
+grep -r "process.env." src/ --exclude-dir=node_modules | wc -l
+# Resultado esperado: 30+ matches
 
-**Día 3 - API Endpoints & Tests:**
+# Archivos críticos a actualizar:
+# - src/services/supabase.ts
+# - src/services/payment.service.ts
+# - src/config/stripe.ts
+# - src/config/logger.ts
 
-- 5 endpoints de stock movements
-- Tests CRUD completo
-- Tests de edge cases
-- Sprint report
+# Patrón: Reemplazar process.env.* con config.*
+```
 
-**Criterios de Completitud:**
+**3. Validar tests (30 min):**
 
-- [ ] Migration aplicada sin errores
-- [ ] 5 endpoints funcionales
+```bash
+npm test
+# Expectativa: 2410/2410 passing ✅
+# IMPACTO: CERO (tests no usan process.env.*)
+```
+
+**4. Commit + Documentation (30 min):**
+
+```bash
+git add src/config/app.config.ts src/services/* src/config/*
+git commit -m "feat(config): centralized type-safe config with Zod
+
+- Created app.config.ts with Zod validation
+- Replaced 30+ process.env.* with config.*
+- Type-safe config exports
+- Startup validation (fail fast)
+- ZERO tests broken
+
+Refs: Sprint 7.1
+Tests: 2410/2410 passing"
+```
+
+**Criterios de Completitud Sprint 7.1:**
+
+- [ ] app.config.ts creado con Zod schema
+- [ ] 30+ archivos refactorizados (process.env → config)
+- [ ] Startup validation funcionando
+- [ ] Tests passing: 2410/2410 (100%)
+- [ ] Commit con mensaje convencional
+- [ ] Documentation en sprint report
+
+**Siguiente (Día 2):** Sprint 7.2 - Test Factories con Faker.js
+
 - [ ] Tests passing: 2510/2510+
 - [ ] Coverage mantenido: 44%+
 - [ ] Sprint report creado
@@ -948,7 +1412,7 @@ echo "SELECT * FROM stock_movements LIMIT 1;" | psql "postgresql://..." < supaba
 ---
 
 **Última actualización:** 13 de octubre de 2025  
-**Versión:** 3.0 (Reorganización estratégica: Features primero)  
+**Versión:** 3.1 (Sprint 7 Abstraction añadido antes de Features)  
 **Versión del código:** v0.3.2  
-**Próximo Sprint:** 8.1 - Stock Movements (3 días)  
-**Próximo Release:** v0.3.3 (combinar Sprint 6.4 + iniciar Sprint 8)
+**Próximo Sprint:** 7.1 - Config Centralizada (1 día) 🔴 CRÍTICO  
+**Próximo Release:** v0.4.0 (Config + Factories milestone)
