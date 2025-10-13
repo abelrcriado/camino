@@ -24,117 +24,116 @@
 
 **Meta:** Eliminar duplicación, establecer patrones, configurar herramientas ANTES de escribir más código
 
-### Sprint 6.1: asyncHandler + Eliminar console.log (2 días) 🔴 CRÍTICO
+### Sprint 6.1: Eliminar console.log ✅ COMPLETADO
 
-**Descripción:** Refactorizar TODOS los endpoints existentes con asyncHandler y eliminar console.log
+**Fecha:** 13 de octubre de 2025  
+**Duración:** 1 día  
+**Estado:** ✅ COMPLETADO
 
-**Por qué primero:**
+**Descripción:** Eliminar TODOS los console.log/error/warn de src/ y configurar regla ESLint
+
+**Objetivo Original Modificado:**
+
+- ~~asyncHandler + console.log~~ → **Solo console.log** (asyncHandler pospuesto a Sprint 6.2)
+- Razón: Script automatizado de asyncHandler causaba corrupción de datos
+
+**Completado:**
+
+- ✅ 211 console.log eliminados de src/ (100%)
+- ✅ Winston logger agregado a 40+ archivos
+- ✅ ESLint rule 'no-console': 'error' configurada
+- ✅ 2410/2410 tests pasando (100%)
+- ✅ Version 0.3.0 released
+- ✅ Sprint Report completo creado
+
+**Archivos procesados:**
+
+- 11 repositories
+- 4 services
+- 28 controllers
+- 2 utils
+- 1 config (eslint.config.mjs)
+
+**Impacto:**
+
+- ✅ Zero console.log en producción
+- ✅ Logging estructurado con Winston
+- ✅ Logs persistentes en archivos
+- ✅ ESLint previniendo regresiones
+
+**Ver:** `docs/sprints/SPRINT_6.1_CONSOLE_LOG_ELIMINATION.md`
+
+---
+
+### Sprint 6.2: asyncHandler Migration (2 días) 🔴 PENDIENTE
+
+**Descripción:** Migrar endpoints restantes a asyncHandler con approach manual y seguro
+
+**Estado Actual:**
+
+- 20/122 endpoints usan asyncHandler (16%) ✅ Pre-existentes
+- 102 endpoints pendientes (84%) ❌ Por migrar
+
+**Por qué ahora:**
 
 - ✅ Wrapper `asyncHandler` YA EXISTE en `src/middlewares/error-handler.ts`
-- ✅ Winston logger YA ESTÁ CONFIGURADO en `src/config/logger.ts`
-- ✅ Solo necesita aplicarse, no desarrollar nada nuevo
-- ✅ Todo código futuro usará estos patrones desde día 1
+- ✅ Lecciones aprendidas de Sprint 6.1 (no usar scripts automáticos)
+- ✅ Todo código futuro usará este patrón desde día 1
 
-**Tasks DÍA 1 (asyncHandler):**
+**Tasks DÍA 1 (Análisis y Primeros 30):**
 
-- [ ] Crear script automatizado `scripts/migrate-async-handler.sh`
-- [ ] Ejecutar en 50+ endpoints (procesamiento batch)
-- [ ] Validar tests después de cada batch
-- [ ] Crear regla ESLint para requerir asyncHandler
+- [ ] Categorizar endpoints por patrón (simple, try/catch, nested)
+- [ ] Crear transformation templates para cada patrón
+- [ ] Migrar manualmente 30 endpoints simples (sin try/catch)
+- [ ] Validar tests después de cada 10 endpoints
 
-**Tasks DÍA 2 (console.log):**
+**Tasks DÍA 2 (Resto + Validación):**
 
-- [ ] Buscar todas las referencias: `grep -r "console\." src/`
-- [ ] Reemplazar con Winston logger (30+ instancias)
-- [ ] Añadir regla ESLint: `'no-console': ['error']`
-- [ ] Validar tests completos
+- [ ] Migrar 40 endpoints con try/catch
+- [ ] Migrar 32 endpoints restantes
+- [ ] Crear regla ESLint custom para requerir asyncHandler
+- [ ] Validar 2410/2410 tests pasando
 
-**Archivos afectados:**
+**Patrón de migración manual:**
 
-```bash
-# asyncHandler
-pages/api/**/*.ts  (50+ archivos)
+```typescript
+// ANTES (patrón simple)
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Método no permitido" });
+  }
+  return controller.list(req, res);
+}
 
-# console.log
-src/services/stock-request.service.ts (16 instancias)
-src/controllers/stock-request.controller.ts (10 instancias)
-src/services/payment.service.ts (2 instancias)
-src/controllers/inventory.controller.ts (3 instancias)
-# ... 30+ total
-```
+// DESPUÉS
+import { asyncHandler } from "@/middlewares/error-handler";
 
-**Script de migración:**
-
-```bash
-#!/bin/bash
-# scripts/migrate-async-handler.sh
-
-echo "🔄 Migrando endpoints a asyncHandler..."
-
-files=$(grep -rl "export default async function handler" pages/api/)
-total=$(echo "$files" | wc -l)
-count=0
-
-for file in $files; do
-  count=$((count + 1))
-  echo "[$count/$total] Processing: $file"
-
-  # Backup
-  cp "$file" "$file.bak"
-
-  # Transform (usar sed/awk para reemplazar patrón)
-  # ... transformaciones automáticas
-
-  # Run tests para este endpoint
-  npm test -- "$file.test.ts" --silent
-
-  if [ $? -eq 0 ]; then
-    echo "  ✅ Migrated successfully"
-    rm "$file.bak"
-  else
-    echo "  ❌ Tests failed, reverting"
-    mv "$file.bak" "$file"
-  fi
-done
-
-echo "✅ Migration complete: $count endpoints"
-```
-
-**ESLint rules nuevas:**
-
-```javascript
-// eslint.config.mjs
-export default [
-  {
-    rules: {
-      // ❌ No permitir console.log
-      "no-console": ["error", { allow: [] }],
-
-      // ⚠️ Advertir si función async sin asyncHandler
-      // (regla custom a implementar)
-    },
-  },
-];
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Método no permitido" });
+  }
+  return controller.list(req, res);
+});
 ```
 
 **Criterios de Éxito:**
 
-- ✅ 50+ endpoints refactorizados con asyncHandler
-- ✅ Zero console.log en src/
-- ✅ Tests: 2421/2421 pasando (100%)
-- ✅ ESLint rules configuradas
-- ✅ Reducción de código: ~250 líneas eliminadas
+- ✅ 102 endpoints migrados a asyncHandler
+- ✅ 122/122 endpoints usando asyncHandler (100%)
+- ✅ Tests: 2410/2410 pasando (100%)
+- ✅ ESLint rule custom configurada
+- ✅ Reducción de código: ~300 líneas (eliminación try/catch)
 
 **Impacto en código futuro:**
 
-- ✅ TODOS los nuevos endpoints DEBEN usar asyncHandler (validado por ESLint)
-- ✅ TODOS los logs DEBEN usar Winston (validado por ESLint)
+- ✅ TODOS los endpoints DEBEN usar asyncHandler (validado por ESLint)
 - ✅ No más try/catch duplicado
-- ✅ No más debugging imposible en producción
+- ✅ Error handling centralizado
+- ✅ Stack traces completos en logs
 
 ---
 
-### Sprint 6.2: Coverage Threshold + Aplicar Utilidades (3 días)
+### Sprint 6.3: Coverage Threshold + Aplicar Utilidades (3 días)
 
 **Descripción:** Ajustar thresholds y refactorizar endpoints con utilities de Sprint 5.3
 

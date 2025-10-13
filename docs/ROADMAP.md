@@ -1,7 +1,8 @@
 # 🗺️ ROADMAP - Camino Service Backend
 
 **Última actualización:** 13 de octubre de 2025  
-**Versión:** 2.0 (Post-Reorganización: Calidad Primero)
+**Versión:** 2.1 (Post-Sprint 6.1: console.log eliminado)  
+**Versión del código:** v0.3.0
 
 > ⚠️ **CAMBIO ESTRATÉGICO:** Este ROADMAP ha sido completamente reorganizado siguiendo la estrategia **"CALIDAD PRIMERO"**. Todas las optimizaciones de infraestructura se completan ANTES de continuar con nuevas features. Ver `docs/ANALISIS_INGENIERIA_OPTIMIZACION.md` para el análisis completo.
 
@@ -56,23 +57,23 @@
 
 ### 📈 Métricas del Sistema
 
-| Métrica               | Valor Actual               | Objetivo Fase 1            |
-| --------------------- | -------------------------- | -------------------------- |
-| **Tablas en BD**      | 42 tablas                  | 42 + 5 RPC functions       |
-| **Endpoints API**     | 35+ endpoints activos      | 35+ (refactorizados)       |
-| **Tests**             | 2421 tests (100% passing)  | 2421+ (100% passing)       |
-| **Coverage**          | 99.72% promedio            | 99%+ mantenido             |
-| **asyncHandler**      | 0% adoption                | **100% adoption** 🎯       |
-| **console.log**       | 30+ instancias             | **0 instancias** 🎯        |
-| **Transacciones**     | 0/5 operaciones            | **5/5 operaciones** 🎯     |
-| **Rate Limiting**     | ❌ No implementado         | **✅ Activo** 🎯           |
-| **DTOs**              | 29 interfaces              | 29 interfaces              |
-| **Repositories**      | 29 clases                  | 29 clases                  |
-| **Services**          | 25 clases                  | 25 clases                  |
-| **Controllers**       | 13 clases                  | 13 clases                  |
-| **Arquitectura**      | Clean Architecture 5-layer | Clean Architecture 5-layer |
-| **TypeScript Errors** | 0                          | 0                          |
-| **Lint Errors**       | 0                          | 0                          |
+| Métrica               | Valor Actual                    | Objetivo Fase 1            |
+| --------------------- | ------------------------------- | -------------------------- |
+| **Tablas en BD**      | 42 tablas                       | 42 + 5 RPC functions       |
+| **Endpoints API**     | 35+ endpoints activos           | 35+ (refactorizados)       |
+| **Tests**             | 2421 tests (100% passing)       | 2421+ (100% passing)       |
+| **Coverage**          | 99.72% promedio                 | 99%+ mantenido             |
+| **asyncHandler**      | 16% adoption (20/122 endpoints) | **100% adoption** 🎯       |
+| **console.log**       | ✅ 0 instancias (v0.3.0)        | **0 instancias** ✅        |
+| **Transacciones**     | 0/5 operaciones                 | **5/5 operaciones** 🎯     |
+| **Rate Limiting**     | ❌ No implementado              | **✅ Activo** 🎯           |
+| **DTOs**              | 29 interfaces                   | 29 interfaces              |
+| **Repositories**      | 29 clases                       | 29 clases                  |
+| **Services**          | 25 clases                       | 25 clases                  |
+| **Controllers**       | 13 clases                       | 13 clases                  |
+| **Arquitectura**      | Clean Architecture 5-layer      | Clean Architecture 5-layer |
+| **TypeScript Errors** | 0                               | 0                          |
+| **Lint Errors**       | 0                               | 0                          |
 
 ---
 
@@ -142,62 +143,92 @@ En el análisis de ingeniería se identificaron **5 Red Flags Críticos** que de
 **Estado:** 🔴 PRÓXIMO - BLOQUEANTE PARA TODO LO DEMÁS  
 **Objetivo:** Establecer infraestructura de calidad ANTES de escribir más código
 
-### ✅ Sprint 6: Infraestructura de Código (5 días) 🔴 PRÓXIMO
-
-| **Services** | 25 clases |
-| **Controllers** | 13 clases |
-| **Arquitectura** | Clean Architecture 5-layer|
-| **TypeScript Errors** | 0 |
-| **Lint Errors** | 0 |
-
-### ✅ Sprint 6: Infraestructura de Código (5 días) 🔴 PRÓXIMO
+### ✅ Sprint 6: Infraestructura de Código (5 días) � EN PROGRESO
 
 **Objetivo:** Eliminar código duplicado y establecer patrones de calidad
 
-#### Sprint 6.1: asyncHandler + Eliminar console.log (2 días) 🔴 CRÍTICO
+#### ✅ Sprint 6.1: Eliminación console.log (1 día) ✅ COMPLETADO
 
-**Día 1 - asyncHandler Migration:**
+**Estado:** ✅ COMPLETADO (13 de octubre 2025)  
+**Versión liberada:** v0.3.0  
+**Nota:** asyncHandler diferido a Sprint 6.2 tras corrupción con script automatizado
 
-- ✅ Crear script de migración automatizado (`scripts/migrate-async-handler.sh`)
-- ✅ Migrar 50+ endpoints a asyncHandler wrapper
-- ✅ Eliminar ~250 líneas de try/catch duplicado
-- ✅ Agregar ESLint rule: `require-async-handler`
-- ✅ Tests: Verificar 2421 tests siguen pasando
+**Día 1 - console.log Elimination (6 horas efectivas):**
 
-**Día 2 - console.log Elimination:**
-
-- ✅ Auditoría: Encontrar 30+ instancias de console.log/error/warn
-- ✅ Reemplazar con Winston logger (ya configurado)
-- ✅ Agregar ESLint rule: `'no-console': ['error', { allow: [] }]`
-- ✅ Tests: Validar logging en tests con mocks
+- ✅ Auditoría: 211 instancias de console.log/error/warn encontradas
+- ✅ Reemplazadas con Winston logger (45 archivos modificados)
+- ✅ Agregada ESLint rule: `'no-console': 'error'`
+- ✅ Tests: 2410/2410 pasando (100%)
+- ✅ Lint: 0 errors
 
 **Entregables:**
 
-- Script de migración ejecutado y documentado
-- 50+ endpoints usando asyncHandler
-- 0 instancias de console.log
-- ESLint enforcement activo
-- Documento: `docs/sprints/SPRINT_6.1_COMPLETADO.md`
+- ✅ 211/211 console.log eliminados
+- ✅ Winston logger en 45 archivos
+- ✅ ESLint enforcement activo
+- ✅ Documento: `docs/sprints/SPRINT_6.1_CONSOLE_LOG_ELIMINATION.md`
+- ✅ CHANGELOG.md v0.3.0 generado
+- ✅ Git tag: v0.3.0
 
 **Criterios de Éxito:**
 
-- ✅ asyncHandler adoption: 100%
-- ✅ console.log instances: 0
-- ✅ Tests passing: 2421/2421
+- ✅ console.log instances: 0/211 (100%)
+- ✅ Tests passing: 2410/2410 (100%)
+- ✅ Lint passing: 0 errors
+- ✅ ESLint rule configured
+- ❌ asyncHandler adoption: 0/102 (diferido a Sprint 6.2)
+
+**Lecciones Aprendidas:**
+
+- Scripts automatizados requieren validación cuidadosa (corrupción de datos)
+- sed tiene limitaciones con archivos con muchos comentarios
+- Tests son red de seguridad crítica
+- Manual > Automatizado para refactors complejos
+
+#### 🔴 Sprint 6.2: asyncHandler Migration (2 días) 🔴 PRÓXIMO
+
+**Objetivo:** Migrar 102 endpoints restantes a asyncHandler wrapper
+
+**Día 1 - Batch 1 (50 endpoints):**
+
+- [ ] Migración manual de 50 endpoints prioritarios
+- [ ] Pattern: `export default asyncHandler(async (req, res) => { ... })`
+- [ ] Eliminar try/catch duplicado (~150 líneas)
+- [ ] Tests: Validar cada 10 endpoints
+
+**Día 2 - Batch 2 (52 endpoints):**
+
+- [ ] Migración manual de 52 endpoints restantes
+- [ ] Eliminar try/catch duplicado (~100 líneas)
+- [ ] Tests finales: 2410/2410 pasando
+- [ ] Configurar ESLint rule custom (opcional)
+
+**Entregables:**
+
+- 102 endpoints migrados a asyncHandler
+- 122/122 endpoints usando asyncHandler (100%)
+- ~250 líneas de código eliminadas
+- Tests: 2410/2410 pasando
+- Documento: `docs/sprints/SPRINT_6.2_COMPLETADO.md`
+
+**Criterios de Éxito:**
+
+- ✅ asyncHandler adoption: 122/122 (100%)
+- ✅ Tests passing: 2410/2410
 - ✅ Lint passing: 0 errors
 - ✅ Code reduction: ~250 lines eliminated
 
-#### Sprint 6.2: Coverage Threshold + Aplicar Utilidades (3 días)
+#### Sprint 6.3: Coverage Threshold + Aplicar Utilidades (2 días)
 
 **Día 1 - Coverage Threshold:**
 
-- ✅ Ajustar `jest.config.js` threshold: 50% → 95%
-- ✅ Validar coverage actual se mantiene
-- ✅ Documentar estándar en `docs/CLEAN_ARCHITECTURE.md`
+- [ ] Ajustar `jest.config.js` threshold: 50% → 95%
+- [ ] Validar coverage actual se mantiene
+- [ ] Documentar estándar en `docs/CLEAN_ARCHITECTURE.md`
 
-**Días 2-3 - Aplicar Utilidades:**
+**Día 2 - Aplicar Utilidades:**
 
-- ✅ Refactorizar 10-15 endpoints prioritarios:
+- [ ] Refactorizar 10-15 endpoints prioritarios:
   - `pages/api/booking.ts` (ErrorMessages + validateUUID)
   - `pages/api/payment.ts` (validateUUID + ownership)
   - `pages/api/inventory.ts` (pagination helpers)
@@ -211,13 +242,13 @@ En el análisis de ingeniería se identificaron **5 Red Flags Críticos** que de
 - jest.config.js con threshold 95%
 - 10-15 endpoints refactorizados
 - Tests actualizados si necesario
-- Documento: `docs/sprints/SPRINT_6.2_COMPLETADO.md`
+- Documento: `docs/sprints/SPRINT_6.3_COMPLETADO.md`
 
 **Criterios de Éxito:**
 
 - ✅ Coverage threshold: 95%
 - ✅ Endpoints refactorizados: 10-15
-- ✅ Tests passing: 2421/2421
+- ✅ Tests passing: 2410/2410
 - ✅ Utilidades adoption: 50%+ endpoints
 
 ---
