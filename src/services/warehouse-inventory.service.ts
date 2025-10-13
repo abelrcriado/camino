@@ -4,6 +4,10 @@ import {
   type CreateStockMovementDTO,
 } from "@/repositories/stock-movement.repository";
 import { supabase } from "@/services/supabase";
+import {
+  BusinessRuleError,
+  DatabaseError,
+} from "@/errors/custom-errors";
 
 export interface TransferStockDTO {
   product_id: string;
@@ -90,7 +94,7 @@ export class WarehouseInventoryService {
     } = transferData;
 
     if (!from_warehouse_id || !to_service_id) {
-      throw new Error("Both from_warehouse_id and to_service_id are required");
+      throw new BusinessRuleError("Both from_warehouse_id and to_service_id are required");
     }
 
     // Llamar a la función de PostgreSQL
@@ -103,7 +107,7 @@ export class WarehouseInventoryService {
     });
 
     if (error) {
-      throw new Error(`Transfer failed: ${error.message}`);
+      throw new DatabaseError(`Transfer failed: ${error.message}`, { originalError: error });
     }
 
     return data;
@@ -126,7 +130,7 @@ export class WarehouseInventoryService {
     } = transferData;
 
     if (!from_warehouse_id || !to_warehouse_id) {
-      throw new Error(
+      throw new BusinessRuleError(
         "Both from_warehouse_id and to_warehouse_id are required"
       );
     }
@@ -138,7 +142,7 @@ export class WarehouseInventoryService {
     );
 
     if (!sourceStock || sourceStock.available_stock < quantity) {
-      throw new Error(
+      throw new BusinessRuleError(
         `Insufficient stock. Available: ${
           sourceStock?.available_stock || 0
         }, Requested: ${quantity}`
@@ -176,7 +180,7 @@ export class WarehouseInventoryService {
     });
 
     if (error) {
-      throw new Error(`Adjustment failed: ${error.message}`);
+      throw new DatabaseError(`Adjustment failed: ${error.message}`, { error });
     }
 
     return data;
