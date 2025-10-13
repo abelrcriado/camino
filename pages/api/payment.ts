@@ -1,6 +1,7 @@
 // CRUD endpoints para Payment - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PaymentController } from "../../src/controllers/payment.controller";
+import { asyncHandler } from "../../src/middlewares/error-handler";
 
 /**
  * @swagger
@@ -134,9 +135,7 @@ import { PaymentController } from "../../src/controllers/payment.controller";
  *       500:
  *         description: Error del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const controller = new PaymentController();
   return controller.handle(req, res);
-}
-
-export default handler;
+});

@@ -1,6 +1,7 @@
 // CRUD endpoints para Booking - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
 import { BookingController } from "../../src/controllers/booking.controller";
+import { asyncHandler } from "../../src/middlewares/error-handler";
 
 /**
  * @swagger
@@ -261,9 +262,7 @@ import { BookingController } from "../../src/controllers/booking.controller";
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const controller = new BookingController();
   return controller.handle(req, res);
-}
-
-export default handler;
+});

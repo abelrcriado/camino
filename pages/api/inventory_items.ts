@@ -1,6 +1,7 @@
 // CRUD endpoints para Inventory Items - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
 import { InventoryItemController } from "../../src/controllers/inventory_item.controller";
+import { asyncHandler } from "../../src/middlewares/error-handler";
 
 /**
  * @swagger
@@ -120,9 +121,7 @@ import { InventoryItemController } from "../../src/controllers/inventory_item.co
  *       500:
  *         description: Error del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const controller = new InventoryItemController();
   return controller.handle(req, res);
-}
-
-export default handler;
+});

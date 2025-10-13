@@ -289,12 +289,10 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
 import { ProductoController } from "@/controllers/producto.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 const controller = new ProductoController();
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   return controller.handle(req, res);
-}
+});
