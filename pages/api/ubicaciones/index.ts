@@ -1,6 +1,7 @@
 // Endpoint base para ubicaciones (locations) - Operaciones CRUD
 import type { NextApiRequest, NextApiResponse } from "next";
 import { LocationController } from "../../../src/controllers/location.controller";
+import { asyncHandler } from "../../../src/middlewares/error-handler";
 
 /**
  * @swagger
@@ -233,9 +234,7 @@ import { LocationController } from "../../../src/controllers/location.controller
  *           type: string
  *           format: date-time
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const controller = new LocationController();
   return controller.handle(req, res);
-}
-
-export default handler;
+});

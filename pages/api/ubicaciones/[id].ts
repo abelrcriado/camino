@@ -1,6 +1,7 @@
 // Endpoint dinámico para operaciones sobre una ubicación específica
 import type { NextApiRequest, NextApiResponse } from "next";
 import { LocationController } from "../../../src/controllers/location.controller";
+import { asyncHandler } from "../../../src/middlewares/error-handler";
 
 /**
  * @swagger
@@ -99,7 +100,7 @@ import { LocationController } from "../../../src/controllers/location.controller
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const controller = new LocationController();
   const { id } = req.query;
 
@@ -124,6 +125,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     default:
       return res.status(405).json({ error: "Método no permitido" });
   }
-}
-
-export default handler;
+});
