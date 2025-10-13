@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](///compare/v0.2.0...v0.3.0) (2025-10-13)
+
+### ⚠ BREAKING CHANGES
+
+- console.log no longer allowed in src/
+  Use logger from @/config/logger instead
+
+Closes Sprint 6.1
+
+### ✨ Features
+
+- **async:** complete asyncHandler migration - all 20 endpoints (Sprint 6.1) e32778c
+- **async:** migrate 8 endpoints to asyncHandler pattern (Sprint 6.1) a8488b6, closes #sprint-6
+
+### 🐛 Bug Fixes
+
+- **tests:** complete asyncHandler error format migration ce436ac
+- **tests:** update tests for async Handler error format (partial) 0a2ba89
+
+### ✅ Tests
+
+- update venta_app.service tests for AppError hierarchy 4ef96c7
+
+### ♻️ Code Refactoring
+
+- eliminate all console.log, add winston logger 9db8648
+- **services:** migrate availability to AppError hierarchy bf80d83
+- **services:** migrate precio to AppError hierarchy 173324c
+- **services:** migrate producto to AppError hierarchy 0c7f7bd
+- **services:** migrate service-product to AppError 908fdef
+- **services:** migrate vending_machine_slot to AppError hierarchy 139468f
+- **services:** migrate venta_app to AppError hierarchy f5cc67b
+- **services:** migrate warehouse-inventory to AppError 2b2a8ae
+
 ## [0.2.0](///compare/v0.1.0...v0.2.0) (2025-10-12)
 
 ### ⚠ BREAKING CHANGES
