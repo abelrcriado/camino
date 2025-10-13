@@ -7,6 +7,13 @@ import Stripe from "stripe";
 import { BaseService } from "./base.service";
 import { PaymentRepository } from "../repositories/payment.repository";
 import {
+  NotFoundError,
+  ValidationError,
+  BusinessRuleError,
+  DatabaseError,
+  ExternalServiceError,
+} from "@/errors/custom-errors";
+import {
   Payment,
   CreatePaymentDto,
   UpdatePaymentDto,
@@ -63,13 +70,13 @@ export class PaymentService extends BaseService<Payment> {
   ): Promise<PaymentIntentResponse> {
     // Validaciones
     if (!data.booking_id || !data.user_id || !data.service_point_id) {
-      throw new Error(
+      throw new ValidationError(
         "Missing required fields: booking_id, user_id, service_point_id"
       );
     }
 
     if (data.amount <= 0) {
-      throw new Error("Amount must be greater than 0");
+      throw new ValidationError("Amount must be greater than 0");
     }
 
     // Calcular comisiones
@@ -121,7 +128,9 @@ export class PaymentService extends BaseService<Payment> {
     if (error || !payment || !payment[0]) {
       // Si falla, cancelar el Payment Intent en Stripe
       await this.stripe.paymentIntents.cancel(paymentIntent.id);
-      throw new Error(`Failed to create payment: ${error?.message}`);
+      throw new DatabaseError("Failed to create payment", {
+        originalError: error?.message,
+      });
     }
 
     return {
@@ -146,8 +155,9 @@ export class PaymentService extends BaseService<Payment> {
     );
 
     if (!payment) {
-      throw new Error(
-        `Payment not found for Stripe Payment Intent: ${stripePaymentIntentId}`
+      throw new NotFoundError(
+        "Payment",
+        `Stripe Payment Intent: ${stripePaymentIntentId}`
       );
     }
 
@@ -162,11 +172,13 @@ export class PaymentService extends BaseService<Payment> {
     const payment = await this.findById(refundData.payment_id);
 
     if (!payment) {
-      throw new Error(`Payment not found: ${refundData.payment_id}`);
+      throw new NotFoundError("Payment", refundData.payment_id);
     }
 
     if (payment.status !== "succeeded") {
-      throw new Error(`Cannot refund payment with status: ${payment.status}`);
+      throw new BusinessRuleError(
+        `Cannot refund payment with status: ${payment.status}`
+      );
     }
 
     // Calcular monto del reembolso
@@ -174,11 +186,11 @@ export class PaymentService extends BaseService<Payment> {
       refundData.amount || payment.amount - payment.refunded_amount;
 
     if (refundAmount <= 0) {
-      throw new Error("Refund amount must be greater than 0");
+      throw new ValidationError("Refund amount must be greater than 0");
     }
 
     if (payment.refunded_amount + refundAmount > payment.amount) {
-      throw new Error("Refund amount exceeds payment amount");
+      throw new ValidationError("Refund amount exceeds payment amount");
     }
 
     // Crear reembolso en Stripe
@@ -324,11 +336,13 @@ export class PaymentService extends BaseService<Payment> {
     const { data, error } = await this.paymentRepository.findById(paymentId);
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener payment", {
+        originalError: error.message,
+      });
     }
 
     if (!data) {
-      throw new Error(`Payment not found: ${paymentId}`);
+      throw new NotFoundError("Payment", paymentId);
     }
 
     return data as Payment;
@@ -403,11 +417,13 @@ export class PaymentService extends BaseService<Payment> {
     const payment = await this.findById(paymentId);
 
     if (!payment) {
-      throw new Error(`Payment not found: ${paymentId}`);
+      throw new NotFoundError("Payment", paymentId);
     }
 
     if (payment.status !== "pending") {
-      throw new Error(`Cannot cancel payment with status: ${payment.status}`);
+      throw new BusinessRuleError(
+        `Cannot cancel payment with status: ${payment.status}`
+      );
     }
 
     // Cancelar en Stripe si existe
@@ -435,7 +451,7 @@ export class PaymentService extends BaseService<Payment> {
         webhookSecret
       ) as StripeWebhookEvent;
     } catch (error) {
-      throw new Error(
+      throw new ValidationError(
         `Webhook signature verification failed: ${(error as Error).message}`
       );
     }

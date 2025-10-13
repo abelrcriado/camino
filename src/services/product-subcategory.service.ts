@@ -6,6 +6,11 @@ import {
   type ProductSubcategoryFilters,
 } from "@/repositories/product-subcategory.repository";
 import { ProductCategoryRepository } from "@/repositories/product-category.repository";
+import {
+  NotFoundError,
+  ValidationError,
+  ConflictError,
+} from "@/errors/custom-errors";
 
 export class ProductSubcategoryService {
   private repository: ProductSubcategoryRepository;
@@ -29,7 +34,7 @@ export class ProductSubcategoryService {
   async getById(id: string): Promise<ProductSubcategory> {
     const subcategory = await this.repository.findById(id);
     if (!subcategory) {
-      throw new Error("Subcategory not found");
+      throw new NotFoundError("Product Subcategory", id);
     }
     return subcategory;
   }
@@ -37,7 +42,7 @@ export class ProductSubcategoryService {
   async getByCode(code: string): Promise<ProductSubcategory> {
     const subcategory = await this.repository.findByCode(code);
     if (!subcategory) {
-      throw new Error("Subcategory not found");
+      throw new NotFoundError("Product Subcategory", `code: ${code}`);
     }
     return subcategory;
   }
@@ -53,13 +58,15 @@ export class ProductSubcategoryService {
     // Verificar que la categoría existe
     const category = await this.categoryRepository.findById(data.category_id);
     if (!category) {
-      throw new Error("Category not found");
+      throw new NotFoundError("Product Category", data.category_id);
     }
 
     // Verificar que el código no exista
     const codeExists = await this.repository.codeExists(data.code);
     if (codeExists) {
-      throw new Error(`Subcategory with code '${data.code}' already exists`);
+      throw new ConflictError(
+        `Subcategory with code '${data.code}' already exists`
+      );
     }
 
     // Si no se proporciona sort_order, asignar el siguiente
@@ -86,14 +93,16 @@ export class ProductSubcategoryService {
     if (data.code) {
       const codeExists = await this.repository.codeExists(data.code, id);
       if (codeExists) {
-        throw new Error(`Subcategory with code '${data.code}' already exists`);
+        throw new ConflictError(
+          `Subcategory with code '${data.code}' already exists`
+        );
       }
     }
 
     if (data.category_id) {
       const category = await this.categoryRepository.findById(data.category_id);
       if (!category) {
-        throw new Error("Category not found");
+        throw new NotFoundError("Product Category", data.category_id);
       }
     }
 
@@ -117,29 +126,31 @@ export class ProductSubcategoryService {
 
   private async validateSubcategoryData(
     data: Partial<ProductSubcategoryInsert>,
-    excludeId?: string
+    _excludeId?: string
   ): Promise<void> {
     if (data.code) {
       if (!/^[a-z0-9_]+$/.test(data.code)) {
-        throw new Error(
+        throw new ValidationError(
           "Subcategory code must contain only lowercase letters, numbers, and underscores"
         );
       }
       if (data.code.length < 2 || data.code.length > 50) {
-        throw new Error("Subcategory code must be between 2 and 50 characters");
+        throw new ValidationError(
+          "Subcategory code must be between 2 and 50 characters"
+        );
       }
     }
 
     if (data.name) {
       if (data.name.length < 2 || data.name.length > 200) {
-        throw new Error(
+        throw new ValidationError(
           "Subcategory name must be between 2 and 200 characters"
         );
       }
     }
 
     if (data.sort_order !== undefined && data.sort_order < 0) {
-      throw new Error("Sort order must be a positive number");
+      throw new ValidationError("Sort order must be a positive number");
     }
   }
 }
