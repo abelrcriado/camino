@@ -1,6 +1,10 @@
 import { ServiceProductRepository } from "@/repositories/service-product.repository";
 import { ProductCategoryRepository } from "@/repositories/product-category.repository";
 import { ProductSubcategoryRepository } from "@/repositories/product-subcategory.repository";
+import {
+  NotFoundError,
+  BusinessRuleError,
+} from "@/errors/custom-errors";
 import type {
   ServiceProduct,
   ServiceProductInsert,
@@ -23,7 +27,9 @@ export class ServiceProductService {
     return this.repository.findAll(filters);
   }
 
-  async listWithDetails(filters?: ServiceProductFilters): Promise<any[]> {
+  async listWithDetails(
+    filters?: ServiceProductFilters
+  ): Promise<ServiceProduct[]> {
     return this.repository.findAllWithDetails(filters);
   }
 
@@ -31,7 +37,7 @@ export class ServiceProductService {
     const product = await this.repository.findById(id);
 
     if (!product) {
-      throw new Error("Product not found");
+      throw new NotFoundError("ServiceProduct", id);
     }
 
     return product;
@@ -41,7 +47,7 @@ export class ServiceProductService {
     const product = await this.repository.findBySku(sku);
 
     if (!product) {
-      throw new Error("Product not found");
+      throw new NotFoundError("ServiceProduct", sku);
     }
 
     return product;
@@ -50,24 +56,24 @@ export class ServiceProductService {
   async create(data: ServiceProductInsert): Promise<ServiceProduct> {
     // Validar SKU
     if (!data.sku || data.sku.length < 2 || data.sku.length > 50) {
-      throw new Error("SKU must be between 2 and 50 characters");
+      throw new BusinessRuleError("SKU must be between 2 and 50 characters");
     }
 
     // Validar que no exista el SKU
     const exists = await this.repository.skuExists(data.sku);
     if (exists) {
-      throw new Error(`Product with SKU ${data.sku} already exists`);
+      throw new BusinessRuleError(`Product with SKU ${data.sku} already exists`);
     }
 
     // Validar nombre
     if (!data.name || data.name.length < 2 || data.name.length > 200) {
-      throw new Error("Name must be between 2 and 200 characters");
+      throw new BusinessRuleError("Name must be between 2 and 200 characters");
     }
 
     // Validar que la categoría existe
     const category = await this.categoryRepository.findById(data.category_id);
     if (!category) {
-      throw new Error(`Category with ID ${data.category_id} not found`);
+      throw new NotFoundError("Category", data.category_id);
     }
 
     // Validar subcategoría si se proporciona
@@ -76,12 +82,12 @@ export class ServiceProductService {
         data.subcategory_id
       );
       if (!subcategory) {
-        throw new Error(`Subcategory with ID ${data.subcategory_id} not found`);
+        throw new NotFoundError("Subcategory", data.subcategory_id);
       }
 
       // Verificar que la subcategoría pertenece a la categoría
       if (subcategory.category_id !== data.category_id) {
-        throw new Error(
+        throw new BusinessRuleError(
           "Subcategory does not belong to the specified category"
         );
       }
@@ -89,15 +95,15 @@ export class ServiceProductService {
 
     // Validar precios
     if (data.base_cost <= 0) {
-      throw new Error("Base cost must be greater than 0");
+      throw new BusinessRuleError("Base cost must be greater than 0");
     }
 
     if (data.retail_price <= 0) {
-      throw new Error("Retail price must be greater than 0");
+      throw new BusinessRuleError("Retail price must be greater than 0");
     }
 
     if (data.retail_price < data.base_cost) {
-      throw new Error(
+      throw new BusinessRuleError(
         "Retail price must be greater than or equal to base cost"
       );
     }
@@ -137,25 +143,25 @@ export class ServiceProductService {
     const product = await this.repository.findById(id);
 
     if (!product) {
-      throw new Error("Product not found");
+      throw new NotFoundError("ServiceProduct", id);
     }
 
     // Validar SKU si se actualiza
     if (updates.sku !== undefined) {
       if (updates.sku.length < 2 || updates.sku.length > 50) {
-        throw new Error("SKU must be between 2 and 50 characters");
+        throw new BusinessRuleError("SKU must be between 2 and 50 characters");
       }
 
       const exists = await this.repository.skuExists(updates.sku, id);
       if (exists) {
-        throw new Error(`Product with SKU ${updates.sku} already exists`);
+        throw new BusinessRuleError(`Product with SKU ${updates.sku} already exists`);
       }
     }
 
     // Validar nombre si se actualiza
     if (updates.name !== undefined) {
       if (updates.name.length < 2 || updates.name.length > 200) {
-        throw new Error("Name must be between 2 and 200 characters");
+        throw new BusinessRuleError("Name must be between 2 and 200 characters");
       }
     }
 
@@ -165,7 +171,7 @@ export class ServiceProductService {
         updates.category_id
       );
       if (!category) {
-        throw new Error(`Category with ID ${updates.category_id} not found`);
+        throw new NotFoundError("Category", updates.category_id);
       }
     }
 
@@ -178,14 +184,12 @@ export class ServiceProductService {
         updates.subcategory_id
       );
       if (!subcategory) {
-        throw new Error(
-          `Subcategory with ID ${updates.subcategory_id} not found`
-        );
+        throw new NotFoundError("Subcategory", updates.subcategory_id);
       }
 
       const categoryId = updates.category_id || product.category_id;
       if (subcategory.category_id !== categoryId) {
-        throw new Error(
+        throw new BusinessRuleError(
           "Subcategory does not belong to the specified category"
         );
       }
@@ -196,15 +200,15 @@ export class ServiceProductService {
     const newRetailPrice = updates.retail_price ?? product.retail_price;
 
     if (updates.base_cost !== undefined && updates.base_cost <= 0) {
-      throw new Error("Base cost must be greater than 0");
+      throw new BusinessRuleError("Base cost must be greater than 0");
     }
 
     if (updates.retail_price !== undefined && updates.retail_price <= 0) {
-      throw new Error("Retail price must be greater than 0");
+      throw new BusinessRuleError("Retail price must be greater than 0");
     }
 
     if (newRetailPrice < newBaseCost) {
-      throw new Error(
+      throw new BusinessRuleError(
         "Retail price must be greater than or equal to base cost"
       );
     }
@@ -220,7 +224,7 @@ export class ServiceProductService {
     const updatedProduct = await this.repository.update(id, updates);
 
     if (!updatedProduct) {
-      throw new Error("Product not found");
+      throw new NotFoundError("ServiceProduct", id);
     }
 
     return updatedProduct;
@@ -230,7 +234,7 @@ export class ServiceProductService {
     const product = await this.repository.findById(id);
 
     if (!product) {
-      throw new Error("Product not found");
+      throw new NotFoundError("ServiceProduct", id);
     }
 
     return this.repository.delete(id);
@@ -240,7 +244,7 @@ export class ServiceProductService {
     const product = await this.repository.findById(id);
 
     if (!product) {
-      throw new Error("Product not found");
+      throw new NotFoundError("ServiceProduct", id);
     }
 
     const updated = await this.repository.update(id, {
@@ -248,7 +252,7 @@ export class ServiceProductService {
     });
 
     if (!updated) {
-      throw new Error("Product not found");
+      throw new NotFoundError("ServiceProduct", id);
     }
 
     return updated;
