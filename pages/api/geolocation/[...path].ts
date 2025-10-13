@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { GeolocationController } from "@/controllers/geolocation.controller";
 import { GeolocationRepository } from "@/repositories/geolocation.repository";
 import { GeolocationServiceImpl } from "@/services/geolocation.service";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -446,9 +447,6 @@ const controller = new GeolocationController(service);
  * GET /api/geolocation/csp/:id/distance?lat=42.8782&lng=-8.5448
  * POST /api/geolocation/route
  */
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   return controller.handleRequest(req, res);
-}
+});

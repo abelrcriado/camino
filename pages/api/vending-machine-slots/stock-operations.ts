@@ -95,13 +95,11 @@
 
 import type { NextApiRequest, NextApiResponse } from "next";
 import { VendingMachineSlotController } from "@/controllers/vending_machine_slot.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 const controller = new VendingMachineSlotController();
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método no permitido" });
   }
@@ -117,4 +115,4 @@ export default async function handler(
   }
 
   return res.status(404).json({ error: "Endpoint no encontrado" });
-}
+});

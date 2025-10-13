@@ -1,12 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { WarehouseInventoryController } from "@/controllers/warehouse-inventory.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 const controller = new WarehouseInventoryController();
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const { method } = req;
 
   switch (method) {
@@ -20,4 +18,4 @@ export default async function handler(
         error: `Method ${method} Not Allowed`,
       });
   }
-}
+});

@@ -1,6 +1,7 @@
 // CRUD endpoints para VentaApp - Clean Architecture
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse} from "next";
 import { VentaAppController } from "../../src/controllers/venta_app.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -492,9 +493,7 @@ import { VentaAppController } from "../../src/controllers/venta_app.controller";
  *         stock_liberado:
  *           type: integer
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const controller = new VentaAppController();
   return controller.handle(req, res);
-}
-
-export default handler;
+});

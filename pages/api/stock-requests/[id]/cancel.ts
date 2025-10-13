@@ -1,10 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { stockRequestController } from "@/controllers/stock-request.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
 
-export default async function handler(
+
+export default asyncHandler(async (
   req: NextApiRequest,
   res: NextApiResponse
-) {
+) => {
   const { method } = req;
 
   if (method !== "PUT") {
@@ -13,4 +15,4 @@ export default async function handler(
   }
 
   return stockRequestController.cancel(req, res);
-}
+});

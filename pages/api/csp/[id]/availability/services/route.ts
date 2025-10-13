@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { AvailabilityController } from "@/controllers/availability.controller";
 
+
 const controller = new AvailabilityController();
 
 /**

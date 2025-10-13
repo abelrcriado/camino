@@ -1,12 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ServiceController } from "@/controllers/service.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
+
 
 const controller = new ServiceController();
 
-export default async function handler(
+export default asyncHandler(async (
   req: NextApiRequest,
   res: NextApiResponse
-) {
+) => {
   switch (req.method) {
     case "GET":
       return controller.getById(req, res);
@@ -26,4 +28,4 @@ export default async function handler(
         error: `Method ${req.method} not allowed`,
       });
   }
-}
+});

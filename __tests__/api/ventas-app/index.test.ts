@@ -517,9 +517,12 @@ describe("/api/ventas-app", () => {
         query: {},
       });
 
-      await expect(handler(req, res)).rejects.toThrow(
-        "Database connection failed"
-      );
+      await handler(req, res);
+
+      expect(res._getStatusCode()).toBe(500);
+      const data = JSON.parse(res._getData());
+      expect(data.error).toBe("Error interno del servidor");
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
     });
 
     it("debe manejar errores internos del controller (POST)", async () => {
@@ -537,9 +540,12 @@ describe("/api/ventas-app", () => {
         },
       });
 
-      await expect(handler(req, res)).rejects.toThrow(
-        "Stock reservation failed"
-      );
+      await handler(req, res);
+
+      expect(res._getStatusCode()).toBe(500);
+      const data = JSON.parse(res._getData());
+      expect(data.error).toBe("Error interno del servidor");
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
     });
 
     it("debe manejar objetos de error no estándar", async () => {
@@ -552,9 +558,12 @@ describe("/api/ventas-app", () => {
         query: {},
       });
 
-      await expect(handler(req, res)).rejects.toEqual({
-        custom: "error object",
-      });
+      await handler(req, res);
+
+      expect(res._getStatusCode()).toBe(500);
+      const data = JSON.parse(res._getData());
+      expect(data.error).toBe("Error interno del servidor");
+      expect(data.code).toBe("INTERNAL_SERVER_ERROR");
     });
   });
 

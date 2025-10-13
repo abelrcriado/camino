@@ -1,5 +1,6 @@
 // API entrypoint (Next.js API Route example)
 import type { NextApiRequest, NextApiResponse } from "next";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -20,6 +21,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
  *                   type: string
  *                   example: API working!
  */
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   res.status(200).json({ message: "API working!" });
-}
+});

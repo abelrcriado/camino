@@ -1,6 +1,7 @@
 // CRUD endpoints para Service Assignments - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ServiceAssignmentController } from "../../src/controllers/service_assignment.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -273,9 +274,6 @@ import { ServiceAssignmentController } from "../../src/controllers/service_assig
 
 const controller = new ServiceAssignmentController();
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   return controller.handle(req, res);
-}
+});

@@ -1,6 +1,7 @@
 // Endpoint para operaciones de ventas app
 import type { NextApiRequest, NextApiResponse } from "next";
 import { VentaAppController } from "@/controllers/venta_app.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -142,9 +143,7 @@ import { VentaAppController } from "@/controllers/venta_app.controller";
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const controller = new VentaAppController();
   return controller.handle(req, res);
-}
-
-export default handler;
+});

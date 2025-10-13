@@ -10,6 +10,7 @@
 
 import type { NextApiRequest, NextApiResponse } from "next";
 import { VendingMachineSlotController } from "@/controllers/vending_machine_slot.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -286,9 +287,6 @@ import { VendingMachineSlotController } from "@/controllers/vending_machine_slot
 
 const controller = new VendingMachineSlotController();
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   return controller.handle(req, res);
-}
+});

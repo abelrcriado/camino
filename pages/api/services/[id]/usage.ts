@@ -1,12 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ServiceController } from "@/controllers/service.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
+
 
 const controller = new ServiceController();
 
-export default async function handler(
+export default asyncHandler(async (
   req: NextApiRequest,
   res: NextApiResponse
-) {
+) => {
   if (req.method !== "POST") {
     return res.status(405).json({
       success: false,
@@ -15,4 +17,4 @@ export default async function handler(
   }
 
   return controller.updateUsage(req, res);
-}
+});
