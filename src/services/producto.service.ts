@@ -12,6 +12,10 @@ import {
   ProductoFilters,
   ProductoInventario,
 } from "@/dto/producto.dto";
+import {
+  NotFoundError,
+  BusinessRuleError,
+} from "@/errors/custom-errors";
 
 export class ProductoService extends BaseService<Producto> {
   private productoRepository: ProductoRepository;
@@ -29,17 +33,17 @@ export class ProductoService extends BaseService<Producto> {
     // Validar SKU único
     const skuExists = await this.productoRepository.skuExists(data.sku);
     if (skuExists) {
-      throw new Error(`El SKU '${data.sku}' ya existe`);
+      throw new BusinessRuleError(`El SKU '${data.sku}' ya existe`);
     }
 
     // Validación: precio_venta > costo_base
     if (data.precio_venta <= data.costo_base) {
-      throw new Error("El precio de venta debe ser mayor al costo base");
+      throw new BusinessRuleError("El precio de venta debe ser mayor al costo base");
     }
 
     // Validación: productos perecederos deben tener caducidad
     if (data.perecedero && !data.meses_caducidad && !data.dias_caducidad) {
-      throw new Error(
+      throw new BusinessRuleError(
         "Producto perecedero debe tener meses_caducidad o dias_caducidad"
       );
     }
@@ -55,7 +59,7 @@ export class ProductoService extends BaseService<Producto> {
     // Validar que el producto existe
     const existing = await this.findById(data.id);
     if (!existing) {
-      throw new Error(`Producto con ID ${data.id} no encontrado`);
+      throw new NotFoundError("Producto", data.id);
     }
 
     // Si se cambia el SKU, validar que no exista
@@ -65,7 +69,7 @@ export class ProductoService extends BaseService<Producto> {
         data.id
       );
       if (skuExists) {
-        throw new Error(`El SKU '${data.sku}' ya existe`);
+        throw new BusinessRuleError(`El SKU '${data.sku}' ya existe`);
       }
     }
 
@@ -74,7 +78,7 @@ export class ProductoService extends BaseService<Producto> {
     const newCostoBase = data.costo_base ?? existing.costo_base;
 
     if (newPrecioVenta <= newCostoBase) {
-      throw new Error("El precio de venta debe ser mayor al costo base");
+      throw new BusinessRuleError("El precio de venta debe ser mayor al costo base");
     }
 
     // Actualizar
@@ -87,7 +91,7 @@ export class ProductoService extends BaseService<Producto> {
   async deleteProducto(id: string): Promise<{ message: string }> {
     const existing = await this.findById(id);
     if (!existing) {
-      throw new Error(`Producto con ID ${id} no encontrado`);
+      throw new NotFoundError("Producto", id);
     }
 
     // Soft delete
