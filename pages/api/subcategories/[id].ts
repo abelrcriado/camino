@@ -1,12 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ProductSubcategoryController } from "@/controllers/product-subcategory.controller";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 const controller = new ProductSubcategoryController();
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   switch (req.method) {
     case "GET":
       return controller.getById(req, res);
@@ -26,4 +24,4 @@ export default async function handler(
         error: `Method ${req.method} not allowed`,
       });
   }
-}
+});

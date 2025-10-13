@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { CaminoController } from "../../../src/controllers/camino.controller";
 import { validateUUID } from "@/middlewares/validate-uuid";
 import { ErrorMessages } from "@/constants/error-messages";
+import { asyncHandler } from "@/middlewares/error-handler";
 
 /**
  * @swagger
@@ -139,7 +140,7 @@ import { ErrorMessages } from "@/constants/error-messages";
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const controller = new CaminoController();
 
   // Extraer ID del query param
@@ -171,6 +172,5 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     default:
       return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
   }
-}
+});
 
-export default handler;
