@@ -1,4 +1,5 @@
 // Controller para manejo de requests HTTP de Payment (Stripe integration)
+import logger from "@/config/logger";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PaymentService } from "../services/payment.service";
 import type {
@@ -416,7 +417,7 @@ export class PaymentController {
       this.logRequest(req, 200, startTime);
       return res.status(200).json({ received: true });
     } catch (error) {
-      console.error("[Webhook Error]:", error);
+      logger.error("[Webhook Error]:", error);
       this.logRequest(req, 400, startTime);
       return res.status(400).json({
         error: error instanceof Error ? error.message : "Webhook error",
@@ -432,10 +433,10 @@ export class PaymentController {
     res: NextApiResponse,
     startTime: number
   ): void {
-    console.error("[PaymentController Error]:", error);
+    logger.error("[PaymentController Error]:", error);
 
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ERROR - Duration: ${duration}ms - ${
         error instanceof Error ? error.message : "Unknown error"
       }`
@@ -473,7 +474,7 @@ export class PaymentController {
     startTime: number
   ): void {
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ${req.method} ${
         req.url
       } - ${statusCode} - ${duration}ms`

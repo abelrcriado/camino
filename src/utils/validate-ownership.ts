@@ -268,7 +268,7 @@ export function validateUbicacionOwnership(
  * @example
  * if (hasOwnershipProperty(slot, 'machine_id')) {
  *   // TypeScript sabe que slot.machine_id existe
- *   console.log(slot.machine_id);
+ *   logger.info(slot.machine_id);
  * }
  */
 export function hasOwnershipProperty<T extends Record<string, unknown>>(

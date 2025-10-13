@@ -1,4 +1,5 @@
 import { ServiceService } from "@/services/service.service";
+import logger from "@/config/logger";
 import type {
   ServiceInsert,
   ServiceUpdate,
@@ -61,7 +62,7 @@ export class ServiceController {
         count: services.length,
       });
     } catch (error: any) {
-      console.error("Error listing services:", error);
+      logger.error("Error listing services:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -90,7 +91,7 @@ export class ServiceController {
         message: "Service created successfully",
       });
     } catch (error: any) {
-      console.error("Error creating service:", error);
+      logger.error("Error creating service:", error);
 
       if (
         error.message.includes("must be between") ||
@@ -130,7 +131,7 @@ export class ServiceController {
         data: service,
       });
     } catch (error: any) {
-      console.error("Error getting service:", error);
+      logger.error("Error getting service:", error);
 
       if (error.message === "Service not found") {
         return res.status(404).json({
@@ -166,7 +167,7 @@ export class ServiceController {
         message: "Service updated successfully",
       });
     } catch (error: any) {
-      console.error("Error updating service:", error);
+      logger.error("Error updating service:", error);
 
       if (error.message === "Service not found") {
         return res.status(404).json({
@@ -212,7 +213,7 @@ export class ServiceController {
         message: "Service deleted successfully",
       });
     } catch (error: any) {
-      console.error("Error deleting service:", error);
+      logger.error("Error deleting service:", error);
 
       if (error.message === "Service not found") {
         return res.status(404).json({
@@ -261,7 +262,7 @@ export class ServiceController {
         message: `Service status updated to ${status}`,
       });
     } catch (error: any) {
-      console.error("Error updating service status:", error);
+      logger.error("Error updating service status:", error);
 
       if (error.message === "Service not found") {
         return res.status(404).json({
@@ -303,7 +304,7 @@ export class ServiceController {
         count: services.length,
       });
     } catch (error: any) {
-      console.error("Error getting services by status:", error);
+      logger.error("Error getting services by status:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",

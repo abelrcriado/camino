@@ -1,4 +1,5 @@
 // Controller para manejo de requests HTTP de Workshop
+import logger from "@/config/logger";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { WorkshopService } from "../services/workshop.service";
 import type { CreateWorkshopDto, UpdateWorkshopDto } from "../dto/workshop.dto";
@@ -141,10 +142,10 @@ export class WorkshopController {
     res: NextApiResponse,
     startTime: number
   ): void {
-    console.error("[WorkshopController Error]:", error);
+    logger.error("[WorkshopController Error]:", error);
 
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ERROR - Duration: ${duration}ms - ${
         error instanceof Error ? error.message : "Unknown error"
       }`
@@ -171,7 +172,7 @@ export class WorkshopController {
     startTime: number
   ): void {
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ${req.method} ${
         req.url
       } - ${statusCode} - ${duration}ms`

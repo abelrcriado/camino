@@ -7,6 +7,7 @@ import {
   type StockRequestDetail,
 } from "@/repositories/stock-request.repository";
 import { warehouseStockRepository } from "@/repositories/warehouse-stock.repository";
+import logger from "@/config/logger";
 
 export interface CreateStockRequestInput {
   fromWarehouseId: string;
@@ -114,7 +115,7 @@ export class StockRequestService {
         data: request,
       };
     } catch (error) {
-      console.error("Error in createRequest:", error);
+      logger.error("Error in createRequest:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -141,7 +142,7 @@ export class StockRequestService {
         data: request,
       };
     } catch (error) {
-      console.error("Error in getRequestById:", error);
+      logger.error("Error in getRequestById:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -170,7 +171,7 @@ export class StockRequestService {
         data: request,
       };
     } catch (error) {
-      console.error("Error in getRequestByNumber:", error);
+      logger.error("Error in getRequestByNumber:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -203,7 +204,7 @@ export class StockRequestService {
         data: requests,
       };
     } catch (error) {
-      console.error("Error in listRequests:", error);
+      logger.error("Error in listRequests:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -244,7 +245,7 @@ export class StockRequestService {
         data: await stockRequestRepository.getById(id),
       };
     } catch (error) {
-      console.error("Error in markAsPreparing:", error);
+      logger.error("Error in markAsPreparing:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -281,7 +282,7 @@ export class StockRequestService {
         data: await stockRequestRepository.getById(id),
       };
     } catch (error) {
-      console.error("Error in shipRequest:", error);
+      logger.error("Error in shipRequest:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -322,7 +323,7 @@ export class StockRequestService {
         data: await stockRequestRepository.getById(id),
       };
     } catch (error) {
-      console.error("Error in markAsDelivered:", error);
+      logger.error("Error in markAsDelivered:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -359,7 +360,7 @@ export class StockRequestService {
         data: await stockRequestRepository.getById(id),
       };
     } catch (error) {
-      console.error("Error in consolidateRequest:", error);
+      logger.error("Error in consolidateRequest:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -403,7 +404,7 @@ export class StockRequestService {
         data: await stockRequestRepository.getById(id),
       };
     } catch (error) {
-      console.error("Error in cancelRequest:", error);
+      logger.error("Error in cancelRequest:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -422,7 +423,7 @@ export class StockRequestService {
         data: requests,
       };
     } catch (error) {
-      console.error("Error in getRequiringAction:", error);
+      logger.error("Error in getRequiringAction:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -442,7 +443,7 @@ export class StockRequestService {
         data: requests,
       };
     } catch (error) {
-      console.error("Error in getInTransit:", error);
+      logger.error("Error in getInTransit:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -479,7 +480,7 @@ export class StockRequestService {
         data: stats,
       };
     } catch (error) {
-      console.error("Error in getStats:", error);
+      logger.error("Error in getStats:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",

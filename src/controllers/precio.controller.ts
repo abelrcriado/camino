@@ -9,6 +9,7 @@
  * - Manejo de errores HTTP
  */
 
+import logger from "@/config/logger";
 import { NextApiRequest, NextApiResponse } from "next";
 import { PrecioService } from "@/services/precio.service";
 import {
@@ -55,7 +56,7 @@ export class PrecioController {
           res.status(405).json({ error: "Método no permitido" });
       }
     } catch (error) {
-      console.error("Error en PrecioController:", error);
+      logger.error("Error en PrecioController:", error);
       res.status(500).json({
         error: "Error interno del servidor",
         details: error instanceof Error ? error.message : "Error desconocido",

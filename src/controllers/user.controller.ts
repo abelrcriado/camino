@@ -1,4 +1,5 @@
 // Controller para manejo de requests HTTP de User
+import logger from "@/config/logger";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { UserService } from "../services/user.service";
 import type { CreateUserDto, UpdateUserDto } from "../dto/user.dto";
@@ -162,13 +163,13 @@ export class UserController {
     res: NextApiResponse,
     startTime: number
   ): void {
-    console.error("[UserController] Error:", error);
+    logger.error("[UserController] Error:", error);
 
     const duration = Date.now() - startTime;
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
 
-    console.log(
+    logger.info(
       JSON.stringify({
         level: "error",
         message: errorMessage,
@@ -208,7 +209,7 @@ export class UserController {
     startTime: number
   ): void {
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       JSON.stringify({
         level: "info",
         method: req.method,

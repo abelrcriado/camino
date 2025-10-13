@@ -2,6 +2,7 @@
  * Service para Payment - lógica de negocio con integración Stripe
  */
 
+import logger from "@/config/logger";
 import Stripe from "stripe";
 import { BaseService } from "./base.service";
 import { PaymentRepository } from "../repositories/payment.repository";
@@ -227,7 +228,7 @@ export class PaymentService extends BaseService<Payment> {
         break;
 
       default:
-        console.log(`Unhandled webhook event type: ${event.type}`);
+        logger.info(`Unhandled webhook event type: ${event.type}`);
     }
   }
 
@@ -274,7 +275,7 @@ export class PaymentService extends BaseService<Payment> {
     if (payment) {
       // El reembolso ya fue procesado por la función RPC process_refund
       // Aquí solo actualizamos metadata si es necesario
-      console.log(`Refund processed for payment ${payment.id}`);
+      logger.info(`Refund processed for payment ${payment.id}`);
     }
   }
 

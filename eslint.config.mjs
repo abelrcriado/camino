@@ -20,6 +20,13 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    rules: {
+      // Prohibir console.log en código de producción
+      // Usar Winston logger en su lugar: import logger from '@/config/logger'
+      "no-console": "error",
+    },
+  },
 ];
 
 export default eslintConfig;

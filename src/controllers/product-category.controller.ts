@@ -1,4 +1,5 @@
 import { ProductCategoryService } from "@/services/product-category.service";
+import logger from "@/config/logger";
 import type {
   ProductCategoryInsert,
   ProductCategoryUpdate,
@@ -42,7 +43,7 @@ export class ProductCategoryController {
         count: categories.length,
       });
     } catch (error: any) {
-      console.error("Error listing categories:", error);
+      logger.error("Error listing categories:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -74,7 +75,7 @@ export class ProductCategoryController {
         message: "Category created successfully",
       });
     } catch (error: any) {
-      console.error("Error creating category:", error);
+      logger.error("Error creating category:", error);
 
       // Manejar errores de validación
       if (
@@ -117,7 +118,7 @@ export class ProductCategoryController {
         data: category,
       });
     } catch (error: any) {
-      console.error("Error getting category:", error);
+      logger.error("Error getting category:", error);
 
       if (error.message === "Category not found") {
         return res.status(404).json({
@@ -157,7 +158,7 @@ export class ProductCategoryController {
         message: "Category updated successfully",
       });
     } catch (error: any) {
-      console.error("Error updating category:", error);
+      logger.error("Error updating category:", error);
 
       if (error.message === "Category not found") {
         return res.status(404).json({
@@ -211,7 +212,7 @@ export class ProductCategoryController {
         message: "Category deleted successfully",
       });
     } catch (error: any) {
-      console.error("Error deleting category:", error);
+      logger.error("Error deleting category:", error);
 
       if (error.message === "Category not found") {
         return res.status(404).json({
@@ -252,7 +253,7 @@ export class ProductCategoryController {
         } successfully`,
       });
     } catch (error: any) {
-      console.error("Error toggling category:", error);
+      logger.error("Error toggling category:", error);
 
       if (error.message === "Category not found") {
         return res.status(404).json({
@@ -290,7 +291,7 @@ export class ProductCategoryController {
         message: "Categories reordered successfully",
       });
     } catch (error: any) {
-      console.error("Error reordering categories:", error);
+      logger.error("Error reordering categories:", error);
 
       return res.status(500).json({
         success: false,

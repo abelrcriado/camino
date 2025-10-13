@@ -1,4 +1,5 @@
 // Controller para manejo de requests HTTP de Favorite
+import logger from "@/config/logger";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { FavoriteService } from "../services/favorite.service";
 import type { CreateFavoriteDto, UpdateFavoriteDto } from "../dto/favorite.dto";
@@ -174,13 +175,13 @@ export class FavoriteController {
     res: NextApiResponse,
     startTime: number
   ): void {
-    console.error("[FavoriteController] Error:", error);
+    logger.error("[FavoriteController] Error:", error);
 
     const duration = Date.now() - startTime;
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
 
-    console.log(
+    logger.info(
       JSON.stringify({
         level: "error",
         message: errorMessage,
@@ -220,7 +221,7 @@ export class FavoriteController {
     startTime: number
   ): void {
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       JSON.stringify({
         level: "info",
         method: req.method,

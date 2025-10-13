@@ -1,4 +1,5 @@
 import { supabase } from "@/services/supabase";
+import logger from "@/config/logger";
 
 export type WarehouseType =
   | "physical_warehouse"
@@ -232,7 +233,7 @@ export class WarehouseRepository {
 
       return data as WarehouseFull[];
     } catch (error) {
-      console.error("Error in listFull:", error);
+      logger.error("Error in listFull:", error);
       return [];
     }
   }
@@ -248,7 +249,7 @@ export class WarehouseRepository {
       .single();
 
     if (error) {
-      console.error("Error fetching full warehouse:", error);
+      logger.error("Error fetching full warehouse:", error);
       return null;
     }
 

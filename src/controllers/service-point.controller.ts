@@ -57,7 +57,7 @@ export class ServicePointController {
 
       return res.status(405).json({ message: "Method not allowed" });
     } catch (error: any) {
-      console.error("[ServicePointController] Error:", error);
+      logger.error("[ServicePointController] Error:", error);
       this.logRequest(req, 500, startTime);
       return res.status(500).json({
         message: "Internal server error",
@@ -254,7 +254,7 @@ export class ServicePointController {
     startTime: number
   ): void {
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[ServicePointController] ${req.method} ${req.url} - ${statusCode} (${duration}ms)`
     );
   }

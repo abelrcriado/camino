@@ -1,4 +1,5 @@
 // Controller para manejo de requests HTTP de Review
+import logger from "@/config/logger";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ReviewService } from "../services/review.service";
 import type { CreateReviewDto, UpdateReviewDto } from "../dto/review.dto";
@@ -188,10 +189,10 @@ export class ReviewController {
     res: NextApiResponse,
     startTime: number
   ): void {
-    console.error("[ReviewController Error]:", error);
+    logger.error("[ReviewController Error]:", error);
 
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ERROR - Duration: ${duration}ms - ${
         error instanceof Error ? error.message : "Unknown error"
       }`
@@ -221,7 +222,7 @@ export class ReviewController {
     startTime: number
   ): void {
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ${req.method} ${
         req.url
       } - ${statusCode} - ${duration}ms`

@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import logger from "@/config/logger";
 import { AvailabilityService } from "@/services/availability.service";
 import {
   createOpeningHoursSchema,
@@ -329,10 +330,10 @@ export class AvailabilityController {
     res: NextApiResponse,
     startTime: number
   ): void {
-    console.error("[AvailabilityController Error]:", error);
+    logger.error("[AvailabilityController Error]:", error);
 
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ERROR - Duration: ${duration}ms - ${error.message}`
     );
 
@@ -348,7 +349,7 @@ export class AvailabilityController {
     startTime: number
   ): void {
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ${req.method} ${req.url} - ${statusCode} - ${duration}ms`
     );
   }

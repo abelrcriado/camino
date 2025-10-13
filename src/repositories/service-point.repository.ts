@@ -1,4 +1,5 @@
 /**
+import logger from "@/config/logger";
  * Service Point Repository
  * Acceso a datos de service_points table
  */
@@ -76,7 +77,7 @@ export class ServicePointRepository {
     const { data, error } = await query;
 
     if (error) {
-      console.error("[ServicePointRepository] findAll error:", error);
+      logger.error("[ServicePointRepository] findAll error:", error);
       throw new Error(`Failed to fetch service points: ${error.message}`);
     }
 
@@ -102,7 +103,7 @@ export class ServicePointRepository {
       if (error.code === "PGRST116") {
         return null; // Not found
       }
-      console.error("[ServicePointRepository] findById error:", error);
+      logger.error("[ServicePointRepository] findById error:", error);
       throw new Error(`Failed to fetch service point: ${error.message}`);
     }
 
@@ -125,7 +126,7 @@ export class ServicePointRepository {
       .single();
 
     if (error) {
-      console.error("[ServicePointRepository] create error:", error);
+      logger.error("[ServicePointRepository] create error:", error);
       throw new Error(`Failed to create service point: ${error.message}`);
     }
 
@@ -155,7 +156,7 @@ export class ServicePointRepository {
       if (error.code === "PGRST116") {
         return null; // Not found
       }
-      console.error("[ServicePointRepository] update error:", error);
+      logger.error("[ServicePointRepository] update error:", error);
       throw new Error(`Failed to update service point: ${error.message}`);
     }
 
@@ -172,7 +173,7 @@ export class ServicePointRepository {
       .eq("id", id);
 
     if (error) {
-      console.error("[ServicePointRepository] delete error:", error);
+      logger.error("[ServicePointRepository] delete error:", error);
       throw new Error(`Failed to delete service point: ${error.message}`);
     }
 
@@ -203,7 +204,7 @@ export class ServicePointRepository {
     const { data: revenues, error } = await query;
 
     if (error) {
-      console.error("[ServicePointRepository] getRevenueStats error:", error);
+      logger.error("[ServicePointRepository] getRevenueStats error:", error);
       throw new Error(`Failed to fetch revenue stats: ${error.message}`);
     }
 
@@ -287,7 +288,7 @@ export class ServicePointRepository {
     const { data: revenues, error } = await query;
 
     if (error) {
-      console.error("[ServicePointRepository] getNetworkStats error:", error);
+      logger.error("[ServicePointRepository] getNetworkStats error:", error);
       throw new Error(`Failed to fetch network stats: ${error.message}`);
     }
 

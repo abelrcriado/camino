@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import logger from "@/config/logger";
 import { LocationService } from "../services/location.service";
 
 export class LocationController {
@@ -30,8 +31,8 @@ export class LocationController {
     } catch (error: unknown) {
       const duration = Date.now() - startTime;
       const err = error as Error;
-      console.error(`[LocationController] Error: ${err.message}`);
-      console.error(
+      logger.error(`[LocationController] Error: ${err.message}`);
+      logger.error(
         `[LocationController] ${req.method} ${req.url} - 500 (${duration}ms)`
       );
       return res
@@ -60,7 +61,7 @@ export class LocationController {
       const locations = await this.locationService.list(filters);
 
       const duration = Date.now() - startTime;
-      console.log(`[LocationController] GET ${req.url} - 200 (${duration}ms)`);
+      logger.info(`[LocationController] GET ${req.url} - 200 (${duration}ms)`);
 
       // Standard pattern: GET returns array directly
       return res.status(200).json(locations);
@@ -82,7 +83,7 @@ export class LocationController {
       const location = await this.locationService.getById(id);
 
       const duration = Date.now() - startTime;
-      console.log(`[LocationController] GET ${req.url} - 200 (${duration}ms)`);
+      logger.info(`[LocationController] GET ${req.url} - 200 (${duration}ms)`);
 
       // Standard pattern: GET by ID returns object directly
       return res.status(200).json(location);
@@ -102,7 +103,7 @@ export class LocationController {
       const location = await this.locationService.create(req.body);
 
       const duration = Date.now() - startTime;
-      console.log(`[LocationController] POST ${req.url} - 201 (${duration}ms)`);
+      logger.info(`[LocationController] POST ${req.url} - 201 (${duration}ms)`);
 
       // Standard pattern: POST returns array with single item
       return res.status(201).json([location]);
@@ -124,7 +125,7 @@ export class LocationController {
       const location = await this.locationService.update(id, req.body);
 
       const duration = Date.now() - startTime;
-      console.log(`[LocationController] PUT ${req.url} - 200 (${duration}ms)`);
+      logger.info(`[LocationController] PUT ${req.url} - 200 (${duration}ms)`);
 
       // Standard pattern: PUT returns array with single item
       return res.status(200).json([location]);
@@ -150,7 +151,7 @@ export class LocationController {
       await this.locationService.delete(id);
 
       const duration = Date.now() - startTime;
-      console.log(
+      logger.info(
         `[LocationController] DELETE ${req.url} - 200 (${duration}ms)`
       );
 

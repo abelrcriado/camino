@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import logger from "@/config/logger";
 import { serviceAssignmentService } from "@/services/service-assignment.service";
 import {
   CreateServiceAssignmentDTO,
@@ -38,7 +39,7 @@ export class ServiceAssignmentController {
         count: assignments.length,
       });
     } catch (error: any) {
-      console.error("Error listing service assignments:", error);
+      logger.error("Error listing service assignments:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Failed to list service assignments",
@@ -75,7 +76,7 @@ export class ServiceAssignmentController {
         data: assignment,
       });
     } catch (error: any) {
-      console.error("Error getting service assignment:", error);
+      logger.error("Error getting service assignment:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Failed to get service assignment",
@@ -117,7 +118,7 @@ export class ServiceAssignmentController {
         message: "Service assigned successfully",
       });
     } catch (error: any) {
-      console.error("Error creating service assignment:", error);
+      logger.error("Error creating service assignment:", error);
 
       // Handle specific error messages
       if (error.message.includes("already assigned")) {
@@ -159,7 +160,7 @@ export class ServiceAssignmentController {
         message: "Service assignment updated successfully",
       });
     } catch (error: any) {
-      console.error("Error updating service assignment:", error);
+      logger.error("Error updating service assignment:", error);
 
       if (error.message.includes("not found")) {
         return res.status(404).json({
@@ -197,7 +198,7 @@ export class ServiceAssignmentController {
         message: "Service assignment deleted successfully",
       });
     } catch (error: any) {
-      console.error("Error deleting service assignment:", error);
+      logger.error("Error deleting service assignment:", error);
 
       if (error.message.includes("not found")) {
         return res.status(404).json({
@@ -253,7 +254,7 @@ export class ServiceAssignmentController {
         message: "Service unassigned successfully",
       });
     } catch (error: any) {
-      console.error("Error unassigning service:", error);
+      logger.error("Error unassigning service:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Failed to unassign service",

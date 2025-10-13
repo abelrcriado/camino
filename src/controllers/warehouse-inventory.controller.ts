@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import logger from "@/config/logger";
 import {
   WarehouseInventoryService,
   type TransferStockDTO,
@@ -26,7 +27,7 @@ export class WarehouseInventoryController {
         count: summary.length,
       });
     } catch (error: any) {
-      console.error("Error in getSummary:", error);
+      logger.error("Error in getSummary:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -55,7 +56,7 @@ export class WarehouseInventoryController {
         count: locations.length,
       });
     } catch (error: any) {
-      console.error("Error in getByLocation:", error);
+      logger.error("Error in getByLocation:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -92,7 +93,7 @@ export class WarehouseInventoryController {
         count: stock.length,
       });
     } catch (error: any) {
-      console.error("Error in getWarehouseStock:", error);
+      logger.error("Error in getWarehouseStock:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -122,7 +123,7 @@ export class WarehouseInventoryController {
         data: stock,
       });
     } catch (error: any) {
-      console.error("Error in getProductStock:", error);
+      logger.error("Error in getProductStock:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -175,7 +176,7 @@ export class WarehouseInventoryController {
         message: "Stock transferred successfully",
       });
     } catch (error: any) {
-      console.error("Error in transfer:", error);
+      logger.error("Error in transfer:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -213,7 +214,7 @@ export class WarehouseInventoryController {
         message: "Stock adjusted successfully",
       });
     } catch (error: any) {
-      console.error("Error in adjust:", error);
+      logger.error("Error in adjust:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -251,7 +252,7 @@ export class WarehouseInventoryController {
         message: "Purchase registered successfully",
       });
     } catch (error: any) {
-      console.error("Error in registerPurchase:", error);
+      logger.error("Error in registerPurchase:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -293,7 +294,7 @@ export class WarehouseInventoryController {
         count: movements.length,
       });
     } catch (error: any) {
-      console.error("Error in getMovements:", error);
+      logger.error("Error in getMovements:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -319,7 +320,7 @@ export class WarehouseInventoryController {
         count: products.length,
       });
     } catch (error: any) {
-      console.error("Error in getLowStock:", error);
+      logger.error("Error in getLowStock:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -344,7 +345,7 @@ export class WarehouseInventoryController {
         data: value,
       });
     } catch (error: any) {
-      console.error("Error in getInventoryValue:", error);
+      logger.error("Error in getInventoryValue:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import logger from "@/config/logger";
 import { z } from 'zod';
 import { AvailabilityService } from '@/services/availability.service';
 import { AvailabilityRepository } from '@/repositories/availability.repository';
@@ -85,7 +86,7 @@ export class AvailabilityController {
 
       return NextResponse.json(status);
     } catch (error) {
-      console.error('Error getting CSP availability:', error);
+      logger.error('Error getting CSP availability:', error);
       return NextResponse.json(
         { error: 'Failed to get CSP availability', message: (error as Error).message },
         { status: 500 }
@@ -116,7 +117,7 @@ export class AvailabilityController {
         checked_at: (checkTime || new Date()).toISOString(),
       });
     } catch (error) {
-      console.error('Error checking if CSP is open:', error);
+      logger.error('Error checking if CSP is open:', error);
       return NextResponse.json(
         { error: 'Failed to check CSP status', message: (error as Error).message },
         { status: 500 }
@@ -141,7 +142,7 @@ export class AvailabilityController {
         opening_hours: openingHours,
       });
     } catch (error) {
-      console.error('Error getting opening hours:', error);
+      logger.error('Error getting opening hours:', error);
       return NextResponse.json(
         { error: 'Failed to get opening hours', message: (error as Error).message },
         { status: 500 }
@@ -179,7 +180,7 @@ export class AvailabilityController {
         opening_hours: openingHours,
       }, { status: 201 });
     } catch (error) {
-      console.error('Error setting opening hours:', error);
+      logger.error('Error setting opening hours:', error);
       return NextResponse.json(
         { error: 'Failed to set opening hours', message: (error as Error).message },
         { status: 500 }
@@ -212,7 +213,7 @@ export class AvailabilityController {
         closures: closures,
       });
     } catch (error) {
-      console.error('Error getting special closures:', error);
+      logger.error('Error getting special closures:', error);
       return NextResponse.json(
         { error: 'Failed to get special closures', message: (error as Error).message },
         { status: 500 }
@@ -244,7 +245,7 @@ export class AvailabilityController {
 
       return NextResponse.json(closure, { status: 201 });
     } catch (error) {
-      console.error('Error creating special closure:', error);
+      logger.error('Error creating special closure:', error);
       return NextResponse.json(
         { error: 'Failed to create special closure', message: (error as Error).message },
         { status: 500 }
@@ -266,7 +267,7 @@ export class AvailabilityController {
 
       return NextResponse.json({ message: 'Special closure deleted successfully' });
     } catch (error) {
-      console.error('Error deleting special closure:', error);
+      logger.error('Error deleting special closure:', error);
       return NextResponse.json(
         { error: 'Failed to delete special closure', message: (error as Error).message },
         { status: 500 }
@@ -294,7 +295,7 @@ export class AvailabilityController {
         services: services,
       });
     } catch (error) {
-      console.error('Error getting service availability:', error);
+      logger.error('Error getting service availability:', error);
       return NextResponse.json(
         { error: 'Failed to get service availability', message: (error as Error).message },
         { status: 500 }
@@ -334,7 +335,7 @@ export class AvailabilityController {
 
       return NextResponse.json(availability);
     } catch (error) {
-      console.error('Error updating service availability:', error);
+      logger.error('Error updating service availability:', error);
       return NextResponse.json(
         { error: 'Failed to update service availability', message: (error as Error).message },
         { status: 500 }
@@ -382,7 +383,7 @@ export class AvailabilityController {
         is_available: isAvailable,
       });
     } catch (error) {
-      console.error('Error checking slot availability:', error);
+      logger.error('Error checking slot availability:', error);
       return NextResponse.json(
         { error: 'Failed to check slot availability', message: (error as Error).message },
         { status: 500 }

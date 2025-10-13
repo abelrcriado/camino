@@ -188,7 +188,7 @@ export function handleSupabaseError(
   res: NextApiResponse,
   error: { message: string; code?: string; details?: string }
 ) {
-  console.error("Supabase error:", error);
+  logger.error("Supabase error:", error);
 
   // Mapear códigos de error comunes
   const statusCode = getStatusCodeFromError(error);

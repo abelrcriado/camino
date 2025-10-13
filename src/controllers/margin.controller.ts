@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import logger from "@/config/logger";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -37,7 +38,7 @@ export const marginController = {
         data: data || null,
       };
     } catch (error: any) {
-      console.error("Error fetching margin config:", error);
+      logger.error("Error fetching margin config:", error);
       return {
         success: false,
         error: error.message || "Error al obtener configuración de márgenes",
@@ -90,7 +91,7 @@ export const marginController = {
         data,
       };
     } catch (error: any) {
-      console.error("Error upserting general margin:", error);
+      logger.error("Error upserting general margin:", error);
       return {
         success: false,
         error: error.message || "Error al actualizar margen general",
@@ -141,7 +142,7 @@ export const marginController = {
         },
       };
     } catch (error: any) {
-      console.error("Error updating product margins:", error);
+      logger.error("Error updating product margins:", error);
       return {
         success: false,
         error: error.message || "Error al actualizar márgenes por producto",
@@ -182,7 +183,7 @@ export const marginController = {
         data: { product_id: productId, removed: true },
       };
     } catch (error: any) {
-      console.error("Error removing product margin:", error);
+      logger.error("Error removing product margin:", error);
       return {
         success: false,
         error: error.message || "Error al eliminar margen de producto",
@@ -219,7 +220,7 @@ export const marginController = {
         },
       };
     } catch (error: any) {
-      console.error("Error calculating price:", error);
+      logger.error("Error calculating price:", error);
       return {
         success: false,
         error: error.message || "Error al calcular precio con margen",
@@ -244,7 +245,7 @@ export const marginController = {
         data: data || [],
       };
     } catch (error: any) {
-      console.error("Error fetching product prices:", error);
+      logger.error("Error fetching product prices:", error);
       return {
         success: false,
         error: error.message || "Error al obtener precios con márgenes",

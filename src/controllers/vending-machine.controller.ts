@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import logger from "@/config/logger";
 import { VendingMachineService } from "../services/vending-machine.service";
 
 export class VendingMachineController {
@@ -29,8 +30,8 @@ export class VendingMachineController {
       }
     } catch (error: any) {
       const duration = Date.now() - startTime;
-      console.error(`[VendingMachineController] Error: ${error.message}`);
-      console.error(
+      logger.error(`[VendingMachineController] Error: ${error.message}`);
+      logger.error(
         `[VendingMachineController] ${req.method} ${req.url} - 500 (${duration}ms)`
       );
       return res
@@ -53,7 +54,7 @@ export class VendingMachineController {
       const machines = await this.vendingMachineService.list(filters);
 
       const duration = Date.now() - startTime;
-      console.log(
+      logger.info(
         `[VendingMachineController] GET ${req.url} - 200 (${duration}ms)`
       );
 
@@ -76,7 +77,7 @@ export class VendingMachineController {
       const machine = await this.vendingMachineService.getById(id);
 
       const duration = Date.now() - startTime;
-      console.log(
+      logger.info(
         `[VendingMachineController] GET ${req.url} - 200 (${duration}ms)`
       );
 
@@ -96,7 +97,7 @@ export class VendingMachineController {
       const machine = await this.vendingMachineService.create(req.body);
 
       const duration = Date.now() - startTime;
-      console.log(
+      logger.info(
         `[VendingMachineController] POST ${req.url} - 201 (${duration}ms)`
       );
 
@@ -119,7 +120,7 @@ export class VendingMachineController {
       const machine = await this.vendingMachineService.update(id, req.body);
 
       const duration = Date.now() - startTime;
-      console.log(
+      logger.info(
         `[VendingMachineController] PUT ${req.url} - 200 (${duration}ms)`
       );
 
@@ -145,7 +146,7 @@ export class VendingMachineController {
       await this.vendingMachineService.delete(id);
 
       const duration = Date.now() - startTime;
-      console.log(
+      logger.info(
         `[VendingMachineController] DELETE ${req.url} - 204 (${duration}ms)`
       );
 

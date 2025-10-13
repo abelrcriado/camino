@@ -1,4 +1,5 @@
 import { ServiceProductService } from "@/services/service-product.service";
+import logger from "@/config/logger";
 import type {
   ServiceProductInsert,
   ServiceProductUpdate,
@@ -67,7 +68,7 @@ export class ServiceProductController {
         count: products.length,
       });
     } catch (error: any) {
-      console.error("Error listing products:", error);
+      logger.error("Error listing products:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -101,7 +102,7 @@ export class ServiceProductController {
         message: "Product created successfully",
       });
     } catch (error: any) {
-      console.error("Error creating product:", error);
+      logger.error("Error creating product:", error);
 
       if (
         error.message.includes("already exists") ||
@@ -141,7 +142,7 @@ export class ServiceProductController {
         data: product,
       });
     } catch (error: any) {
-      console.error("Error getting product:", error);
+      logger.error("Error getting product:", error);
 
       if (error.message === "Product not found") {
         return res.status(404).json({
@@ -175,7 +176,7 @@ export class ServiceProductController {
         data: product,
       });
     } catch (error: any) {
-      console.error("Error getting product by SKU:", error);
+      logger.error("Error getting product by SKU:", error);
 
       if (error.message === "Product not found") {
         return res.status(404).json({
@@ -211,7 +212,7 @@ export class ServiceProductController {
         message: "Product updated successfully",
       });
     } catch (error: any) {
-      console.error("Error updating product:", error);
+      logger.error("Error updating product:", error);
 
       if (error.message === "Product not found") {
         return res.status(404).json({
@@ -258,7 +259,7 @@ export class ServiceProductController {
         message: "Product deleted successfully",
       });
     } catch (error: any) {
-      console.error("Error deleting product:", error);
+      logger.error("Error deleting product:", error);
 
       if (error.message === "Product not found") {
         return res.status(404).json({
@@ -295,7 +296,7 @@ export class ServiceProductController {
         } successfully`,
       });
     } catch (error: any) {
-      console.error("Error toggling product:", error);
+      logger.error("Error toggling product:", error);
 
       if (error.message === "Product not found") {
         return res.status(404).json({
@@ -320,7 +321,7 @@ export class ServiceProductController {
         data: brands,
       });
     } catch (error: any) {
-      console.error("Error getting brands:", error);
+      logger.error("Error getting brands:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -337,7 +338,7 @@ export class ServiceProductController {
         data: tags,
       });
     } catch (error: any) {
-      console.error("Error getting tags:", error);
+      logger.error("Error getting tags:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",

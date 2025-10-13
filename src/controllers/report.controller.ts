@@ -1,4 +1,5 @@
 // Controller para Report
+import logger from "@/config/logger";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ReportService } from "../services/report.service";
 import type { ReportFilters } from "../dto/report.dto";
@@ -36,7 +37,7 @@ export class ReportController {
           return res.status(405).json({ error: "Método no permitido" });
       }
     } catch (error) {
-      console.error("Error en ReportController:", error);
+      logger.error("Error en ReportController:", error);
       return res.status(500).json({
         error: "Error interno del servidor",
         details: error instanceof Error ? error.message : "Error desconocido",
@@ -116,7 +117,7 @@ export class ReportController {
       });
       return res.status(200).json(reports);
     } catch (error) {
-      console.error("Error al obtener reportes:", error);
+      logger.error("Error al obtener reportes:", error);
       return res.status(500).json({
         error: "Error al obtener reportes",
         details: error instanceof Error ? error.message : "Error desconocido",
@@ -144,7 +145,7 @@ export class ReportController {
       ); // TODO: Alinear schema con DTO
       return res.status(201).json([report]);
     } catch (error) {
-      console.error("Error al crear reporte:", error);
+      logger.error("Error al crear reporte:", error);
       return res.status(500).json({
         error: "Error al crear reporte",
         details: error instanceof Error ? error.message : "Error desconocido",
@@ -175,7 +176,7 @@ export class ReportController {
       const report = await this.reportService.updateReport(id, updateData);
       return res.status(200).json([report]);
     } catch (error) {
-      console.error("Error al actualizar reporte:", error);
+      logger.error("Error al actualizar reporte:", error);
       return res.status(500).json({
         error: "Error al actualizar reporte",
         details: error instanceof Error ? error.message : "Error desconocido",
@@ -203,7 +204,7 @@ export class ReportController {
         .status(200)
         .json({ message: "Reporte eliminado correctamente" });
     } catch (error) {
-      console.error("Error al eliminar reporte:", error);
+      logger.error("Error al eliminar reporte:", error);
       return res.status(500).json({
         error: "Error al eliminar reporte",
         details: error instanceof Error ? error.message : "Error desconocido",

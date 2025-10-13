@@ -1,4 +1,5 @@
 // Controller para manejo de requests HTTP de Partner
+import logger from "@/config/logger";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PartnerService } from "../services/partner.service";
 import type { CreatePartnerDto, UpdatePartnerDto } from "../dto/partner.dto";
@@ -142,10 +143,10 @@ export class PartnerController {
     res: NextApiResponse,
     startTime: number
   ): void {
-    console.error("[PartnerController Error]:", error);
+    logger.error("[PartnerController Error]:", error);
 
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ERROR - Duration: ${duration}ms - ${
         error instanceof Error ? error.message : "Unknown error"
       }`
@@ -172,7 +173,7 @@ export class PartnerController {
     startTime: number
   ): void {
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ${req.method} ${
         req.url
       } - ${statusCode} - ${duration}ms`

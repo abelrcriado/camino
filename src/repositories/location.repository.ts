@@ -1,4 +1,5 @@
 import { supabase } from "../services/supabase";
+import logger from "@/config/logger";
 
 export interface Location {
   id: string;
@@ -43,7 +44,7 @@ export class LocationRepository {
     province?: string;
     is_active?: boolean;
   }): Promise<Location[]> {
-    console.log("[LocationRepository] findAll", { filters });
+    logger.info("[LocationRepository] findAll", { filters });
 
     // Join with caminos table to get camino_nombre
     let query = supabase.from("locations").select(
@@ -70,7 +71,7 @@ export class LocationRepository {
     const { data, error } = await query.order("city", { ascending: true });
 
     if (error) {
-      console.error("[LocationRepository] findAll error:", error);
+      logger.error("[LocationRepository] findAll error:", error);
       throw new Error(`Failed to fetch locations: ${error.message}`);
     }
 
@@ -89,7 +90,7 @@ export class LocationRepository {
   }
 
   async findById(id: string): Promise<Location | null> {
-    console.log("[LocationRepository] findById", { id });
+    logger.info("[LocationRepository] findById", { id });
 
     const { data, error } = await supabase
       .from("locations")
@@ -101,7 +102,7 @@ export class LocationRepository {
       if (error.code === "PGRST116") {
         return null;
       }
-      console.error("[LocationRepository] findById error:", error);
+      logger.error("[LocationRepository] findById error:", error);
       throw new Error(`Failed to fetch location: ${error.message}`);
     }
 
@@ -109,7 +110,7 @@ export class LocationRepository {
   }
 
   async create(locationData: CreateLocationDTO): Promise<Location> {
-    console.log("[LocationRepository] create", { locationData });
+    logger.info("[LocationRepository] create", { locationData });
 
     const { data, error } = await supabase
       .from("locations")
@@ -122,7 +123,7 @@ export class LocationRepository {
       .single();
 
     if (error) {
-      console.error("[LocationRepository] create error:", error);
+      logger.error("[LocationRepository] create error:", error);
       throw new Error(`Failed to create location: ${error.message}`);
     }
 
@@ -130,7 +131,7 @@ export class LocationRepository {
   }
 
   async update(id: string, locationData: UpdateLocationDTO): Promise<Location> {
-    console.log("[LocationRepository] update", { id, locationData });
+    logger.info("[LocationRepository] update", { id, locationData });
 
     const { data, error } = await supabase
       .from("locations")
@@ -140,7 +141,7 @@ export class LocationRepository {
       .single();
 
     if (error) {
-      console.error("[LocationRepository] update error:", error);
+      logger.error("[LocationRepository] update error:", error);
       throw new Error(`Failed to update location: ${error.message}`);
     }
 
@@ -148,12 +149,12 @@ export class LocationRepository {
   }
 
   async delete(id: string): Promise<void> {
-    console.log("[LocationRepository] delete", { id });
+    logger.info("[LocationRepository] delete", { id });
 
     const { error } = await supabase.from("locations").delete().eq("id", id);
 
     if (error) {
-      console.error("[LocationRepository] delete error:", error);
+      logger.error("[LocationRepository] delete error:", error);
       throw new Error(`Failed to delete location: ${error.message}`);
     }
   }

@@ -1,4 +1,5 @@
 // Controller para manejo de requests HTTP de Vending Machine
+import logger from "@/config/logger";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { VendingMachineService } from "../services/vending_machine.service";
 import type {
@@ -151,10 +152,10 @@ export class VendingMachineController {
     res: NextApiResponse,
     startTime: number
   ): void {
-    console.error("[VendingMachineController Error]:", error);
+    logger.error("[VendingMachineController Error]:", error);
 
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ERROR - Duration: ${duration}ms - ${
         error instanceof Error ? error.message : "Unknown error"
       }`
@@ -181,7 +182,7 @@ export class VendingMachineController {
     startTime: number
   ): void {
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ${req.method} ${
         req.url
       } - ${statusCode} - ${duration}ms`

@@ -1,4 +1,5 @@
 // Controller para manejo de requests HTTP de Inventory Items
+import logger from "@/config/logger";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { InventoryItemService } from "../services/inventory_item.service";
 import type {
@@ -150,10 +151,10 @@ export class InventoryItemController {
     res: NextApiResponse,
     startTime: number
   ): void {
-    console.error("[InventoryItemController Error]:", error);
+    logger.error("[InventoryItemController Error]:", error);
 
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ERROR - Duration: ${duration}ms - ${
         error instanceof Error ? error.message : "Unknown error"
       }`
@@ -180,7 +181,7 @@ export class InventoryItemController {
     startTime: number
   ): void {
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ${req.method} ${
         req.url
       } - ${statusCode} - ${duration}ms`

@@ -3,6 +3,7 @@
  * HTTP request handling for ventas from mobile app
  */
 
+import logger from "@/config/logger";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { VentaAppService } from "../services/venta_app.service";
 import { VentaAppRepository } from "../repositories/venta_app.repository";
@@ -477,7 +478,7 @@ export class VentaAppController {
   ): void {
     const duration = Date.now() - startTime;
 
-    console.error("❌ VentaApp Controller Error:", {
+    logger.error("❌ VentaApp Controller Error:", {
       error: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined,
       duration: `${duration}ms`,
@@ -531,7 +532,7 @@ export class VentaAppController {
     const duration = Date.now() - startTime;
     const statusEmoji = statusCode >= 400 ? "❌" : "✅";
 
-    console.log(
+    logger.info(
       `${statusEmoji} ${req.method} ${req.url} - ${statusCode} - ${duration}ms`
     );
   }

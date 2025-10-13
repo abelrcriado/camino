@@ -1,4 +1,5 @@
 import { ProductSubcategoryService } from "@/services/product-subcategory.service";
+import logger from "@/config/logger";
 import type {
   ProductSubcategoryInsert,
   ProductSubcategoryUpdate,
@@ -42,7 +43,7 @@ export class ProductSubcategoryController {
         count: subcategories.length,
       });
     } catch (error: any) {
-      console.error("Error listing subcategories:", error);
+      logger.error("Error listing subcategories:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -69,7 +70,7 @@ export class ProductSubcategoryController {
         message: "Subcategory created successfully",
       });
     } catch (error: any) {
-      console.error("Error creating subcategory:", error);
+      logger.error("Error creating subcategory:", error);
 
       if (
         error.message.includes("already exists") ||
@@ -108,7 +109,7 @@ export class ProductSubcategoryController {
         data: subcategory,
       });
     } catch (error: any) {
-      console.error("Error getting subcategory:", error);
+      logger.error("Error getting subcategory:", error);
 
       if (error.message === "Subcategory not found") {
         return res.status(404).json({
@@ -144,7 +145,7 @@ export class ProductSubcategoryController {
         message: "Subcategory updated successfully",
       });
     } catch (error: any) {
-      console.error("Error updating subcategory:", error);
+      logger.error("Error updating subcategory:", error);
 
       if (error.message === "Subcategory not found") {
         return res.status(404).json({
@@ -194,7 +195,7 @@ export class ProductSubcategoryController {
         message: "Subcategory deleted successfully",
       });
     } catch (error: any) {
-      console.error("Error deleting subcategory:", error);
+      logger.error("Error deleting subcategory:", error);
 
       if (error.message === "Subcategory not found") {
         return res.status(404).json({
@@ -231,7 +232,7 @@ export class ProductSubcategoryController {
         } successfully`,
       });
     } catch (error: any) {
-      console.error("Error toggling subcategory:", error);
+      logger.error("Error toggling subcategory:", error);
 
       if (error.message === "Subcategory not found") {
         return res.status(404).json({

@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import logger from "@/config/logger";
 import {
   stockRequestService,
   type CreateStockRequestInput,
@@ -38,7 +39,7 @@ export class StockRequestController {
         data: result.data,
       });
     } catch (error) {
-      console.error("Error in create stock request:", error);
+      logger.error("Error in create stock request:", error);
       return res.status(500).json({
         error: "Error interno del servidor",
       });
@@ -64,7 +65,7 @@ export class StockRequestController {
 
       return res.status(200).json({ data: result.data });
     } catch (error) {
-      console.error("Error in getById stock request:", error);
+      logger.error("Error in getById stock request:", error);
       return res.status(500).json({ error: "Error interno del servidor" });
     }
   }
@@ -137,7 +138,7 @@ export class StockRequestController {
         count: result.data?.length || 0,
       });
     } catch (error) {
-      console.error("Error in list stock requests:", error);
+      logger.error("Error in list stock requests:", error);
       return res.status(500).json({ error: "Error interno del servidor" });
     }
   }
@@ -164,7 +165,7 @@ export class StockRequestController {
         data: result.data,
       });
     } catch (error) {
-      console.error("Error in markAsPreparing:", error);
+      logger.error("Error in markAsPreparing:", error);
       return res.status(500).json({ error: "Error interno del servidor" });
     }
   }
@@ -196,7 +197,7 @@ export class StockRequestController {
         data: result.data,
       });
     } catch (error) {
-      console.error("Error in ship:", error);
+      logger.error("Error in ship:", error);
       return res.status(500).json({ error: "Error interno del servidor" });
     }
   }
@@ -234,7 +235,7 @@ export class StockRequestController {
         data: result.data,
       });
     } catch (error) {
-      console.error("Error in markAsDelivered:", error);
+      logger.error("Error in markAsDelivered:", error);
       return res.status(500).json({ error: "Error interno del servidor" });
     }
   }
@@ -270,7 +271,7 @@ export class StockRequestController {
         data: result.data,
       });
     } catch (error) {
-      console.error("Error in consolidate:", error);
+      logger.error("Error in consolidate:", error);
       return res.status(500).json({ error: "Error interno del servidor" });
     }
   }
@@ -308,7 +309,7 @@ export class StockRequestController {
         data: result.data,
       });
     } catch (error) {
-      console.error("Error in cancel:", error);
+      logger.error("Error in cancel:", error);
       return res.status(500).json({ error: "Error interno del servidor" });
     }
   }
@@ -325,7 +326,7 @@ export class StockRequestController {
         count: result.data?.length || 0,
       });
     } catch (error) {
-      console.error("Error in getRequiringAction:", error);
+      logger.error("Error in getRequiringAction:", error);
       return res.status(500).json({ error: "Error interno del servidor" });
     }
   }
@@ -342,7 +343,7 @@ export class StockRequestController {
         count: result.data?.length || 0,
       });
     } catch (error) {
-      console.error("Error in getInTransit:", error);
+      logger.error("Error in getInTransit:", error);
       return res.status(500).json({ error: "Error interno del servidor" });
     }
   }
@@ -377,7 +378,7 @@ export class StockRequestController {
 
       return res.status(200).json({ data: result.data });
     } catch (error) {
-      console.error("Error in getStats:", error);
+      logger.error("Error in getStats:", error);
       return res.status(500).json({ error: "Error interno del servidor" });
     }
   }
@@ -421,7 +422,7 @@ export class StockRequestController {
         data: result.data,
       });
     } catch (error) {
-      console.error("Error in processWorkflow:", error);
+      logger.error("Error in processWorkflow:", error);
       return res.status(500).json({ error: "Error interno del servidor" });
     }
   }

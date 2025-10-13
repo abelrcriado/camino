@@ -1,4 +1,5 @@
 // Controller para manejo de requests HTTP de Booking
+import logger from "@/config/logger";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { BookingService } from "../services/booking.service";
 import type { CreateBookingDto, UpdateBookingDto } from "../dto/booking.dto";
@@ -262,13 +263,13 @@ export class BookingController {
     res: NextApiResponse,
     startTime: number
   ): void {
-    console.error("[BookingController] Error:", error);
+    logger.error("[BookingController] Error:", error);
 
     const duration = Date.now() - startTime;
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
 
-    console.log(
+    logger.info(
       JSON.stringify({
         level: "error",
         message: errorMessage,
@@ -309,7 +310,7 @@ export class BookingController {
     startTime: number
   ): void {
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       JSON.stringify({
         level: "info",
         method: req.method,

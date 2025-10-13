@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import logger from "@/config/logger";
 import { WarehouseService } from "@/services/warehouse.service";
 import type {
   CreateWarehouseDTO,
@@ -37,7 +38,7 @@ export class WarehouseController {
         count: warehouses.length,
       });
     } catch (error: any) {
-      console.error("Error in getAll warehouses:", error);
+      logger.error("Error in getAll warehouses:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -71,7 +72,7 @@ export class WarehouseController {
         data: warehouse,
       });
     } catch (error: any) {
-      console.error("Error in getById warehouse:", error);
+      logger.error("Error in getById warehouse:", error);
 
       if (error.message === "Warehouse not found") {
         return res.status(404).json({
@@ -113,7 +114,7 @@ export class WarehouseController {
         message: "Warehouse created successfully",
       });
     } catch (error: any) {
-      console.error("Error in create warehouse:", error);
+      logger.error("Error in create warehouse:", error);
 
       if (error.message.includes("already exists")) {
         return res.status(409).json({
@@ -156,7 +157,7 @@ export class WarehouseController {
         message: "Warehouse updated successfully",
       });
     } catch (error: any) {
-      console.error("Error in update warehouse:", error);
+      logger.error("Error in update warehouse:", error);
 
       if (error.message === "Warehouse not found") {
         return res.status(404).json({
@@ -201,7 +202,7 @@ export class WarehouseController {
         message: "Warehouse deleted successfully",
       });
     } catch (error: any) {
-      console.error("Error in delete warehouse:", error);
+      logger.error("Error in delete warehouse:", error);
 
       if (error.message === "Warehouse not found") {
         return res.status(404).json({
@@ -242,7 +243,7 @@ export class WarehouseController {
         } successfully`,
       });
     } catch (error: any) {
-      console.error("Error in toggleStatus warehouse:", error);
+      logger.error("Error in toggleStatus warehouse:", error);
 
       if (error.message === "Warehouse not found") {
         return res.status(404).json({

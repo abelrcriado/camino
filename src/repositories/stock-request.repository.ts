@@ -1,4 +1,5 @@
 import { supabase } from "@/services/supabase";
+import logger from "@/config/logger";
 
 // Types
 export type StockRequestStatus =
@@ -106,13 +107,13 @@ export class StockRequestRepository {
       );
 
       if (error) {
-        console.error("Error creating stock request:", error);
+        logger.error("Error creating stock request:", error);
         return { success: false, error: error.message };
       }
 
       return { success: true, request_id: result };
     } catch (error) {
-      console.error("Exception in create stock request:", error);
+      logger.error("Exception in create stock request:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -132,13 +133,13 @@ export class StockRequestRepository {
         .single();
 
       if (error) {
-        console.error("Error fetching stock request:", error);
+        logger.error("Error fetching stock request:", error);
         return null;
       }
 
       return data as StockRequestDetail;
     } catch (error) {
-      console.error("Exception in getById:", error);
+      logger.error("Exception in getById:", error);
       return null;
     }
   }
@@ -157,13 +158,13 @@ export class StockRequestRepository {
         .single();
 
       if (error) {
-        console.error("Error fetching stock request by number:", error);
+        logger.error("Error fetching stock request by number:", error);
         return null;
       }
 
       return data as StockRequestDetail;
     } catch (error) {
-      console.error("Exception in getByRequestNumber:", error);
+      logger.error("Exception in getByRequestNumber:", error);
       return null;
     }
   }
@@ -218,13 +219,13 @@ export class StockRequestRepository {
       const { data, error } = await query;
 
       if (error) {
-        console.error("Error listing stock requests:", error);
+        logger.error("Error listing stock requests:", error);
         return [];
       }
 
       return data as StockRequestDetail[];
     } catch (error) {
-      console.error("Exception in list:", error);
+      logger.error("Exception in list:", error);
       return [];
     }
   }
@@ -260,13 +261,13 @@ export class StockRequestRepository {
         .eq("id", id);
 
       if (error) {
-        console.error("Error updating stock request status:", error);
+        logger.error("Error updating stock request status:", error);
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error("Exception in updateStatus:", error);
+      logger.error("Exception in updateStatus:", error);
       return false;
     }
   }
@@ -285,13 +286,13 @@ export class StockRequestRepository {
       });
 
       if (error) {
-        console.error("Error shipping stock request:", error);
+        logger.error("Error shipping stock request:", error);
         return { success: false, error: error.message };
       }
 
       return { success: true };
     } catch (error) {
-      console.error("Exception in ship:", error);
+      logger.error("Exception in ship:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -313,13 +314,13 @@ export class StockRequestRepository {
       });
 
       if (error) {
-        console.error("Error consolidating stock request:", error);
+        logger.error("Error consolidating stock request:", error);
         return { success: false, error: error.message };
       }
 
       return { success: true };
     } catch (error) {
-      console.error("Exception in consolidate:", error);
+      logger.error("Exception in consolidate:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -341,13 +342,13 @@ export class StockRequestRepository {
       });
 
       if (error) {
-        console.error("Error cancelling stock request:", error);
+        logger.error("Error cancelling stock request:", error);
         return { success: false, error: error.message };
       }
 
       return { success: true };
     } catch (error) {
-      console.error("Exception in cancel:", error);
+      logger.error("Exception in cancel:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Error desconocido",
@@ -371,13 +372,13 @@ export class StockRequestRepository {
         .order("requested_date", { ascending: true });
 
       if (error) {
-        console.error("Error fetching pending requests by location:", error);
+        logger.error("Error fetching pending requests by location:", error);
         return [];
       }
 
       return data as StockRequestDetail[];
     } catch (error) {
-      console.error("Exception in getPendingByLocation:", error);
+      logger.error("Exception in getPendingByLocation:", error);
       return [];
     }
   }
@@ -426,7 +427,7 @@ export class StockRequestRepository {
       const { data, error, count } = await query;
 
       if (error) {
-        console.error("Error fetching stats:", error);
+        logger.error("Error fetching stats:", error);
         return null;
       }
 
@@ -453,7 +454,7 @@ export class StockRequestRepository {
 
       return stats;
     } catch (error) {
-      console.error("Exception in getStats:", error);
+      logger.error("Exception in getStats:", error);
       return null;
     }
   }

@@ -1,4 +1,5 @@
 // Controller para manejo de requests HTTP de Taller Manager
+import logger from "@/config/logger";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { TallerManagerService } from "../services/taller_manager.service";
 import type {
@@ -151,10 +152,10 @@ export class TallerManagerController {
     res: NextApiResponse,
     startTime: number
   ): void {
-    console.error("[TallerManagerController Error]:", error);
+    logger.error("[TallerManagerController Error]:", error);
 
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ERROR - Duration: ${duration}ms - ${
         error instanceof Error ? error.message : "Unknown error"
       }`
@@ -181,7 +182,7 @@ export class TallerManagerController {
     startTime: number
   ): void {
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[${new Date().toISOString()}] ${req.method} ${
         req.url
       } - ${statusCode} - ${duration}ms`

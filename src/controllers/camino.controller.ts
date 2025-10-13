@@ -1,4 +1,5 @@
 // Controller para manejo de requests HTTP de Caminos
+import logger from "@/config/logger";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { CaminoService } from "../services/camino.service";
 import type { CreateCaminoDto, UpdateCaminoDto } from "../dto/camino.dto";
@@ -172,7 +173,7 @@ export class CaminoController {
   ): void {
     const duration = Date.now() - startTime;
 
-    console.error("[CaminoController] Error:", error);
+    logger.error("[CaminoController] Error:", error);
 
     if (error && typeof error === "object" && "statusCode" in error) {
       const appError = error as { statusCode: number; message: string };
@@ -198,7 +199,7 @@ export class CaminoController {
     startTime: number
   ): void {
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[CaminoController] ${req.method} ${req.url} - ${status} (${duration}ms)`
     );
   }

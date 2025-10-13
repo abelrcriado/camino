@@ -22,7 +22,7 @@ export class ServiceTypeController {
         count: serviceTypes.length,
       });
     } catch (error: any) {
-      console.error("Error listing service types:", error);
+      logger.error("Error listing service types:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
@@ -55,7 +55,7 @@ export class ServiceTypeController {
         data: serviceType,
       });
     } catch (error: any) {
-      console.error("Error fetching service type:", error);
+      logger.error("Error fetching service type:", error);
       return res.status(500).json({
         success: false,
         error: error.message || "Internal server error",

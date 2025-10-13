@@ -1,4 +1,5 @@
 import { supabase } from "../services/supabase";
+import logger from "@/config/logger";
 
 export interface VendingMachine {
   id: string;
@@ -58,7 +59,7 @@ export class VendingMachineRepository {
     status?: string;
     service_point_id?: string;
   }): Promise<VendingMachine[]> {
-    console.log("[VendingMachineRepository] findAll", { filters });
+    logger.info("[VendingMachineRepository] findAll", { filters });
 
     let query = supabase.from("vending_machines").select(`
         *,
@@ -88,7 +89,7 @@ export class VendingMachineRepository {
     });
 
     if (error) {
-      console.error("[VendingMachineRepository] findAll error:", error);
+      logger.error("[VendingMachineRepository] findAll error:", error);
       throw new Error(`Failed to fetch vending machines: ${error.message}`);
     }
 
@@ -123,7 +124,7 @@ export class VendingMachineRepository {
   }
 
   async findById(id: string): Promise<VendingMachine | null> {
-    console.log("[VendingMachineRepository] findById", { id });
+    logger.info("[VendingMachineRepository] findById", { id });
 
     const { data, error } = await supabase
       .from("vending_machines")
@@ -150,7 +151,7 @@ export class VendingMachineRepository {
       if (error.code === "PGRST116") {
         return null;
       }
-      console.error("[VendingMachineRepository] findById error:", error);
+      logger.error("[VendingMachineRepository] findById error:", error);
       throw new Error(`Failed to fetch vending machine: ${error.message}`);
     }
 
@@ -179,7 +180,7 @@ export class VendingMachineRepository {
   }
 
   async create(machineData: CreateVendingMachineDTO): Promise<VendingMachine> {
-    console.log("[VendingMachineRepository] create", { machineData });
+    logger.info("[VendingMachineRepository] create", { machineData });
 
     const { data, error } = await supabase
       .from("vending_machines")
@@ -195,7 +196,7 @@ export class VendingMachineRepository {
       .single();
 
     if (error) {
-      console.error("[VendingMachineRepository] create error:", error);
+      logger.error("[VendingMachineRepository] create error:", error);
       throw new Error(`Failed to create vending machine: ${error.message}`);
     }
 
@@ -208,7 +209,7 @@ export class VendingMachineRepository {
     id: string,
     machineData: UpdateVendingMachineDTO
   ): Promise<VendingMachine> {
-    console.log("[VendingMachineRepository] update", { id, machineData });
+    logger.info("[VendingMachineRepository] update", { id, machineData });
 
     const { data, error } = await supabase
       .from("vending_machines")
@@ -218,7 +219,7 @@ export class VendingMachineRepository {
       .single();
 
     if (error) {
-      console.error("[VendingMachineRepository] update error:", error);
+      logger.error("[VendingMachineRepository] update error:", error);
       throw new Error(`Failed to update vending machine: ${error.message}`);
     }
 
@@ -228,7 +229,7 @@ export class VendingMachineRepository {
   }
 
   async delete(id: string): Promise<void> {
-    console.log("[VendingMachineRepository] delete", { id });
+    logger.info("[VendingMachineRepository] delete", { id });
 
     const { error } = await supabase
       .from("vending_machines")
@@ -236,7 +237,7 @@ export class VendingMachineRepository {
       .eq("id", id);
 
     if (error) {
-      console.error("[VendingMachineRepository] delete error:", error);
+      logger.error("[VendingMachineRepository] delete error:", error);
       throw new Error(`Failed to delete vending machine: ${error.message}`);
     }
   }
