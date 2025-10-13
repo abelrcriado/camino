@@ -206,7 +206,7 @@ describe("PrecioService", () => {
       });
 
       await expect(service.update(validUUID, updateDto)).rejects.toThrow(
-        "Precio no encontrado"
+        `Precio con ID ${validUUID} no encontrado`
       );
     });
 
@@ -285,7 +285,7 @@ describe("PrecioService", () => {
       });
 
       await expect(service.softDelete(validUUID)).rejects.toThrow(
-        "Precio no encontrado"
+        `Precio con ID ${validUUID} no encontrado`
       );
     });
   });
@@ -324,7 +324,7 @@ describe("PrecioService", () => {
       });
 
       await expect(service.findById(validUUID)).rejects.toThrow(
-        "Precio no encontrado"
+        `Precio con ID ${validUUID} no encontrado`
       );
     });
   });

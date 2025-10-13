@@ -12,6 +12,11 @@
 import { BaseService } from "./base.service";
 import { PrecioRepository } from "@/repositories/precio.repository";
 import {
+  NotFoundError,
+  BusinessRuleError,
+  DatabaseError,
+} from "@/errors/custom-errors";
+import {
   Precio,
   CreatePrecioDto,
   UpdatePrecioDto,
@@ -60,15 +65,17 @@ export class PrecioService extends BaseService<Precio> {
       const result = await this.repository.create(data);
 
       if (!result.data || result.data.length === 0) {
-        throw new Error("Error al crear el precio");
+        throw new DatabaseError("Error al crear el precio");
       }
 
       return result.data[0] as Precio;
     } catch (error) {
-      throw new Error(
-        `Error al crear precio: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      if (error instanceof BusinessRuleError || error instanceof DatabaseError) {
+        throw error;
+      }
+      throw new DatabaseError(
+        "Error al crear precio",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -81,7 +88,7 @@ export class PrecioService extends BaseService<Precio> {
       // Verificar que el precio existe
       const existing = await this.findById(id);
       if (!existing) {
-        throw new Error("Precio no encontrado");
+        throw new NotFoundError("Precio", id);
       }
 
       // Validación: No se pueden modificar campos estructurales
@@ -90,23 +97,23 @@ export class PrecioService extends BaseService<Precio> {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dataAny = data as any;
       if (dataAny.nivel !== undefined) {
-        throw new Error("No se puede cambiar el nivel de un precio existente");
+        throw new BusinessRuleError("No se puede cambiar el nivel de un precio existente");
       }
       if (dataAny.entidad_tipo !== undefined) {
-        throw new Error(
+        throw new BusinessRuleError(
           "No se puede cambiar el tipo de entidad de un precio existente"
         );
       }
       if (dataAny.entidad_id !== undefined) {
-        throw new Error("No se puede cambiar la entidad de un precio existente");
+        throw new BusinessRuleError("No se puede cambiar la entidad de un precio existente");
       }
       if (dataAny.ubicacion_id !== undefined) {
-        throw new Error(
+        throw new BusinessRuleError(
           "No se puede cambiar la ubicación de un precio existente"
         );
       }
       if (dataAny.service_point_id !== undefined) {
-        throw new Error(
+        throw new BusinessRuleError(
           "No se puede cambiar el service point de un precio existente"
         );
       }
@@ -119,15 +126,17 @@ export class PrecioService extends BaseService<Precio> {
       const result = await this.repository.update(id, data);
 
       if (!result.data || result.data.length === 0) {
-        throw new Error("Error al actualizar el precio");
+        throw new DatabaseError("Error al actualizar el precio");
       }
 
       return result.data[0] as Precio;
     } catch (error) {
-      throw new Error(
-        `Error al actualizar precio: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      if (error instanceof NotFoundError || error instanceof BusinessRuleError || error instanceof DatabaseError) {
+        throw error;
+      }
+      throw new DatabaseError(
+        "Error al actualizar precio",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -144,10 +153,12 @@ export class PrecioService extends BaseService<Precio> {
         fecha_fin: hoy,
       });
     } catch (error) {
-      throw new Error(
-        `Error al desactivar precio: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      if (error instanceof NotFoundError || error instanceof BusinessRuleError || error instanceof DatabaseError) {
+        throw error;
+      }
+      throw new DatabaseError(
+        "Error al desactivar precio",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -160,13 +171,18 @@ export class PrecioService extends BaseService<Precio> {
     try {
       const result = await this.repository.delete(id);
       if (result.error) {
-        throw new Error(result.error.message);
+        throw new DatabaseError(
+          "Error al eliminar precio",
+          { originalError: result.error.message }
+        );
       }
     } catch (error) {
-      throw new Error(
-        `Error al eliminar precio: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      if (error instanceof DatabaseError) {
+        throw error;
+      }
+      throw new DatabaseError(
+        "Error al eliminar precio",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -178,17 +194,22 @@ export class PrecioService extends BaseService<Precio> {
     try {
       const result = await this.repository.findById(id);
       if (result.error) {
-        throw new Error(result.error.message);
+        throw new DatabaseError(
+          "Error al buscar precio",
+          { originalError: result.error.message }
+        );
       }
       if (!result.data) {
-        throw new Error("Precio no encontrado");
+        throw new NotFoundError("Precio", id);
       }
       return result.data as Precio;
     } catch (error) {
-      throw new Error(
-        `Error al buscar precio: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      if (error instanceof NotFoundError || error instanceof DatabaseError) {
+        throw error;
+      }
+      throw new DatabaseError(
+        "Error al buscar precio",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -202,10 +223,9 @@ export class PrecioService extends BaseService<Precio> {
     try {
       return await this.repository.getPreciosWithFilters(filters);
     } catch (error) {
-      throw new Error(
-        `Error al obtener precios: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al obtener precios",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -219,10 +239,9 @@ export class PrecioService extends BaseService<Precio> {
     try {
       return await this.repository.getPreciosVigentes(filters);
     } catch (error) {
-      throw new Error(
-        `Error al obtener precios vigentes: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al obtener precios vigentes",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -243,10 +262,9 @@ export class PrecioService extends BaseService<Precio> {
         params.fecha
       );
     } catch (error) {
-      throw new Error(
-        `Error al resolver precio: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al resolver precio",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -266,10 +284,9 @@ export class PrecioService extends BaseService<Precio> {
         params.fecha
       );
     } catch (error) {
-      throw new Error(
-        `Error al obtener precio aplicable: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al obtener precio aplicable",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -284,10 +301,9 @@ export class PrecioService extends BaseService<Precio> {
     try {
       return await this.repository.getPreciosByNivel(nivel, vigente);
     } catch (error) {
-      throw new Error(
-        `Error al obtener precios por nivel: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al obtener precios por nivel",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -307,10 +323,9 @@ export class PrecioService extends BaseService<Precio> {
         vigente
       );
     } catch (error) {
-      throw new Error(
-        `Error al obtener precios por entidad: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al obtener precios por entidad",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -322,10 +337,9 @@ export class PrecioService extends BaseService<Precio> {
     try {
       return await this.repository.getStats();
     } catch (error) {
-      throw new Error(
-        `Error al obtener estadísticas: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al obtener estadísticas",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -341,10 +355,9 @@ export class PrecioService extends BaseService<Precio> {
     try {
       return await this.repository.getHistorial(entidadTipo, entidadId, nivel);
     } catch (error) {
-      throw new Error(
-        `Error al obtener historial: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
+      throw new DatabaseError(
+        "Error al obtener historial",
+        { originalError: error instanceof Error ? error.message : String(error) }
       );
     }
   }
@@ -364,7 +377,7 @@ export class PrecioService extends BaseService<Precio> {
     switch (nivel) {
       case NivelPrecio.BASE:
         if (ubicacionId || servicePointId) {
-          throw new Error(
+          throw new BusinessRuleError(
             "El nivel BASE no puede tener ubicacion_id ni service_point_id"
           );
         }
@@ -372,23 +385,23 @@ export class PrecioService extends BaseService<Precio> {
 
       case NivelPrecio.UBICACION:
         if (!ubicacionId) {
-          throw new Error("El nivel UBICACION requiere ubicacion_id");
+          throw new BusinessRuleError("El nivel UBICACION requiere ubicacion_id");
         }
         if (servicePointId) {
-          throw new Error("El nivel UBICACION no puede tener service_point_id");
+          throw new BusinessRuleError("El nivel UBICACION no puede tener service_point_id");
         }
         break;
 
       case NivelPrecio.SERVICE_POINT:
         if (!ubicacionId || !servicePointId) {
-          throw new Error(
+          throw new BusinessRuleError(
             "El nivel SERVICE_POINT requiere ubicacion_id y service_point_id"
           );
         }
         break;
 
       default:
-        throw new Error(`Nivel de precio no válido: ${nivel}`);
+        throw new BusinessRuleError(`Nivel de precio no válido: ${nivel}`);
     }
   }
 
@@ -426,7 +439,7 @@ export class PrecioService extends BaseService<Precio> {
           break;
       }
 
-      throw new Error(
+      throw new BusinessRuleError(
         `Ya existe un precio vigente para esta entidad en el nivel ${contexto}. ` +
           `Desactiva el precio anterior antes de crear uno nuevo.`
       );
