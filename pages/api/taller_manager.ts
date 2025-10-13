@@ -1,6 +1,7 @@
 // CRUD endpoints para Taller Manager - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
 import { TallerManagerController } from "../../src/controllers/taller_manager.controller";
+import { asyncHandler } from "../../src/middlewares/error-handler";
 
 /**
  * @swagger
@@ -123,9 +124,7 @@ import { TallerManagerController } from "../../src/controllers/taller_manager.co
  *       500:
  *         description: Error del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const controller = new TallerManagerController();
   return controller.handle(req, res);
-}
-
-export default handler;
+});

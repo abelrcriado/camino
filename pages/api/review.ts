@@ -1,6 +1,7 @@
 // CRUD endpoints para Review - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ReviewController } from "../../src/controllers/review.controller";
+import { asyncHandler } from "../../src/middlewares/error-handler";
 
 /**
  * @swagger
@@ -139,9 +140,7 @@ import { ReviewController } from "../../src/controllers/review.controller";
  *       500:
  *         description: Error del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const controller = new ReviewController();
   return controller.handle(req, res);
-}
-
-export default handler;
+});

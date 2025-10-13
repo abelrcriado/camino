@@ -1,7 +1,8 @@
 // CRUD endpoints para CSP
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse} from "next";
 import { CSPController } from "../../src/controllers/csp.controller";
 import { withCorrelationId } from "../../src/middlewares/correlationId";
+import { asyncHandler } from "../../src/middlewares/error-handler";
 
 /**
  * @swagger
@@ -166,9 +167,9 @@ import { withCorrelationId } from "../../src/middlewares/correlationId";
  *       500:
  *         description: Error interno del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const controller = new CSPController();
   return controller.handle(req, res);
-}
+});
 
 export default withCorrelationId(handler);

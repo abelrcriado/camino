@@ -1,6 +1,7 @@
 // CRUD endpoints para Report
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ReportController } from "../../src/controllers/report.controller";
+import { asyncHandler } from "../../src/middlewares/error-handler";
 
 /**
  * @swagger
@@ -217,9 +218,6 @@ import { ReportController } from "../../src/controllers/report.controller";
 
 const controller = new ReportController();
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   return controller.handle(req, res);
-}
+});

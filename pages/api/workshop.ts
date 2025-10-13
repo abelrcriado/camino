@@ -1,6 +1,7 @@
 // CRUD endpoints para Workshop - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
 import { WorkshopController } from "../../src/controllers/workshop.controller";
+import { asyncHandler } from "../../src/middlewares/error-handler";
 
 /**
  * @swagger
@@ -126,9 +127,7 @@ import { WorkshopController } from "../../src/controllers/workshop.controller";
  *       500:
  *         description: Error del servidor
  */
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default asyncHandler(async (req: NextApiRequest, res: NextApiResponse) => {
   const controller = new WorkshopController();
   return controller.handle(req, res);
-}
-
-export default handler;
+});
