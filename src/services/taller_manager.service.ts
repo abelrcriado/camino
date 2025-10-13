@@ -6,6 +6,7 @@ import type {
   CreateTallerManagerDto,
   UpdateTallerManagerDto,
 } from "../dto/taller_manager.dto";
+import { DatabaseError } from "../errors/custom-errors";
 
 export class TallerManagerService extends BaseService<TallerManager> {
   private tallerManagerRepository: TallerManagerRepository;
@@ -44,7 +45,9 @@ export class TallerManagerService extends BaseService<TallerManager> {
     );
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener gestores por workshop", {
+        originalError: error.message,
+      });
     }
 
     return data || [];
@@ -59,7 +62,9 @@ export class TallerManagerService extends BaseService<TallerManager> {
     );
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener gestores por usuario", {
+        originalError: error.message,
+      });
     }
 
     return data || [];

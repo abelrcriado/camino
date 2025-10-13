@@ -6,6 +6,7 @@ import type {
   CreateInventoryItemDto,
   UpdateInventoryItemDto,
 } from "../dto/inventory_item.dto";
+import { DatabaseError } from "../errors/custom-errors";
 
 export class InventoryItemService extends BaseService<InventoryItem> {
   private inventoryItemRepository: InventoryItemRepository;
@@ -44,7 +45,9 @@ export class InventoryItemService extends BaseService<InventoryItem> {
     );
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener items por inventario", {
+        originalError: error.message,
+      });
     }
 
     return data || [];
@@ -57,7 +60,9 @@ export class InventoryItemService extends BaseService<InventoryItem> {
     const { data, error } = await this.inventoryItemRepository.findByType(type);
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener items por tipo", {
+        originalError: error.message,
+      });
     }
 
     return data || [];

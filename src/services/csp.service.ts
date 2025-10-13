@@ -11,6 +11,7 @@ import type {
   PaginationParams,
   PaginatedResponse,
 } from "../types/common.types";
+import { DatabaseError } from "../errors/custom-errors";
 
 export class CSPService extends BaseService<CSP> {
   private cspRepository: CSPRepository;
@@ -73,7 +74,9 @@ export class CSPService extends BaseService<CSP> {
     const { data, error } = await this.cspRepository.findByType(type);
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener CSPs por tipo", {
+        originalError: error.message,
+      });
     }
 
     return data || [];
@@ -86,7 +89,9 @@ export class CSPService extends BaseService<CSP> {
     const { data, error } = await this.cspRepository.findActive();
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener CSPs activos", {
+        originalError: error.message,
+      });
     }
 
     return data || [];

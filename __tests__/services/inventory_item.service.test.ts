@@ -6,6 +6,7 @@ import type {
   UpdateInventoryItemDto,
   InventoryItem,
 } from "../../src/dto/inventory_item.dto";
+import { DatabaseError } from "../../src/errors/custom-errors";
 
 describe("InventoryItemService", () => {
   let service: InventoryItemService;
@@ -162,7 +163,7 @@ describe("InventoryItemService", () => {
       });
 
       await expect(service.findByInventory("inv-123")).rejects.toThrow(
-        "Database error"
+        DatabaseError
       );
     });
   });
@@ -227,7 +228,7 @@ describe("InventoryItemService", () => {
       });
 
       await expect(service.findByType("tire")).rejects.toThrow(
-        "Database error"
+        DatabaseError
       );
     });
   });

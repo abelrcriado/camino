@@ -6,6 +6,7 @@ import type {
   UpdateInventoryDto,
   Inventory,
 } from "../../src/dto/inventory.dto";
+import { DatabaseError } from "../../src/errors/custom-errors";
 
 describe("InventoryService", () => {
   let service: InventoryService;
@@ -155,7 +156,7 @@ describe("InventoryService", () => {
       });
 
       await expect(service.findByServicePoint("sp-123")).rejects.toThrow(
-        "Database error"
+        DatabaseError
       );
     });
   });
@@ -217,7 +218,7 @@ describe("InventoryService", () => {
         error: { message: "Database error" },
       });
 
-      await expect(service.findLowStock()).rejects.toThrow("Database error");
+      await expect(service.findLowStock()).rejects.toThrow(DatabaseError);
     });
   });
 

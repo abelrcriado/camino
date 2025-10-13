@@ -6,6 +6,7 @@ import type {
   CreateInventoryDto,
   UpdateInventoryDto,
 } from "../dto/inventory.dto";
+import { DatabaseError } from "../errors/custom-errors";
 
 export class InventoryService extends BaseService<Inventory> {
   private inventoryRepository: InventoryRepository;
@@ -40,7 +41,9 @@ export class InventoryService extends BaseService<Inventory> {
     );
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener inventarios por service point", {
+        originalError: error.message,
+      });
     }
 
     return data || [];
@@ -53,7 +56,9 @@ export class InventoryService extends BaseService<Inventory> {
     const { data, error } = await this.inventoryRepository.findLowStock();
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener inventarios con stock bajo", {
+        originalError: error.message,
+      });
     }
 
     return data || [];

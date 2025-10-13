@@ -6,6 +6,7 @@ import type {
   UpdateTallerManagerDto,
   TallerManager,
 } from "../../src/dto/taller_manager.dto";
+import { DatabaseError } from "../../src/errors/custom-errors";
 
 describe("TallerManagerService", () => {
   let service: TallerManagerService;
@@ -159,7 +160,7 @@ describe("TallerManagerService", () => {
       });
 
       await expect(service.findByWorkshop("workshop-123")).rejects.toThrow(
-        "Database error"
+        DatabaseError
       );
     });
   });
@@ -224,7 +225,7 @@ describe("TallerManagerService", () => {
       });
 
       await expect(service.findByUser("user-123")).rejects.toThrow(
-        "Database error"
+        DatabaseError
       );
     });
   });

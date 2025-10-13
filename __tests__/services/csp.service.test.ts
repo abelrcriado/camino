@@ -7,6 +7,7 @@ import type {
   CSP,
   CSPFilters,
 } from "../../src/dto/csp.dto";
+import { DatabaseError } from "../../src/errors/custom-errors";
 
 describe("CSPService", () => {
   let service: CSPService;
@@ -270,7 +271,7 @@ describe("CSPService", () => {
       });
 
       await expect(service.findByType("workshop")).rejects.toThrow(
-        "Database error"
+        DatabaseError
       );
     });
   });
@@ -321,7 +322,7 @@ describe("CSPService", () => {
         error: { message: "Connection lost" },
       });
 
-      await expect(service.findActiveCSPs()).rejects.toThrow("Connection lost");
+      await expect(service.findActiveCSPs()).rejects.toThrow(DatabaseError);
     });
   });
 });

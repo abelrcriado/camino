@@ -3,6 +3,7 @@ import {
   CreateLocationDTO,
   UpdateLocationDTO,
 } from "../repositories/location.repository";
+import { NotFoundError, ValidationError } from "../errors/custom-errors";
 
 export class LocationService {
   private locationRepository: LocationRepository;
@@ -22,7 +23,7 @@ export class LocationService {
   async getById(id: string) {
     const location = await this.locationRepository.findById(id);
     if (!location) {
-      throw new Error("Location not found");
+      throw new NotFoundError("Location", id);
     }
     return location;
   }
@@ -30,7 +31,7 @@ export class LocationService {
   async create(locationData: CreateLocationDTO) {
     // Validaciones de negocio si es necesario
     if (!locationData.city || !locationData.province) {
-      throw new Error("City and province are required");
+      throw new ValidationError("City and province are required");
     }
 
     return this.locationRepository.create(locationData);
