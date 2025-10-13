@@ -5,6 +5,11 @@
 
 import { BaseService } from "./base.service";
 import { ServiceAssignmentRepository } from "../repositories/service_assignment.repository";
+import {
+  NotFoundError,
+  ConflictError,
+  DatabaseError,
+} from "@/errors/custom-errors";
 import type {
   ServiceAssignment,
   ServiceAssignmentFilters,
@@ -41,7 +46,9 @@ export class ServiceAssignmentService extends BaseService<ServiceAssignment> {
     );
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener asignaciones", {
+        originalError: error.message,
+      });
     }
 
     const page = pagination?.page || 1;
@@ -77,7 +84,9 @@ export class ServiceAssignmentService extends BaseService<ServiceAssignment> {
       );
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al obtener asignaciones completas", {
+        originalError: error.message,
+      });
     }
 
     const page = pagination?.page || 1;
@@ -110,7 +119,7 @@ export class ServiceAssignmentService extends BaseService<ServiceAssignment> {
     );
 
     if (exists) {
-      throw new Error(
+      throw new ConflictError(
         `Ya existe una asignación entre el servicio ${data.service_id} y el service point ${data.service_point_id}`
       );
     }
@@ -121,11 +130,13 @@ export class ServiceAssignmentService extends BaseService<ServiceAssignment> {
     );
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al crear asignación", {
+        originalError: error.message,
+      });
     }
 
     if (!created || created.length === 0) {
-      throw new Error("No se pudo crear la asignación");
+      throw new DatabaseError("No se pudo crear la asignación");
     }
 
     return created[0];
@@ -141,7 +152,7 @@ export class ServiceAssignmentService extends BaseService<ServiceAssignment> {
     const { data: existing, error: findError } =
       await this.assignmentRepository.findById(data.id);
     if (findError || !existing) {
-      throw new Error(`Asignación con id ${data.id} no encontrada`);
+      throw new NotFoundError("Asignación", data.id);
     }
 
     // Si se está cambiando service_id o service_point_id, verificar que no genere duplicado
@@ -161,7 +172,7 @@ export class ServiceAssignmentService extends BaseService<ServiceAssignment> {
         );
 
         if (exists) {
-          throw new Error(
+          throw new ConflictError(
             `Ya existe una asignación entre el servicio ${newServiceId} y el service point ${newServicePointId}`
           );
         }
@@ -175,11 +186,13 @@ export class ServiceAssignmentService extends BaseService<ServiceAssignment> {
     );
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al actualizar asignación", {
+        originalError: error.message,
+      });
     }
 
     if (!updated || updated.length === 0) {
-      throw new Error("No se pudo actualizar la asignación");
+      throw new DatabaseError("No se pudo actualizar la asignación");
     }
 
     return updated[0];
@@ -221,7 +234,7 @@ export class ServiceAssignmentService extends BaseService<ServiceAssignment> {
     const { data: existing, error: findError } =
       await this.assignmentRepository.findById(id);
     if (findError || !existing) {
-      throw new Error(`Asignación con id ${id} no encontrada`);
+      throw new NotFoundError("Asignación", id);
     }
 
     // Soft delete: marcar como inactivo
@@ -230,11 +243,13 @@ export class ServiceAssignmentService extends BaseService<ServiceAssignment> {
     });
 
     if (error) {
-      throw new Error(error.message);
+      throw new DatabaseError("Error al eliminar asignación", {
+        originalError: error.message,
+      });
     }
 
     if (!data || data.length === 0) {
-      throw new Error("No se pudo eliminar la asignación");
+      throw new DatabaseError("No se pudo eliminar la asignación");
     }
   }
 
@@ -245,11 +260,9 @@ export class ServiceAssignmentService extends BaseService<ServiceAssignment> {
     try {
       return await this.assignmentRepository.getStats();
     } catch (error) {
-      throw new Error(
-        `Error al obtener estadísticas: ${
-          error instanceof Error ? error.message : "Error desconocido"
-        }`
-      );
+      throw new DatabaseError("Error al obtener estadísticas", {
+        originalError: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 }
