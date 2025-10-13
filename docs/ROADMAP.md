@@ -1,8 +1,8 @@
 # 🗺️ ROADMAP - Camino Service Backend
 
 **Última actualización:** 13 de octubre de 2025  
-**Versión:** 2.1 (Post-Sprint 6.1: console.log eliminado)  
-**Versión del código:** v0.3.0
+**Versión:** 2.2 (Post-Sprint 6.2: AppError Migration completo)  
+**Versión del código:** v0.3.1
 
 > ⚠️ **CAMBIO ESTRATÉGICO:** Este ROADMAP ha sido completamente reorganizado siguiendo la estrategia **"CALIDAD PRIMERO"**. Todas las optimizaciones de infraestructura se completan ANTES de continuar con nuevas features. Ver `docs/ANALISIS_INGENIERIA_OPTIMIZACION.md` para el análisis completo.
 
@@ -61,10 +61,11 @@
 | --------------------- | ------------------------------- | -------------------------- |
 | **Tablas en BD**      | 42 tablas                       | 42 + 5 RPC functions       |
 | **Endpoints API**     | 35+ endpoints activos           | 35+ (refactorizados)       |
-| **Tests**             | 2421 tests (100% passing)       | 2421+ (100% passing)       |
+| **Tests**             | 2410 tests (100% passing)       | 2410+ (100% passing)       |
 | **Coverage**          | 99.72% promedio                 | 99%+ mantenido             |
 | **asyncHandler**      | 16% adoption (20/122 endpoints) | **100% adoption** 🎯       |
 | **console.log**       | ✅ 0 instancias (v0.3.0)        | **0 instancias** ✅        |
+| **AppError**          | ✅ 100% adoption (v0.3.1)       | **100% adoption** ✅       |
 | **Transacciones**     | 0/5 operaciones                 | **5/5 operaciones** 🎯     |
 | **Rate Limiting**     | ❌ No implementado              | **✅ Activo** 🎯           |
 | **DTOs**              | 29 interfaces                   | 29 interfaces              |
@@ -85,13 +86,13 @@ En el análisis de ingeniería se identificaron **5 Red Flags Críticos** que de
 
 - **Problema:** Existe en `error-handler.ts` pero 0% adoption
 - **Impacto:** 50+ endpoints con try/catch duplicado (250+ líneas repetidas)
-- **Solución:** Sprint 6.1 - Migración masiva con script automatizado
+- **Solución:** Sprint 6.3 - Migración masiva con script automatizado
 
-### 2. console.log en Producción (Alta Prioridad) 🔴
+### 2. console.log en Producción (Alta Prioridad) ✅ RESUELTO
 
-- **Problema:** 30+ instancias de console.log/error/warn
+- **Problema:** 211 instancias de console.log/error/warn en src/
 - **Impacto:** Winston configurado pero no usado, logs no estructurados
-- **Solución:** Sprint 6.1 - Reemplazo masivo con ESLint enforcement
+- **Solución:** Sprint 6.1 - Reemplazo masivo con ESLint enforcement ✅ COMPLETADO (v0.3.0)
 
 ### 3. Sin Transacciones (Crítico para Integridad) 🔴
 
@@ -103,7 +104,7 @@ En el análisis de ingeniería se identificaron **5 Red Flags Críticos** que de
 
 - **Problema:** Jest configurado con 50% threshold (industria: 80-90%)
 - **Impacto:** Riesgo de regresiones, coverage actual 99.72% no protegido
-- **Solución:** Sprint 6.2 - Ajustar threshold a 95%
+- **Solución:** Sprint 6.4 - Ajustar threshold a 95%
 
 ### 5. Sin Rate Limiting (Seguridad) 🔴
 
@@ -185,7 +186,53 @@ En el análisis de ingeniería se identificaron **5 Red Flags Críticos** que de
 - Tests son red de seguridad crítica
 - Manual > Automatizado para refactors complejos
 
-#### 🔴 Sprint 6.2: asyncHandler Migration (2 días) 🔴 PRÓXIMO
+#### ✅ Sprint 6.2: AppError Migration (1 día) ✅ COMPLETADO
+
+**Estado:** ✅ COMPLETADO (13 de octubre 2025)  
+**Versión liberada:** v0.3.1
+
+**Objetivo:** Migrar servicios de `throw new Error()` genéricos a jerarquía AppError para códigos HTTP correctos
+
+**Día 1 - Batch Migrations (4 horas efectivas):**
+
+- ✅ Batch 1: service + service_assignment (40 errores) - commit d1cb266
+- ✅ Batch 2: payment + product-subcategory (23 errores) - commit 969d84b
+- ✅ Batch 3: warehouse + product-category + geolocation + booking (33 errores) - commit 0283bc9
+- ✅ Batch 4: vending-machine + review + service-assignment + vending_machine (13 errores) - commit 3f83b94
+- ✅ Batch 5: location + taller_manager + inventory_item + inventory + csp (10 errores) - commit 8bfb58d
+- ✅ Batch 6: camino + partner + service-point + workshop (4 errores) - commit cad3776
+
+**Entregables:**
+
+- ✅ 124/124 errores genéricos migrados (100%)
+- ✅ 22/22 servicios usando AppError hierarchy
+- ✅ 9 archivos de test actualizados
+- ✅ Tests: 2410/2410 pasando (100%)
+- ✅ Coverage: 99.72% mantenido
+- ✅ Documento: `docs/sprints/SPRINT_6.2_APPERRROR_MIGRATION.md`
+- ✅ CHANGELOG.md v0.3.1 generado
+- ✅ Git tag: v0.3.1
+
+**Criterios de Éxito:**
+
+- ✅ AppError adoption: 124/124 (100%)
+- ✅ Tests passing: 2410/2410 (100%)
+- ✅ Lint passing: 0 errors
+- ✅ Códigos HTTP semánticos: 404, 400, 409, 500
+
+**Impacto:**
+
+- Frontend puede diferenciar tipos de errores (404 vs 500)
+- Mensajes de error consistentes en español
+- Logging estructurado con Winston para todos los errores
+
+**Lecciones Aprendidas:**
+
+- Estrategia de batches (3-5 servicios) reduce riesgo
+- Tests como validación después de cada batch
+- Actualizar tests en paralelo con servicios evita ciclos de re-test
+
+#### 🔴 Sprint 6.3: asyncHandler Migration (2 días) 🔴 PRÓXIMO
 
 **Objetivo:** Migrar 102 endpoints restantes a asyncHandler wrapper
 
@@ -209,7 +256,7 @@ En el análisis de ingeniería se identificaron **5 Red Flags Críticos** que de
 - 122/122 endpoints usando asyncHandler (100%)
 - ~250 líneas de código eliminadas
 - Tests: 2410/2410 pasando
-- Documento: `docs/sprints/SPRINT_6.2_COMPLETADO.md`
+- Documento: `docs/sprints/SPRINT_6.3_COMPLETADO.md`
 
 **Criterios de Éxito:**
 
@@ -218,7 +265,7 @@ En el análisis de ingeniería se identificaron **5 Red Flags Críticos** que de
 - ✅ Lint passing: 0 errors
 - ✅ Code reduction: ~250 lines eliminated
 
-#### Sprint 6.3: Coverage Threshold + Aplicar Utilidades (2 días)
+#### Sprint 6.4: Coverage Threshold + Aplicar Utilidades (2 días)
 
 **Día 1 - Coverage Threshold:**
 

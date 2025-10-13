@@ -1,7 +1,7 @@
 # 📋 BACKLOG - Tareas Pendientes
 
-**Última actualización:** 12 de octubre de 2025  
-**Versión:** 2.0 - **REORGANIZADO: Optimizaciones PRIMERO**
+**Última actualización:** 13 de octubre de 2025  
+**Versión:** 2.1 - **SPRINT 6.2 COMPLETADO**
 
 > 🔍 **ANÁLISIS COMPLETO DE INGENIERÍA:** Ver [`ANALISIS_INGENIERIA_OPTIMIZACION.md`](./ANALISIS_INGENIERIA_OPTIMIZACION.md)  
 > Incluye: 5 Red Flags Críticos, 8 Mejoras Importantes, Plan de Acción Detallado
@@ -65,90 +65,49 @@
 
 ---
 
-### Sprint 6.2: AppError Migration (2 días) 🔴 EN PROGRESO
+### Sprint 6.2: AppError Migration ✅ COMPLETADO
+
+**Fecha:** 13 de octubre de 2025  
+**Duración:** 1 día  
+**Estado:** ✅ COMPLETADO  
+**Versión liberada:** v0.3.1
 
 **Descripción:** Migrar servicios de `throw new Error()` genéricos a jerarquía AppError para códigos HTTP correctos
 
+**Completado:**
+
+- ✅ 124 errores genéricos migrados (100%)
+- ✅ 22/22 servicios migrados a AppError hierarchy
+- ✅ 9 archivos de test actualizados para expect AppError classes
+- ✅ 2410/2410 tests pasando (100%)
+- ✅ Coverage: 99.72% mantenido
+- ✅ ESLint: 0 errors
+- ✅ Version 0.3.1 released
+- ✅ Sprint Report completo creado
+
+**Migración por batches (6 commits):**
+
+- Batch 1: service + service_assignment (40 errores) - commit d1cb266
+- Batch 2: payment + product-subcategory (23 errores) - commit 969d84b
+- Batch 3: warehouse + product-category + geolocation + booking (33 errores) - commit 0283bc9
+- Batch 4: vending-machine + review + service-assignment + vending_machine (13 errores) - commit 3f83b94
+- Batch 5: location + taller_manager + inventory_item + inventory + csp (10 errores) - commit 8bfb58d
+- Batch 6: camino + partner + service-point + workshop (4 errores) - commit cad3776
+
+**Impacto:**
+
+- ✅ Códigos HTTP semánticos correctos (404, 400, 409, 500)
+- ✅ Frontend puede diferenciar tipos de errores
+- ✅ Mensajes de error consistentes en español
+- ✅ Logging estructurado con Winston
+
+**Ver:** `docs/sprints/SPRINT_6.2_APPERRROR_MIGRATION.md`  
 **Guía Completa:** `docs/guides/APPERRROR_MIGRATION_GUIDE.md`
 
-**Estado Actual:**
+---
 
-- 1/22 servicios migrados (venta_app ✅)
-- 21 servicios pendientes con 124 instancias de `throw new Error()`
-- 0% adoption → 100% adoption objetivo
+### Sprint 6.3: asyncHandler Migration (2 días) 🔴 PENDIENTE
 
-**Por qué ahora (CRÍTICO):**
-
-- 🔴 **Problema:** Todos los errores retornan HTTP 500 → Viola REST standards
-- ✅ **Solución:** Usar AppError hierarchy (404, 400, 409, 500) según contexto
-- ✅ Jerarquía YA EXISTE en `src/errors/custom-errors.ts`
-- ✅ Middleware YA MANEJA AppError en `src/middlewares/error-handler.ts`
-- ✅ Frontend necesita diferenciar 404 (no encontrado) vs 500 (error servidor)
-
-**Jerarquía AppError:**
-
-| Clase                  | HTTP | Uso                            |
-| ---------------------- | ---- | ------------------------------ |
-| `NotFoundError`        | 404  | Recurso no existe en BD        |
-| `ValidationError`      | 400  | Input validation failed        |
-| `BusinessRuleError`    | 400  | Violación regla de negocio     |
-| `ConflictError`        | 409  | Duplicado/conflicto            |
-| `DatabaseError`        | 500  | Error inesperado DB            |
-| `ExternalServiceError` | 503  | Servicio externo no disponible |
-
-**Tasks DÍA 1 (10-12 servicios prioritarios):**
-
-- [x] Identificar servicios por prioridad (endpoints activos primero)
-- [ ] Migrar `precio.service.ts` (endpoints `/api/precios`)
-- [ ] Migrar `vending_machine_slot.service.ts` (endpoints `/api/vending-machines/[id]/slots`)
-- [ ] Migrar `ubicacion.service.ts` (endpoints `/api/ubicaciones`)
-- [ ] Migrar `producto.service.ts` (endpoints `/api/productos`)
-- [ ] Migrar `camino.service.ts` (endpoints `/api/caminos`)
-- [ ] Migrar 5-7 servicios adicionales de alta prioridad
-- [ ] Tests después de cada 3-4 servicios: `npm test`
-
-**Tasks DÍA 2 (10-12 servicios restantes):**
-
-- [ ] Migrar servicios auxiliares restantes
-- [ ] Validación grep: `grep "throw new Error(" src/services/ | wc -l` → 0
-- [ ] Tests finales: 2410/2410 pasando
-- [ ] Documento: `docs/sprints/SPRINT_6.2_APPERRROR_MIGRATION.md`
-
-**Patrón de migración (según guía):**
-
-```typescript
-// ❌ ANTES (INCORRECTO - Todo retorna 500)
-if (!result.data) {
-  throw new Error(`Producto con ID ${id} no encontrado`);
-}
-if (precio < 0) {
-  throw new Error("Precio no puede ser negativo");
-}
-
-// ✅ DESPUÉS (CORRECTO - Códigos HTTP semánticos)
-import { NotFoundError, ValidationError, DatabaseError } from "@/errors/custom-errors";
-
-if (!result.data) {
-  throw new NotFoundError("Producto", id); // → 404
-}
-if (precio < 0) {
-  throw new ValidationError("Precio no puede ser negativo"); // → 400
-}
-
-// Catch blocks: Preservar errores específicos
-} catch (error) {
-  if (error instanceof NotFoundError || error instanceof ValidationError) {
-    throw error; // Mantener código HTTP original
-  }
-  throw new DatabaseError("Error al crear producto", { originalError: error }); // → 500
-}
-```
-
-**Criterios de Éxito:**
-
-- ✅ 22/22 servicios migrados (100%)
-- ✅ 0 instancias de `throw new Error()` genéricos
-- ✅ Tests: 2410/2410 pasando (100%)
 - ✅ API REST con códigos HTTP correctos (404, 400, 500, etc.)
 - ✅ Reducción de código: ~50 líneas (mensajes más concisos)
 

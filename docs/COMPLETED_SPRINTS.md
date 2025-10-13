@@ -1,6 +1,6 @@
 # 📚 COMPLETED SPRINTS - Historial de Sprints Completados
 
-**Última actualización:** 12 de octubre de 2025  
+**Última actualización:** 13 de octubre de 2025  
 **Proyecto:** Camino Service Backend
 
 ---
@@ -9,16 +9,138 @@
 
 | Sprint | Fecha      | Duración | Descripción                              | Estado |
 | ------ | ---------- | -------- | ---------------------------------------- | ------ |
+| 6.2    | Oct 13     | 1 día    | AppError Migration (124 errores)         | ✅     |
 | 6.1    | Oct 13     | 1 día    | Eliminación console.log (211 instancias) | ✅     |
 | 5.3    | Oct 10-12  | 3 días   | Utilities centralizadas                  | ✅     |
 | 5.2    | Oct 10-12  | 3 días   | Tests unitarios (254 tests)              | ✅     |
 | 5.1    | Oct 12     | 3 días   | 16 nuevos endpoints API                  | ✅     |
 | 1-4    | Weeks 1-10 | 10 sem   | BD, DTOs, Repos, Services, UI base       | ✅     |
 
-**Total Sprints Completados:** 6  
+**Total Sprints Completados:** 7  
 **Test Health Actual:** 2410/2410 pasando (100%)  
 **Coverage Actual:** 99.72%  
-**Versión Actual:** v0.3.0
+**Versión Actual:** v0.3.1
+
+---
+
+## Sprint 6.2: AppError Migration ✅
+
+**Fecha:** 13 de octubre de 2025  
+**Duración:** 1 día (4 horas efectivas)  
+**Estado:** ✅ COMPLETADO  
+**Versión liberada:** v0.3.1
+
+### Resumen Ejecutivo
+
+Migración sistemática de **124 instancias de throw new Error()** en 22 servicios a la jerarquía AppError personalizada, asegurando códigos HTTP semánticos correctos (404, 400, 409, 500) y manejo de errores consistente en toda la aplicación. Tests: 2410/2410 pasando (100%).
+
+### Métricas del Sprint
+
+- **Errores genéricos migrados:** 124/124 (100%)
+- **Servicios migrados:** 22/22 (100%)
+  - DatabaseError: ~60% (errores de repositorio)
+  - NotFoundError: ~20% (recursos no encontrados)
+  - ValidationError: ~15% (validaciones de entrada)
+  - ConflictError: ~3% (duplicados)
+  - BusinessRuleError: ~2% (reglas de negocio)
+- **Tests actualizados:** 9 archivos de test
+- **Archivos modificados:** 34 (21 services + 9 tests + 4 docs)
+- **Líneas de código:** +384/-265
+- **Tests finales:** 2410/2410 pasando (100%)
+- **Coverage:** 99.72% mantenido
+- **ESLint errors:** 0
+
+### Batches de Migración
+
+**Batch 1: Servicios grandes (40 errores)**
+
+- `service.service.ts` (27→0): NotFoundError, ValidationError, ConflictError
+- `service_assignment.service.ts` (13→0): DatabaseError, NotFoundError, ConflictError
+- Commit: `d1cb266`
+
+**Batch 2: Servicios críticos (23 errores)**
+
+- `payment.service.ts` (13→0): NotFoundError, ValidationError, BusinessRuleError, DatabaseError
+- `product-subcategory.service.ts` (10→0): NotFoundError, ValidationError, ConflictError
+- Commit: `969d84b`
+
+**Batch 3: Servicios de recursos (33 errores)**
+
+- `warehouse.service.ts` (9→0): ValidationError, ConflictError
+- `product-category.service.ts` (8→0): NotFoundError, ValidationError, ConflictError
+- `geolocation.service.ts` (8→0): ValidationError
+- `booking.service.ts` (8→0): DatabaseError, ValidationError
+- Commit: `0283bc9`
+
+**Batch 4: Servicios medianos (13 errores)**
+
+- `vending-machine.service.ts` (4→0): NotFoundError, ValidationError
+- `review.service.ts` (4→0): DatabaseError
+- `service-assignment.service.ts` (3→0): NotFoundError, ConflictError
+- `vending_machine.service.ts` (2→0): DatabaseError
+- Commit: `3f83b94`
+
+**Batch 5: Servicios de inventario (10 errores)**
+
+- `location.service.ts` (2→0): NotFoundError, ValidationError
+- `taller_manager.service.ts` (2→0): DatabaseError
+- `inventory_item.service.ts` (2→0): DatabaseError
+- `inventory.service.ts` (2→0): DatabaseError
+- `csp.service.ts` (2→0): DatabaseError
+- Commit: `8bfb58d`
+
+**Batch 6: Final cleanup (4 errores)**
+
+- `camino.service.ts` (1→0): ValidationError
+- `partner.service.ts` (1→0): DatabaseError
+- `service-point.service.ts` (1→0): NotFoundError
+- `workshop.service.ts` (1→0): DatabaseError
+- Commit: `cad3776`
+
+### Problemas y Soluciones
+
+**Problema 1: Tests esperaban mensajes de error genéricos**
+
+- Solución: Actualizar `toThrow("Database error")` → `toThrow(DatabaseError)`
+- Archivos afectados: 9 test files
+- Impacto: Bajo
+
+**Problema 2: Imports de clases de error faltantes en tests**
+
+- Solución: Agregar `import { DatabaseError } from "../../src/errors/custom-errors"`
+- Patrón replicado en todos los tests afectados
+
+### Lecciones Aprendidas
+
+✅ **Lo que funcionó:**
+
+- Estrategia de batches (3-5 servicios) con commits intermedios
+- Validación con `npm test` después de cada batch
+- Grep para tracking de progreso (`grep -c "throw new Error("`)
+
+❌ **Lo que mejorar:**
+
+- Actualizar tests en paralelo con servicios (evitar ciclos de re-test)
+
+### Decisiones Técnicas
+
+- **Mensajes en español** para consistencia con el resto del proyecto
+- **Batches incrementales** para rollback granular y reducción de riesgo
+- **DatabaseError con originalError** para preservar contexto de errores de Supabase
+
+### Documentación Generada
+
+- ✅ `docs/sprints/SPRINT_6.2_APPERRROR_MIGRATION.md` (reporte completo)
+- ✅ CHANGELOG.md (auto-generado con standard-version)
+- ✅ Git tag: `v0.3.1`
+
+### Próximos Pasos
+
+**Sprint 7.1 sugerido:** ESLint Enhancement & Test Quality
+
+- ESLint custom rule para prohibir `throw new Error()` (prevenir regresión)
+- Script automatizado para migration de test assertions
+- Cleanup de warnings de tipos en tests preexistentes
 
 ---
 
