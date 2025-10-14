@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.3](///compare/v0.3.2...v0.3.3) (2025-10-14)
+
+### ✅ Tests
+
+- **coverage:** adjust coverage threshold to current reality (44%) a13e868
+
+### ♻️ Code Refactoring
+
+- **api:** centralize error messages and validation (Sprint 6.4 Phase 2) cb6e593
+
+### 📚 Documentation
+
+- complete Sprint 6.3 documentation (asyncHandler migration 100%) c09c500
+- **roadmap:** adjust Sprint 6.4 plan to reflect coverage reality a3aba38
+- **roadmap:** insert Sprint 7 (Config + Factories) before Sprint 8 d4108f1
+- **roadmap:** reorganize strategy v3.0 - features first, transactions later 3489751
+- **roadmap:** update Sprint 6.3 status to COMPLETADO 67aecec
+- update BACKLOG and ROADMAP for Sprint 6.4 completion 0b9001a
+
+### ✨ Features
+
+- **config:** centralized type-safe config with Zod validation 2dd6878
+
 ### [0.3.2](///compare/v0.3.1...v0.3.2) (2025-10-13)
 
 ### 📚 Documentation

@@ -1,6 +1,6 @@
 {
   "name": "camino-service-backend",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -59,6 +59,7 @@
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@eslint/eslintrc": "^3",
+    "@ngneat/falso": "^8.0.2",
     "@radix-ui/react-slot": "^1.2.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
