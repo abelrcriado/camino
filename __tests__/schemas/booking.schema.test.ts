@@ -13,21 +13,31 @@ import { TestDataGenerators, SchemaDataGenerators } from "../helpers/test-data-g
 
 describe("Booking Schemas", () => {
   describe("createBookingSchema", () => {
-    const validData = {
-      user_id: SchemaDataGenerators.booking.userId(),
-      service_point_id: SchemaDataGenerators.booking.servicePointId(),
-      workshop_id: SchemaDataGenerators.booking.workshopId(),
-      service_type: SchemaDataGenerators.booking.serviceType(),
-      start_time: SchemaDataGenerators.booking.startTime(),
-      end_time: SchemaDataGenerators.booking.endTime(),
+    // Helper function to generate valid booking data with correlated dates
+    const generateValidBookingData = () => {
+      const startTime = TestDataGenerators.futureDate();
+      const startDate = new Date(startTime);
+      const endDate = new Date(startDate.getTime() + 3600000); // +1 hour
+      const endTime = endDate.toISOString();
+
+      return {
+        user_id: SchemaDataGenerators.booking.userId(),
+        service_point_id: SchemaDataGenerators.booking.servicePointId(),
+        workshop_id: SchemaDataGenerators.booking.workshopId(),
+        service_type: SchemaDataGenerators.booking.serviceType(),
+        start_time: startTime,
+        end_time: endTime,
+      };
     };
 
     it("should validate correct booking data", () => {
+      const validData = generateValidBookingData();
       const result = createBookingSchema.safeParse(validData);
       expect(result.success).toBe(true);
     });
 
     it("should accept optional status and default to pending", () => {
+      const validData = generateValidBookingData();
       const result = createBookingSchema.safeParse(validData);
       expect(result.success).toBe(true);
       if (result.success) {
@@ -36,6 +46,7 @@ describe("Booking Schemas", () => {
     });
 
     it("should accept explicit status", () => {
+      const validData = generateValidBookingData();
       const data = { ...validData, status: "confirmed" as const };
       const result = createBookingSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -45,6 +56,7 @@ describe("Booking Schemas", () => {
     });
 
     it("should reject missing user_id", () => {
+      const validData = generateValidBookingData();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { user_id, ...data } = validData;
       const result = createBookingSchema.safeParse(data);
@@ -52,6 +64,7 @@ describe("Booking Schemas", () => {
     });
 
     it("should reject invalid user_id UUID", () => {
+      const validData = generateValidBookingData();
       const data = { ...validData, user_id: TestDataGenerators.alphanumeric(10) };
       const result = createBookingSchema.safeParse(data);
       expect(result.success).toBe(false);
@@ -61,6 +74,7 @@ describe("Booking Schemas", () => {
     });
 
     it("should reject missing both service_point_id and workshop_id", () => {
+      const validData = generateValidBookingData();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { service_point_id, workshop_id, ...data } = validData;
       const result = createBookingSchema.safeParse(data);
@@ -73,6 +87,7 @@ describe("Booking Schemas", () => {
     });
 
     it("should accept only service_point_id without workshop_id", () => {
+      const validData = generateValidBookingData();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { workshop_id, ...data } = validData;
       const result = createBookingSchema.safeParse(data);
@@ -80,6 +95,7 @@ describe("Booking Schemas", () => {
     });
 
     it("should accept only workshop_id without service_point_id", () => {
+      const validData = generateValidBookingData();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { service_point_id, ...data } = validData;
       const result = createBookingSchema.safeParse(data);
@@ -87,6 +103,7 @@ describe("Booking Schemas", () => {
     });
 
     it("should reject missing start_time", () => {
+      const validData = generateValidBookingData();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { start_time, ...data } = validData;
       const result = createBookingSchema.safeParse(data);
@@ -94,12 +111,14 @@ describe("Booking Schemas", () => {
     });
 
     it("should reject invalid start_time format", () => {
+      const validData = generateValidBookingData();
       const data = { ...validData, start_time: "2025-10-20" };
       const result = createBookingSchema.safeParse(data);
       expect(result.success).toBe(false);
     });
 
     it("should reject missing end_time", () => {
+      const validData = generateValidBookingData();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { end_time, ...data } = validData;
       const result = createBookingSchema.safeParse(data);
@@ -107,6 +126,7 @@ describe("Booking Schemas", () => {
     });
 
     it("should reject end_time before start_time", () => {
+      const validData = generateValidBookingData();
       const data = {
         ...validData,
         start_time: "2025-10-20T11:00:00.000Z",
@@ -120,6 +140,7 @@ describe("Booking Schemas", () => {
     });
 
     it("should reject invalid status enum", () => {
+      const validData = generateValidBookingData();
       const data = { ...validData, status: "invalid_status" };
       const result = createBookingSchema.safeParse(data);
       expect(result.success).toBe(false);
@@ -134,6 +155,7 @@ describe("Booking Schemas", () => {
         "no_show",
       ];
       statuses.forEach((status) => {
+        const validData = generateValidBookingData();
         const data = { ...validData, status };
         const result = createBookingSchema.safeParse(data);
         expect(result.success).toBe(true);
@@ -141,6 +163,7 @@ describe("Booking Schemas", () => {
     });
 
     it("should reject extra fields (strict mode)", () => {
+      const validData = generateValidBookingData();
       const data = { ...validData, extra_field: "value" };
       const result = createBookingSchema.safeParse(data);
       expect(result.success).toBe(false);
