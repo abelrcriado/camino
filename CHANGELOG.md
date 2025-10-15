@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.4](https://github.com/abelrcriado/camino/compare/v0.3.3...v0.3.4) (2025-10-15)
+
+### ✨ Features
+
+- **tests:** complete service tests migration to @ngneat/falso factories (100%) ([9fd36db](https://github.com/abelrcriado/camino/commit/9fd36db088052889c4c5547d0542ee5a56a5ba5a))
+
+### 🧹 Chores
+
+- add Supabase env vars to jest.setup.js ([de3f53c](https://github.com/abelrcriado/camino/commit/de3f53c63c2fba24c698d46e098346914bb999e0))
+
+### ✅ Tests
+
+- **controllers:** migrate favorite.controller.test to factories ([a6fce61](https://github.com/abelrcriado/camino/commit/a6fce611636d54a26277500e3411227f2b17f7d8))
+- **controllers:** migrate inventory_item.controller.test to factories ([48b8e1b](https://github.com/abelrcriado/camino/commit/48b8e1bfcea998f76c03f95bf81dbddf908a1bc7))
+- **controllers:** migrate inventory.controller.test to factories ([641cb8e](https://github.com/abelrcriado/camino/commit/641cb8ef17feb4a73b46352665df32d0fbdc998a))
+- **controllers:** migrate partner.controller.test to factories ([c6dbfef](https://github.com/abelrcriado/camino/commit/c6dbfef0b35e9a7aa29c6265edfce86c4949441b))
+- **controllers:** migrate taller_manager.controller.test to factories ([4669b35](https://github.com/abelrcriado/camino/commit/4669b3545298700f82123f32afb41602469363c3))
+- **controllers:** migrate user.controller.test to factories ([3f0363e](https://github.com/abelrcriado/camino/commit/3f0363e926423542b3f8150c0d33c04d45ac6537))
+- **controllers:** migrate vending_machine.controller.test to factories ([33ff616](https://github.com/abelrcriado/camino/commit/33ff6169308087244c09c3b346568c7a945461a3))
+- **repositories:** add ServiceAssignmentFactory and migrate user, booking tests ([9d1d989](https://github.com/abelrcriado/camino/commit/9d1d989eefdee413826fc9cbb9110134a1a90a3f))
+- **repositories:** migrate partner tests to factories and add imports to all remaining files ([0a3ddb5](https://github.com/abelrcriado/camino/commit/0a3ddb5304e695e1994aace11985523237c74a11))
+- **repositories:** migrate workshop and camino tests to factories ([3ff017e](https://github.com/abelrcriado/camino/commit/3ff017e189f4625cb3faf6797de715226bd6b295))
+- **schemas:** migrate all remaining schema tests to factories (18/18 complete) ([6d81040](https://github.com/abelrcriado/camino/commit/6d8104065f32b2d11a17f32c6295eda05ef29ec9))
+- **schemas:** migrate booking.schema.test to factories ([a18e982](https://github.com/abelrcriado/camino/commit/a18e98228f3835afcf4c8c7fca3e67cebe7e6a18))
+- **schemas:** migrate payment and camino schema tests to factories ([d5f0db2](https://github.com/abelrcriado/camino/commit/d5f0db23e443164b993c45316608cf8fc675f793))
+- **schemas:** migrate user.schema.test to factories ([08eda4b](https://github.com/abelrcriado/camino/commit/08eda4b7cb197a1c63baf8c1d098ddcacd918946))
+
+### 📚 Documentation
+
+- **tests:** update README with completed schema migration (97% total) ([0b90795](https://github.com/abelrcriado/camino/commit/0b90795aaec124b3b13b1a80a6621e408c0b5326))
+- **tests:** update README with repository migration progress ([43bcf24](https://github.com/abelrcriado/camino/commit/43bcf243a9c2154683071d14513ffc7031fed670))
+
 ### [0.3.3](///compare/v0.3.2...v0.3.3) (2025-10-14)
 
 ### ✅ Tests
