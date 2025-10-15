@@ -2,6 +2,7 @@ import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { VendingMachineController } from "../../src/controllers/vending_machine.controller";
 import { VendingMachineService } from "../../src/services/vending_machine.service";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { VendingMachineFactory } from "../helpers/factories";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -52,22 +53,23 @@ describe("VendingMachineController", () => {
   });
 
   it("should filter by service_point_id", async () => {
-    const validServicePointId = "123e4567-e89b-12d3-a456-426614174000";
-    mockReq.query = { service_point_id: validServicePointId };
-    mockService.findByServicePoint.mockResolvedValue([]);
+    const mockMachine = VendingMachineFactory.create();
+    mockReq.query = { service_point_id: mockMachine.service_point_id };
+    mockService.findByServicePoint.mockResolvedValue([mockMachine]);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse
     );
     expect(mockService.findByServicePoint).toHaveBeenCalledWith(
-      validServicePointId
+      mockMachine.service_point_id
     );
     expect(mockRes.status).toHaveBeenCalledWith(200);
   });
 
   it("should filter by status", async () => {
     mockReq.query = { status: "operational" };
-    mockService.findByStatus.mockResolvedValue([]);
+    const mockMachines = VendingMachineFactory.createMany(2, { status: "operational" });
+    mockService.findByStatus.mockResolvedValue(mockMachines);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse
@@ -78,15 +80,15 @@ describe("VendingMachineController", () => {
 
   it("should create vending machine", async () => {
     mockReq.method = "POST";
-    mockReq.body = {
-      service_point_id: "123e4567-e89b-12d3-a456-426614174000",
+    const reqBody = VendingMachineFactory.createDto({
       name: "Snacks Machine #1",
       status: "operational",
-    };
-    mockService.createVendingMachine.mockResolvedValue({
-      id: "vm-1",
-      ...mockReq.body,
     });
+    mockReq.body = reqBody;
+    const createdMachine = VendingMachineFactory.create({
+      ...reqBody,
+    });
+    mockService.createVendingMachine.mockResolvedValue(createdMachine);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse
