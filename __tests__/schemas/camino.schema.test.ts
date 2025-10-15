@@ -9,6 +9,7 @@ import {
   deleteCaminoSchema,
   queryCaminoSchema,
 } from "../../src/schemas/camino.schema";
+import { generateUUID } from "../helpers/factories";
 
 describe("Camino Schemas", () => {
   describe("createCaminoSchema", () => {
@@ -175,12 +176,12 @@ describe("Camino Schemas", () => {
 
   describe("updateCaminoSchema", () => {
     const validData = {
-      id: "550e8400-e29b-41d4-a716-446655440000",
+      id: generateUUID(),
       nombre: "Camino actualizado",
     };
 
     it("should reject update data with only id (requires at least one field)", () => {
-      const data = { id: "550e8400-e29b-41d4-a716-446655440000" };
+      const data = { id: generateUUID() };
       const result = updateCaminoSchema.safeParse(data);
       expect(result.success).toBe(false);
     });
@@ -232,12 +233,12 @@ describe("Camino Schemas", () => {
 
     it("should accept all optional fields", () => {
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: generateUUID(),
         nombre: "Camino Portugués",
         codigo: "CP",
         zona_operativa: "Noroeste",
         region: "Galicia, Portugal",
-        estado_operativo: "mantenimiento",
+        estado_operativo: "mantenimiento" as const,
         descripcion: "Actualización del camino",
       };
       const result = updateCaminoSchema.safeParse(data);
@@ -255,7 +256,7 @@ describe("Camino Schemas", () => {
 
   describe("deleteCaminoSchema", () => {
     it("should validate correct delete data", () => {
-      const data = { id: "550e8400-e29b-41d4-a716-446655440000" };
+      const data = { id: generateUUID() };
       const result = deleteCaminoSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -274,7 +275,7 @@ describe("Camino Schemas", () => {
 
     it("should reject extra fields", () => {
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: generateUUID(),
         extra: "field",
       };
       const result = deleteCaminoSchema.safeParse(data);
