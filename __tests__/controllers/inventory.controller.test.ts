@@ -2,6 +2,7 @@ import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { InventoryController } from "../../src/controllers/inventory.controller";
 import { InventoryService } from "../../src/services/inventory.service";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { InventoryFactory } from "../helpers/factories";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -51,31 +52,31 @@ describe("InventoryController", () => {
   });
 
   it("should filter by service_point_id", async () => {
-    const validServicePointId = "123e4567-e89b-12d3-a456-426614174000";
-    mockReq.query = { service_point_id: validServicePointId };
-    mockService.findByServicePoint.mockResolvedValue([]);
+    const mockInventory = InventoryFactory.create();
+    mockReq.query = { service_point_id: mockInventory.service_point_id };
+    mockService.findByServicePoint.mockResolvedValue([mockInventory]);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse
     );
     expect(mockService.findByServicePoint).toHaveBeenCalledWith(
-      validServicePointId
+      mockInventory.service_point_id
     );
     expect(mockRes.status).toHaveBeenCalledWith(200);
   });
 
   it("should create inventory", async () => {
     mockReq.method = "POST";
-    mockReq.body = {
-      service_point_id: "123e4567-e89b-12d3-a456-426614174000",
+    const reqBody = InventoryFactory.createDto({
       name: "Bike Tires",
       quantity: 10,
       min_stock: 5,
-    };
-    mockService.createInventory.mockResolvedValue({
-      id: "inv-1",
-      ...mockReq.body,
     });
+    mockReq.body = reqBody;
+    const createdInventory = InventoryFactory.create({
+      ...reqBody,
+    });
+    mockService.createInventory.mockResolvedValue(createdInventory);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse

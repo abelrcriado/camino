@@ -2,6 +2,7 @@ import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { PartnerController } from "../../src/controllers/partner.controller";
 import { PartnerService } from "../../src/services/partner.service";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { PartnerFactory } from "../helpers/factories";
 
 describe("PartnerController", () => {
   let controller: PartnerController;
@@ -60,15 +61,16 @@ describe("PartnerController", () => {
 
   it("should create partner", async () => {
     mockReq.method = "POST";
-    mockReq.body = {
+    const reqBody = PartnerFactory.createDto({
       name: "Bike Brand",
       type: "sponsor",
       contact_phone: "+34600123456",
-    };
-    mockService.createPartner.mockResolvedValue({
-      id: "partner-1",
-      ...mockReq.body,
     });
+    mockReq.body = reqBody;
+    const createdPartner = PartnerFactory.create({
+      ...reqBody,
+    });
+    mockService.createPartner.mockResolvedValue(createdPartner);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse

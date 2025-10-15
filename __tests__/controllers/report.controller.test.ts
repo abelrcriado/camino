@@ -2,6 +2,7 @@ import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { ReportController } from "../../src/controllers/report.controller";
 import { ReportService } from "../../src/services/report.service";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { ReportFactory } from "../helpers/factories";
 
 describe("ReportController", () => {
   let controller: ReportController;
@@ -55,15 +56,14 @@ describe("ReportController", () => {
   });
 
   it("should filter by user_id", async () => {
-    mockReq.query = { user_id: "550e8400-e29b-41d4-a716-446655440001" };
-    mockService.findByUser.mockResolvedValue([]);
+    const mockReport = ReportFactory.create();
+    mockReq.query = { user_id: mockReport.user_id };
+    mockService.findByUser.mockResolvedValue([mockReport]);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse
     );
-    expect(mockService.findByUser).toHaveBeenCalledWith(
-      "550e8400-e29b-41d4-a716-446655440001"
-    );
+    expect(mockService.findByUser).toHaveBeenCalledWith(mockReport.user_id);
   });
 
   it("should filter by type", async () => {
@@ -88,16 +88,12 @@ describe("ReportController", () => {
 
   it("should create report", async () => {
     mockReq.method = "POST";
-    mockReq.body = {
-      user_id: "123e4567-e89b-12d3-a456-426614174000",
-      type: "incident",
-      title: "Test Report",
-      description: "Test Issue",
-    };
-    mockService.createReport.mockResolvedValue({
-      id: "report-1",
-      ...mockReq.body,
+    const reqBody = ReportFactory.createDto();
+    mockReq.body = reqBody;
+    const createdReport = ReportFactory.create({
+      ...reqBody,
     });
+    mockService.createReport.mockResolvedValue(createdReport);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse
@@ -107,11 +103,13 @@ describe("ReportController", () => {
 
   it("should update report", async () => {
     mockReq.method = "PUT";
+    const existingReport = ReportFactory.create();
     mockReq.body = {
-      id: "123e4567-e89b-12d3-a456-426614174000",
+      id: existingReport.id,
       status: "approved",
     };
-    mockService.updateReport.mockResolvedValue({ ...mockReq.body });
+    const updatedReport = ReportFactory.create({ ...mockReq.body });
+    mockService.updateReport.mockResolvedValue(updatedReport);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse
@@ -121,7 +119,8 @@ describe("ReportController", () => {
 
   it("should delete report", async () => {
     mockReq.method = "DELETE";
-    mockReq.body = { id: "123e4567-e89b-12d3-a456-426614174000" };
+    const reportId = ReportFactory.create().id;
+    mockReq.body = { id: reportId };
     mockService.delete.mockResolvedValue(undefined);
     await controller.handle(
       mockReq as NextApiRequest,
