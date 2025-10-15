@@ -10,6 +10,7 @@ import {
   queryProductoSchema,
   UnidadMedidaEnum,
 } from "@/schemas/producto.schema";
+import { generateUUID } from "../helpers/factories";
 
 describe("Producto Schemas", () => {
   describe("createProductoSchema", () => {
@@ -18,7 +19,7 @@ describe("Producto Schemas", () => {
         sku: "COCA-COLA-500ML",
         nombre: "Coca-Cola 500ml",
         descripcion: "Bebida gaseosa",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 80,
         precio_venta: 150,
         tasa_iva: 21.0,
@@ -36,7 +37,7 @@ describe("Producto Schemas", () => {
       const minimalData = {
         sku: "TEST-SKU-001",
         nombre: "Producto Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
       };
@@ -54,7 +55,7 @@ describe("Producto Schemas", () => {
       const invalidData = {
         sku: "coca-cola-500ml", // Minúsculas no permitidas
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
       };
@@ -66,7 +67,7 @@ describe("Producto Schemas", () => {
       const invalidData = {
         sku: "COCA COLA 500ML",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
       };
@@ -78,7 +79,7 @@ describe("Producto Schemas", () => {
       const invalidData = {
         sku: "TEST-001",
         nombre: "T", // Solo 1 carácter
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
       };
@@ -102,7 +103,7 @@ describe("Producto Schemas", () => {
       const invalidData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 200,
         precio_venta: 100, // Menor que costo_base
       };
@@ -116,7 +117,7 @@ describe("Producto Schemas", () => {
       const invalidData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 150,
         precio_venta: 150, // Igual a costo_base
       };
@@ -128,7 +129,7 @@ describe("Producto Schemas", () => {
       const invalidData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         tasa_iva: -5,
@@ -141,7 +142,7 @@ describe("Producto Schemas", () => {
       const invalidData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         tasa_iva: 150,
@@ -154,7 +155,7 @@ describe("Producto Schemas", () => {
       const validData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         unidad_medida: "kilogramo" as const,
@@ -168,7 +169,7 @@ describe("Producto Schemas", () => {
       const invalidData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -182,7 +183,7 @@ describe("Producto Schemas", () => {
       const validData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         dimensiones: {
@@ -201,7 +202,7 @@ describe("Producto Schemas", () => {
       const validData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         dimensiones: {
@@ -219,7 +220,7 @@ describe("Producto Schemas", () => {
       const invalidData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         peso_gramos: -100,
@@ -232,7 +233,7 @@ describe("Producto Schemas", () => {
       const invalidData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         perecedero: true,
@@ -248,7 +249,7 @@ describe("Producto Schemas", () => {
       const validData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         perecedero: true,
@@ -264,7 +265,7 @@ describe("Producto Schemas", () => {
       const validData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         perecedero: true,
@@ -280,7 +281,7 @@ describe("Producto Schemas", () => {
       const validData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         proveedor_url: "https://proveedor.com",
@@ -294,7 +295,7 @@ describe("Producto Schemas", () => {
       const invalidData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         proveedor_url: "not-a-url",
@@ -307,7 +308,7 @@ describe("Producto Schemas", () => {
       const validData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         imagenes: [
@@ -324,7 +325,7 @@ describe("Producto Schemas", () => {
       const invalidData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         imagenes: ["not-a-url", "https://example.com/img2.jpg"],
@@ -337,7 +338,7 @@ describe("Producto Schemas", () => {
       const validData = {
         sku: "TEST-001",
         nombre: "Test",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
         tags: ["bebida", "gaseosa", "cola"],
@@ -351,7 +352,7 @@ describe("Producto Schemas", () => {
   describe("updateProductoSchema", () => {
     it("debe validar actualización completa", () => {
       const validData = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: generateUUID(),
         nombre: "Nombre Actualizado",
         precio_venta: 250,
         is_active: false,
@@ -371,7 +372,7 @@ describe("Producto Schemas", () => {
 
     it("debe rechazar actualización solo con id (sin campos)", () => {
       const invalidData = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: generateUUID(),
       };
 
       expect(() => updateProductoSchema.parse(invalidData)).toThrow(
@@ -381,7 +382,7 @@ describe("Producto Schemas", () => {
 
     it("debe validar actualización parcial con un campo", () => {
       const validData = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: generateUUID(),
         nombre: "Nuevo Nombre",
       };
 
@@ -391,7 +392,7 @@ describe("Producto Schemas", () => {
 
     it("debe validar precios en actualización", () => {
       const validData = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: generateUUID(),
         costo_base: 100,
         precio_venta: 200,
       };
@@ -402,7 +403,7 @@ describe("Producto Schemas", () => {
 
     it("debe rechazar precio_venta menor que costo_base en actualización", () => {
       const invalidData = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: generateUUID(),
         costo_base: 200,
         precio_venta: 100,
       };
@@ -414,7 +415,7 @@ describe("Producto Schemas", () => {
 
     it("debe permitir actualizar solo precio_venta", () => {
       const validData = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: generateUUID(),
         precio_venta: 300,
       };
 
@@ -424,7 +425,7 @@ describe("Producto Schemas", () => {
 
     it("debe permitir actualizar solo costo_base", () => {
       const validData = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: generateUUID(),
         costo_base: 150,
       };
 
@@ -436,7 +437,7 @@ describe("Producto Schemas", () => {
   describe("deleteProductoSchema", () => {
     it("debe validar id correcto", () => {
       const validData = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: generateUUID(),
       };
 
       const result = deleteProductoSchema.parse(validData);
@@ -524,7 +525,7 @@ describe("Producto Schemas", () => {
       const result = queryProductoSchema.parse({
         sku: "TEST-001",
         nombre: "Coca",
-        category_id: "123e4567-e89b-12d3-a456-426614174000",
+        category_id: generateUUID(),
         marca: "Coca-Cola",
         search: "bebida",
       });

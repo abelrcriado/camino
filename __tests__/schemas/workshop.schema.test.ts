@@ -13,11 +13,14 @@ import {
   type DeleteWorkshopInput,
   type QueryWorkshopInput,
 } from "../../src/schemas/workshop.schema";
+import { generateUUID } from "../helpers/factories";
 
 describe("Workshop Schema Validation", () => {
+  const validUUID = generateUUID();
+  
   describe("createWorkshopSchema", () => {
     const validWorkshopData = {
-      service_point_id: "123e4567-e89b-12d3-a456-426614174000",
+      service_point_id: validUUID,
       name: "Taller Especializado",
       description: "Descripción del taller",
       contact_phone: "+34 123 456 789",
@@ -307,7 +310,7 @@ describe("Workshop Schema Validation", () => {
 
   describe("updateWorkshopSchema", () => {
     const validUpdateData = {
-      id: "123e4567-e89b-12d3-a456-426614174000",
+      id: validUUID,
       name: "Taller Actualizado",
     };
 
@@ -323,7 +326,7 @@ describe("Workshop Schema Validation", () => {
 
       it("debería validar actualización con todos los campos", () => {
         const completeUpdateData = {
-          id: "123e4567-e89b-12d3-a456-426614174000",
+          id: validUUID,
           service_point_id: "456e7890-e12b-34d5-a678-901234567890",
           name: "Taller Completo",
           description: "Nueva descripción",
@@ -423,7 +426,7 @@ describe("Workshop Schema Validation", () => {
   describe("deleteWorkshopSchema", () => {
     describe("Validaciones exitosas", () => {
       it("debería validar delete con ID válido", () => {
-        const deleteData = { id: "123e4567-e89b-12d3-a456-426614174000" };
+        const deleteData = { id: validUUID };
         const result = deleteWorkshopSchema.safeParse(deleteData);
         expect(result.success).toBe(true);
         if (result.success) {
@@ -457,7 +460,7 @@ describe("Workshop Schema Validation", () => {
     describe("Validación strict mode en delete", () => {
       it("debería fallar con campos adicionales", () => {
         const deleteData = {
-          id: "123e4567-e89b-12d3-a456-426614174000",
+          id: validUUID,
           extra_field: "not allowed",
         };
         const result = deleteWorkshopSchema.safeParse(deleteData);
@@ -475,7 +478,7 @@ describe("Workshop Schema Validation", () => {
 
       it("debería validar query con service_point_id", () => {
         const queryData = {
-          service_point_id: "123e4567-e89b-12d3-a456-426614174000",
+          service_point_id: validUUID,
         };
         const result = queryWorkshopSchema.safeParse(queryData);
         expect(result.success).toBe(true);
@@ -511,22 +514,22 @@ describe("Workshop Schema Validation", () => {
     it("debería exportar tipos correctos", () => {
       // Test de inferencia de tipos en tiempo de compilación
       const createData: CreateWorkshopInput = {
-        service_point_id: "123e4567-e89b-12d3-a456-426614174000",
+        service_point_id: validUUID,
         name: "Test Workshop",
         contact_phone: "+34 123 456 789",
       };
 
       const updateData: UpdateWorkshopInput = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: validUUID,
         name: "Updated Workshop",
       };
 
       const deleteData: DeleteWorkshopInput = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: validUUID,
       };
 
       const queryData: QueryWorkshopInput = {
-        service_point_id: "123e4567-e89b-12d3-a456-426614174000",
+        service_point_id: validUUID,
       };
 
       expect(createData).toBeDefined();

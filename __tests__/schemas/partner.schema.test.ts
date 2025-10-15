@@ -10,9 +10,10 @@ import {
   type QueryPartnerInput,
 } from "../../src/schemas/partner.schema";
 import { PARTNER_TYPE_VALUES } from "../../src/constants/enums";
+import { generateUUID } from "../helpers/factories";
 
 describe("Partner Schema Validation", () => {
-  const validUUID = "123e4567-e89b-12d3-a456-426614174000";
+  const validUUID = generateUUID();
 
   describe("createPartnerSchema", () => {
     const validPartnerData = {

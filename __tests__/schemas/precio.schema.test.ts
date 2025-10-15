@@ -9,13 +9,14 @@ import {
   precioEntitySchema,
 } from "@/schemas/precio.schema";
 import { NivelPrecio, EntidadTipo } from "@/dto/precio.dto";
+import { generateUUID } from "../helpers/factories";
 
 describe("Precio Schemas", () => {
   // ===== CREATE PRECIO SCHEMA =====
   describe("createPrecioSchema", () => {
-    const validUUID = "550e8400-e29b-41d4-a716-446655440000";
-    const validUUID2 = "650e8400-e29b-41d4-a716-446655440001";
-    const validUUID3 = "750e8400-e29b-41d4-a716-446655440002";
+    const validUUID = generateUUID();
+    const validUUID2 = generateUUID();
+    const validUUID3 = generateUUID();
 
     describe("Nivel BASE - validaciones", () => {
       it("debería validar precio BASE correcto", () => {
