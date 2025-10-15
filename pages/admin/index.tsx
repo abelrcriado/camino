@@ -79,7 +79,7 @@ export default function DashboardHome() {
         alerts,
         topProducts,
       });
-    } catch (error) {
+    } catch {
       // Error loading stats - silently fail
     } finally {
       setLoading(false);
