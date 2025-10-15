@@ -14,6 +14,7 @@ import {
 } from "../../src/dto/booking.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { PaginationParams } from "../../src/types/common.types";
+import { BookingFactory } from "../helpers/factories";
 
 // Mock Supabase client con métodos de query builder
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -68,23 +69,19 @@ describe("BookingRepository", () => {
 
   describe("findAll with filters", () => {
     it("should find bookings with date range filters", async () => {
-      const mockBookings: Booking[] = [
-        {
-          id: "123e4567-e89b-12d3-a456-426614174000",
-          user_id: "user-123",
-          service_type: "maintenance",
-          start_time: "2024-01-01T10:00:00Z",
-          end_time: "2024-01-01T11:00:00Z",
-          status: "pending",
-          created_at: "2024-01-01T09:00:00Z",
-          updated_at: "2024-01-01T09:00:00Z",
-        },
-      ];
+      const userId = "user-123";
+      const startDate = "2024-01-01T00:00:00Z";
+      const endDate = "2024-01-01T23:59:59Z";
+      
+      const mockBookings = BookingFactory.createMany(1, {
+        user_id: userId,
+        status: "pending",
+      });
 
       const filters: BookingFilters = {
-        start_date: "2024-01-01T00:00:00Z",
-        end_date: "2024-01-01T23:59:59Z",
-        user_id: "user-123",
+        start_date: startDate,
+        end_date: endDate,
+        user_id: userId,
       };
 
       const pagination: PaginationParams = {
@@ -102,14 +99,14 @@ describe("BookingRepository", () => {
 
       expect(mockSupabase.from).toHaveBeenCalledWith("bookings");
       expect(mockSupabase.select).toHaveBeenCalledWith("*", { count: "exact" });
-      expect(mockSupabase.eq).toHaveBeenCalledWith("user_id", "user-123");
+      expect(mockSupabase.eq).toHaveBeenCalledWith("user_id", userId);
       expect(mockSupabase.gte).toHaveBeenCalledWith(
         "start_time",
-        "2024-01-01T00:00:00Z"
+        startDate
       );
       expect(mockSupabase.lte).toHaveBeenCalledWith(
         "end_time",
-        "2024-01-01T23:59:59Z"
+        endDate
       );
       expect(mockSupabase.range).toHaveBeenCalledWith(0, 9);
       expect(mockSupabase.order).toHaveBeenCalledWith("start_time", {
@@ -120,18 +117,9 @@ describe("BookingRepository", () => {
 
   describe("findActive", () => {
     it("should find active bookings", async () => {
-      const mockBookings: Booking[] = [
-        {
-          id: "123e4567-e89b-12d3-a456-426614174000",
-          user_id: "user-123",
-          service_type: "maintenance",
-          start_time: "2024-01-01T10:00:00Z",
-          end_time: "2024-01-01T11:00:00Z",
-          status: "confirmed",
-          created_at: "2024-01-01T09:00:00Z",
-          updated_at: "2024-01-01T09:00:00Z",
-        },
-      ];
+      const mockBookings = BookingFactory.createMany(1, {
+        status: "confirmed",
+      });
 
       mockSupabase.order.mockResolvedValue({
         data: mockBookings,
@@ -205,19 +193,15 @@ describe("BookingRepository", () => {
 
   describe("Inherited BaseRepository methods", () => {
     it("should use bookings table name", async () => {
-      mockSupabase.single.mockResolvedValue({ data: null, error: null });
+      const mockBooking = BookingFactory.create();
+      mockSupabase.single.mockResolvedValue({ data: mockBooking, error: null });
 
-      await repository.findById("123e4567-e89b-12d3-a456-426614174000");
+      await repository.findById(mockBooking.id);
       expect(mockSupabase.from).toHaveBeenCalledWith("bookings");
     });
 
     it("should call create method correctly", async () => {
-      const createData: CreateBookingDto = {
-        user_id: "user-123",
-        service_type: "maintenance",
-        start_time: "2024-01-01T10:00:00Z",
-        end_time: "2024-01-01T11:00:00Z",
-      };
+      const createData = BookingFactory.createDto();
 
       mockSupabase.select.mockResolvedValue({
         data: [createData],

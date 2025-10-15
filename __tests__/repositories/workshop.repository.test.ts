@@ -8,6 +8,7 @@
 import { WorkshopRepository } from "../../src/repositories/workshop.repository";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Workshop } from "../../src/dto/workshop.dto";
+import { WorkshopFactory } from "../helpers/factories";
 
 describe("WorkshopRepository", () => {
   let repository: WorkshopRepository;
@@ -60,25 +61,9 @@ describe("WorkshopRepository", () => {
 
   describe("findByServicePoint", () => {
     const servicePointId = "123e4567-e89b-12d3-a456-426614174000";
-    const mockWorkshops: Workshop[] = [
-      {
-        id: "workshop-1",
-        service_point_id: servicePointId,
-        name: "Taller Test",
-        contact_phone: "+34 123 456 789",
-        description: "Descripción del taller",
-        specialties: ["bike_repair", "maintenance"],
-        contact_email: "test@workshop.com",
-        website_url: "https://workshop.com",
-        capacity: 5,
-        equipment: { tools: ["wrench", "pump"] },
-        certifications: ["ISO 9001"],
-        average_rating: 4.5,
-        total_reviews: 10,
-        created_at: "2025-01-01T00:00:00Z",
-        updated_at: "2025-01-01T00:00:00Z",
-      },
-    ];
+    const mockWorkshops = WorkshopFactory.createMany(1, {
+      service_point_id: servicePointId,
+    });
 
     it("debería buscar workshops por service point ID exitosamente", async () => {
       // Configurar mock para éxito

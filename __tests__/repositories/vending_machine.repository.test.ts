@@ -9,6 +9,7 @@ import {
 import { VendingMachineRepository } from "../../src/repositories/vending_machine.repository";
 import { VendingMachine } from "../../src/dto/vending_machine.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { VendingMachineFactory } from "../helpers/factories";
 
 // Mock Supabase client
 /* eslint-disable @typescript-eslint/no-explicit-any */

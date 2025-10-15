@@ -9,6 +9,7 @@ import {
 import { InventoryItemRepository } from "../../src/repositories/inventory_item.repository";
 import { InventoryItem } from "../../src/dto/inventory_item.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { InventoryItemFactory } from "../helpers/factories";
 
 // Mock Supabase client
 /* eslint-disable @typescript-eslint/no-explicit-any */

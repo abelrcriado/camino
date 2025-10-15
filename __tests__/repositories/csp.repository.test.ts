@@ -9,6 +9,7 @@ import {
 import { CSPRepository } from "../../src/repositories/csp.repository";
 import { CSP } from "../../src/dto/csp.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { CSPFactory } from "../helpers/factories";
 
 // Mock Supabase client
 /* eslint-disable @typescript-eslint/no-explicit-any */

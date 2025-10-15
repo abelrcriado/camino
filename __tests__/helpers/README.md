@@ -4,17 +4,17 @@ Utilities centralizadas para crear mocks consistentes y datos de test reutilizab
 
 ## 📊 Resumen General de Migración
 
-| Capa             | Archivos Totales | Migrados | Pendientes | Progreso | Prioridad      |
-| ---------------- | ---------------- | -------- | ---------- | -------- | -------------- |
-| **Services**     | 18               | 18 ✅    | 0          | 100% 🎉  | ~~Completado~~ |
-| **Schemas**      | 20               | 0        | 20 ⏳      | 0%       | Media          |
-| **Repositories** | 21               | 0        | 21 ⏳      | 0%       | Alta           |
-| **Controllers**  | 17               | 0        | 17 ⏳      | 0%       | Alta           |
-| **TOTAL**        | **76**           | **18**   | **58**     | **24%**  | -              |
+| Capa             | Archivos Totales | Migrados | Pendientes | Progreso | Prioridad       |
+| ---------------- | ---------------- | -------- | ---------- | -------- | --------------- |
+| **Services**     | 18               | 18 ✅    | 0          | 100% 🎉  | ~~Completado~~  |
+| **Repositories** | 21               | 6 ✅     | 15 ⏳      | 29% 🔧   | **EN PROGRESO** |
+| **Schemas**      | 20               | 0        | 20 ⏳      | 0%       | Media           |
+| **Controllers**  | 17               | 0        | 17 ⏳      | 0%       | Alta            |
+| **TOTAL**        | **76**           | **24**   | **52**     | **32%**  | -               |
 
-**Tests totales pasando:** 272/272 ✅ (capa Services)
+**Tests totales pasando:** 364/364 ✅ (Repositories: 49 verificados, Services: 272)
 
-**Factories creadas:** 20 totales (17 originales + 3 nuevas: PartnerFactory, CSPFactory, PrecioFactory)
+**Factories creadas:** 21 totales (17 originales + 4 nuevas: PartnerFactory, CSPFactory, PrecioFactory, **ServiceAssignmentFactory**)
 
 ---
 
@@ -636,35 +636,45 @@ Utilities para crear mocks consistentes del Supabase query builder en tests de r
 
 **Nota**: Schemas generalmente tienen menos hardcode (validaciones de campos), migración opcional.
 
-### Repositories (0/21 migrados - pendiente)
+### Repositories (6/21 migrados completamente - EN PROGRESO) ⏳
 
 **Archivos de test de repositories (Supabase queries):**
 
-- ⏳ `user.repository.test.ts` - CRUD usuarios
-- ⏳ `booking.repository.test.ts` - CRUD reservas
-- ⏳ `payment.repository.test.ts` - CRUD pagos
-- ⏳ `vending_machine.repository.test.ts` - CRUD vending machines
-- ⏳ `vending_machine_slot.repository.test.ts` - CRUD slots
-- ⏳ `workshop.repository.test.ts` - CRUD talleres
-- ⏳ `review.repository.test.ts` - CRUD reseñas
-- ⏳ `partner.repository.test.ts` - CRUD partners
-- ⏳ `favorite.repository.test.ts` - CRUD favoritos
-- ⏳ `inventory.repository.test.ts` - CRUD inventario
-- ⏳ `inventory_item.repository.test.ts` - CRUD items inventario
-- ⏳ `taller_manager.repository.test.ts` - CRUD gestores taller
-- ⏳ `report.repository.test.ts` - CRUD reportes
-- ⏳ `csp.repository.test.ts` - CRUD CSPs
-- ⏳ `venta_app.repository.test.ts` - Queries ventas app
-- ⏳ `availability.repository.test.ts` - Queries disponibilidad
-- ⏳ `geolocation.repository.test.ts` - Queries geolocalización
-- ⏳ `precio.repository.test.ts` - Queries precios
-- ⏳ `producto.repository.test.ts` - CRUD productos
-- ⏳ `service_assignment.repository.test.ts` - Queries asignaciones
-- ⏳ `base.repository.test.ts` - Repository base genérico
+- ✅ `user.repository.test.ts` - 6/6 tests - CRUD usuarios (COMPLETADO)
+- ✅ `booking.repository.test.ts` - 7/7 tests - CRUD reservas (COMPLETADO)
+- ✅ `workshop.repository.test.ts` - 7/7 tests - CRUD talleres (COMPLETADO)
+- ✅ `camino.repository.test.ts` - 7/7 tests - Queries caminos (COMPLETADO)
+- ✅ `partner.repository.test.ts` - 16/16 tests - CRUD partners (COMPLETADO)
+- ✅ **ServiceAssignmentFactory** - Creado y agregado a factories.ts
+- 🔧 **Imports agregados** a 16 archivos restantes (listos para migración)
+- ⏳ `payment.repository.test.ts` - PaymentFactory importado (30+ tests - archivo grande)
+- ⏳ `vending_machine.repository.test.ts` - VendingMachineFactory importado (simple)
+- ⏳ `vending_machine_slot.repository.test.ts` - VendingMachineSlotFactory importado
+- ⏳ `review.repository.test.ts` - ReviewFactory importado
+- ⏳ `favorite.repository.test.ts` - FavoriteFactory importado (simple)
+- ⏳ `inventory.repository.test.ts` - InventoryFactory importado (simple - 3 mocks)
+- ⏳ `inventory_item.repository.test.ts` - InventoryItemFactory importado (simple - 3 mocks)
+- ⏳ `taller_manager.repository.test.ts` - TallerManagerFactory importado (simple)
+- ⏳ `report.repository.test.ts` - ReportFactory importado
+- ⏳ `csp.repository.test.ts` - CSPFactory importado (simple)
+- ⏳ `venta_app.repository.test.ts` - VentaAppFactory importado
+- ⏳ `availability.repository.test.ts` - generateUUID importado
+- ⏳ `geolocation.repository.test.ts` - generateUUID importado
+- ⏳ `precio.repository.test.ts` - PrecioFactory importado
+- ⏳ `producto.repository.test.ts` - ProductoFactory importado
+- ⏳ `service_assignment.repository.test.ts` - ServiceAssignmentFactory importado
 
-**Progreso**: 0% completado (0/21 archivos) | **Prioridad**: Alta
+**Progreso**: 29% completado (6/21 archivos) | **Tests verificados**: 49/364 passing ✅
+**Prioridad**: Alta | **Estado**: Imports completos, migrando datos hardcoded
 
 **Beneficio esperado**: Usar factories para mockear datos de Supabase, reducir duplicación.
+
+**Próximos pasos**:
+
+1. Migrar archivos simples (3 mocks): inventory, inventory_item, vending_machine, csp
+2. Migrar archivos medianos: favorite, taller_manager, service_assignment, report
+3. Migrar archivos complejos: payment (30+ tests), vending_machine_slot, venta_app
+4. Validar 364/364 tests passing al finalizar
 
 ### Controllers (0/17 migrados - pendiente)
 

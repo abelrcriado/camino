@@ -1021,3 +1021,50 @@ export const PrecioFactory = {
     return Array.from({ length: count }, () => PrecioFactory.create(overrides));
   },
 };
+
+// ============================================================================
+// ServiceAssignmentFactory
+// ============================================================================
+
+import type {
+  ServiceAssignment,
+  CreateServiceAssignmentDto,
+} from "@/dto/service_assignment.dto";
+
+export const ServiceAssignmentFactory = {
+  create(overrides: Partial<ServiceAssignment> = {}): ServiceAssignment {
+    return {
+      id: generateUUID(),
+      service_id: generateUUID(),
+      service_point_id: generateUUID(),
+      is_active: Math.random() > 0.2,
+      priority: randomInt(1, 10),
+      configuracion: {},
+      created_at: generateISODate({ past: true }),
+      updated_at: generateISODate(),
+      ...overrides,
+    };
+  },
+
+  createDto(
+    overrides: Partial<CreateServiceAssignmentDto> = {}
+  ): CreateServiceAssignmentDto {
+    return {
+      service_id: generateUUID(),
+      service_point_id: generateUUID(),
+      is_active: Math.random() > 0.2,
+      priority: randomInt(1, 10),
+      configuracion: {},
+      ...overrides,
+    };
+  },
+
+  createMany(
+    count: number,
+    overrides: Partial<ServiceAssignment> = {}
+  ): ServiceAssignment[] {
+    return Array.from({ length: count }, () =>
+      ServiceAssignmentFactory.create(overrides)
+    );
+  },
+};

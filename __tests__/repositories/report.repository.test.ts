@@ -9,6 +9,7 @@ import {
 import { ReportRepository } from "../../src/repositories/report.repository";
 import { Report } from "../../src/dto/report.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { ReportFactory } from "../helpers/factories";
 
 // Mock Supabase client
 /* eslint-disable @typescript-eslint/no-explicit-any */

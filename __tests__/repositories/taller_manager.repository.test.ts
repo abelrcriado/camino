@@ -9,6 +9,7 @@ import {
 import { TallerManagerRepository } from "../../src/repositories/taller_manager.repository";
 import { TallerManager } from "../../src/dto/taller_manager.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { TallerManagerFactory } from "../helpers/factories";
 
 // Mock Supabase client
 /* eslint-disable @typescript-eslint/no-explicit-any */

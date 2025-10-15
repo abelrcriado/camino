@@ -9,6 +9,7 @@ import {
 import { UserRepository } from "../../src/repositories/user.repository";
 import { User, CreateUserDto } from "../../src/dto/user.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { UserFactory } from "../helpers/factories";
 
 // Mock Supabase client con métodos de query builder
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -57,22 +58,16 @@ describe("UserRepository", () => {
 
   describe("findByEmail", () => {
     it("should find user by email successfully", async () => {
-      const mockUser: User = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
-        full_name: "Test User",
-        email: "test@example.com",
-        role: "user",
-        created_at: "2024-01-01T00:00:00Z",
-        updated_at: "2024-01-01T00:00:00Z",
-      };
+      const testEmail = "test@example.com";
+      const mockUser = UserFactory.create({ email: testEmail });
 
       mockSupabase.single.mockResolvedValue({ data: mockUser, error: null });
 
-      const result = await repository.findByEmail("test@example.com");
+      const result = await repository.findByEmail(testEmail);
 
       expect(mockSupabase.from).toHaveBeenCalledWith("profiles");
       expect(mockSupabase.select).toHaveBeenCalledWith("*");
-      expect(mockSupabase.eq).toHaveBeenCalledWith("email", "test@example.com");
+      expect(mockSupabase.eq).toHaveBeenCalledWith("email", testEmail);
       expect(mockSupabase.single).toHaveBeenCalled();
       expect(result).toEqual({ data: mockUser, error: null });
     });
@@ -96,16 +91,7 @@ describe("UserRepository", () => {
 
   describe("findByRole", () => {
     it("should find users by role successfully", async () => {
-      const mockUsers: User[] = [
-        {
-          id: "123e4567-e89b-12d3-a456-426614174000",
-          full_name: "Admin User",
-          email: "admin@example.com",
-          role: "admin",
-          created_at: "2024-01-01T00:00:00Z",
-          updated_at: "2024-01-01T00:00:00Z",
-        },
-      ];
+      const mockUsers = UserFactory.createMany(1, { role: "admin" });
 
       // Mock para el método findByRole (no usa single)
       mockSupabase.eq.mockResolvedValue({ data: mockUsers, error: null });
@@ -124,19 +110,16 @@ describe("UserRepository", () => {
 
   describe("Inherited BaseRepository methods", () => {
     it("should use profiles table name", async () => {
-      mockSupabase.single.mockResolvedValue({ data: null, error: null });
+      const mockUser = UserFactory.create();
+      mockSupabase.single.mockResolvedValue({ data: mockUser, error: null });
 
       // Test que verifica que usa la tabla correcta
-      await repository.findById("123e4567-e89b-12d3-a456-426614174000");
+      await repository.findById(mockUser.id);
       expect(mockSupabase.from).toHaveBeenCalledWith("profiles");
     });
 
     it("should call create method correctly", async () => {
-      const createData: CreateUserDto = {
-        full_name: "New User",
-        email: "new@example.com",
-        role: "user",
-      };
+      const createData = UserFactory.createDto();
 
       mockSupabase.select.mockResolvedValue({
         data: [createData],
