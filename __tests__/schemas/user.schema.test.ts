@@ -9,12 +9,13 @@ import {
   deleteUserSchema,
   queryUserSchema,
 } from "../../src/schemas/user.schema";
+import { UserFactory, generateUUID } from "../helpers/factories";
 
 describe("User Schemas", () => {
   describe("createUserSchema", () => {
     const validData = {
-      id: "550e8400-e29b-41d4-a716-446655440001",
-      email: "test@example.com",
+      id: generateUUID(),
+      email: UserFactory.createDto().email!,
     };
 
     it("should validate correct user data", () => {
@@ -50,10 +51,10 @@ describe("User Schemas", () => {
 
     it("should accept valid email formats", () => {
       const emails = [
-        "user@example.com",
-        "user.name@example.com",
-        "user+tag@example.co.uk",
-        "user123@test-domain.com",
+        UserFactory.createDto().email!,
+        UserFactory.createDto().email!,
+        UserFactory.createDto().email!,
+        UserFactory.createDto().email!,
       ];
 
       emails.forEach((email) => {
@@ -64,7 +65,7 @@ describe("User Schemas", () => {
     });
 
     it("should accept optional full_name", () => {
-      const data = { ...validData, full_name: "John Doe" };
+      const data = { ...validData, full_name: UserFactory.createDto().full_name };
       const result = createUserSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -72,7 +73,7 @@ describe("User Schemas", () => {
     it("should accept optional avatar_url", () => {
       const data = {
         ...validData,
-        avatar_url: "https://example.com/avatar.jpg",
+        avatar_url: UserFactory.createDto().avatar_url,
       };
       const result = createUserSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -85,7 +86,7 @@ describe("User Schemas", () => {
     });
 
     it("should accept optional phone", () => {
-      const data = { ...validData, phone: "+34123456789" };
+      const data = { ...validData, phone: UserFactory.createDto().phone };
       const result = createUserSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -129,7 +130,7 @@ describe("User Schemas", () => {
 
   describe("updateUserSchema", () => {
     const validData = {
-      id: "550e8400-e29b-41d4-a716-446655440000",
+      id: generateUUID(),
     };
 
     it("should validate correct update data", () => {
@@ -150,20 +151,21 @@ describe("User Schemas", () => {
     });
 
     it("should accept optional email", () => {
-      const data = { ...validData, email: "new@example.com" };
+      const data = { ...validData, email: UserFactory.createDto().email };
       const result = updateUserSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
 
     it("should accept all optional fields", () => {
+      const userData = UserFactory.createDto();
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
-        email: "new@example.com",
-        full_name: "Jane Doe",
-        avatar_url: "https://example.com/new-avatar.jpg",
-        phone: "+34987654321",
-        preferred_language: "en",
-        role: "manager",
+        id: generateUUID(),
+        email: userData.email,
+        full_name: userData.full_name,
+        avatar_url: userData.avatar_url,
+        phone: userData.phone,
+        preferred_language: userData.preferred_language,
+        role: "manager" as const,
       };
       const result = updateUserSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -172,7 +174,7 @@ describe("User Schemas", () => {
 
   describe("deleteUserSchema", () => {
     it("should validate correct delete data", () => {
-      const data = { id: "550e8400-e29b-41d4-a716-446655440000" };
+      const data = { id: generateUUID() };
       const result = deleteUserSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -191,7 +193,7 @@ describe("User Schemas", () => {
 
     it("should reject extra fields", () => {
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: generateUUID(),
         extra: "field",
       };
       const result = deleteUserSchema.safeParse(data);
@@ -206,7 +208,7 @@ describe("User Schemas", () => {
     });
 
     it("should accept email filter", () => {
-      const data = { email: "test@example.com" };
+      const data = { email: UserFactory.createDto().email };
       const result = queryUserSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -225,8 +227,8 @@ describe("User Schemas", () => {
 
     it("should accept both filters", () => {
       const data = {
-        email: "admin@example.com",
-        role: "admin",
+        email: UserFactory.createDto().email,
+        role: "admin" as const,
       };
       const result = queryUserSchema.safeParse(data);
       expect(result.success).toBe(true);

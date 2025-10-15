@@ -17,12 +17,13 @@ import {
   MAX_CAPACIDAD,
   DEFAULT_CAPACIDAD,
 } from "@/schemas/vending_machine_slot.schema";
+import { generateUUID } from "../helpers/factories";
 
 describe("Vending Machine Slot Schemas", () => {
   // UUID válido para tests
-  const validUUID = "123e4567-e89b-12d3-a456-426614174000";
-  const validMachineUUID = "223e4567-e89b-12d3-a456-426614174000";
-  const validProductoUUID = "323e4567-e89b-12d3-a456-426614174000";
+  const validUUID = generateUUID();
+  const validMachineUUID = generateUUID();
+  const validProductoUUID = generateUUID();
 
   describe("createVendingMachineSlotSchema", () => {
     it("debe validar datos mínimos correctamente", () => {

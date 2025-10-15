@@ -11,9 +11,10 @@ import {
   deletePaymentSchema,
   queryPaymentSchema,
 } from "../../src/schemas/payment.schema";
+import { generateUUID } from "../helpers/factories";
 
 describe("Payment Schemas", () => {
-  const validUUID = "550e8400-e29b-41d4-a716-446655440001";
+  const validUUID = generateUUID();
   const invalidUUID = "invalid-uuid";
 
   describe("createPaymentSchema", () => {

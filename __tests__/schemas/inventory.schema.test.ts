@@ -1,4 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
+import { generateUUID } from "../helpers/factories";
 import {
   createInventorySchema,
   updateInventorySchema,
@@ -11,7 +12,7 @@ import {
 } from "../../src/schemas/inventory.schema";
 
 describe("Inventory Schema Validation", () => {
-  const validUUID = "123e4567-e89b-12d3-a456-426614174000";
+  const validUUID = generateUUID();
 
   describe("createInventorySchema", () => {
     const validInventoryData = {

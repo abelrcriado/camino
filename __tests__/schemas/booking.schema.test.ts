@@ -9,13 +9,14 @@ import {
   deleteBookingSchema,
   queryBookingSchema,
 } from "../../src/schemas/booking.schema";
+import { BookingFactory, generateUUID } from "../helpers/factories";
 
 describe("Booking Schemas", () => {
   describe("createBookingSchema", () => {
     const validData = {
-      user_id: "550e8400-e29b-41d4-a716-446655440001",
-      service_point_id: "550e8400-e29b-41d4-a716-446655440002",
-      workshop_id: "550e8400-e29b-41d4-a716-446655440003",
+      user_id: generateUUID(),
+      service_point_id: generateUUID(),
+      workshop_id: generateUUID(),
       service_type: "maintenance",
       start_time: "2025-10-20T10:00:00.000Z",
       end_time: "2025-10-20T11:00:00.000Z",
@@ -148,7 +149,7 @@ describe("Booking Schemas", () => {
 
   describe("updateBookingSchema", () => {
     const validData = {
-      id: "550e8400-e29b-41d4-a716-446655440000",
+      id: generateUUID(),
       status: "confirmed" as const,
     };
 
@@ -170,13 +171,14 @@ describe("Booking Schemas", () => {
     });
 
     it("should accept all optional fields", () => {
+      const bookingDto = BookingFactory.createDto();
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
-        user_id: "550e8400-e29b-41d4-a716-446655440001",
-        service_point_id: "550e8400-e29b-41d4-a716-446655440002",
-        workshop_id: "550e8400-e29b-41d4-a716-446655440003",
-        start_time: "2025-10-20T10:00:00.000Z",
-        end_time: "2025-10-20T11:00:00.000Z",
+        id: generateUUID(),
+        user_id: bookingDto.user_id,
+        service_point_id: bookingDto.service_point_id,
+        workshop_id: bookingDto.workshop_id,
+        start_time: bookingDto.start_time,
+        end_time: bookingDto.end_time,
         status: "confirmed" as const,
       };
       const result = updateBookingSchema.safeParse(data);
@@ -185,7 +187,7 @@ describe("Booking Schemas", () => {
 
     it("should reject end_time before start_time when both provided", () => {
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: generateUUID(),
         start_time: "2025-10-20T11:00:00.000Z",
         end_time: "2025-10-20T10:00:00.000Z",
       };
@@ -195,7 +197,7 @@ describe("Booking Schemas", () => {
 
     it("should accept start_time without end_time", () => {
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: generateUUID(),
         start_time: "2025-10-20T10:00:00.000Z",
       };
       const result = updateBookingSchema.safeParse(data);
@@ -205,7 +207,7 @@ describe("Booking Schemas", () => {
 
   describe("deleteBookingSchema", () => {
     it("should validate correct delete data", () => {
-      const data = { id: "550e8400-e29b-41d4-a716-446655440000" };
+      const data = { id: generateUUID() };
       const result = deleteBookingSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -224,7 +226,7 @@ describe("Booking Schemas", () => {
 
     it("should reject extra fields", () => {
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: generateUUID(),
         extra: "field",
       };
       const result = deleteBookingSchema.safeParse(data);
@@ -265,7 +267,7 @@ describe("Booking Schemas", () => {
     });
 
     it("should accept user_id filter", () => {
-      const data = { user_id: "550e8400-e29b-41d4-a716-446655440001" };
+      const data = { user_id: generateUUID() };
       const result = queryBookingSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -286,15 +288,16 @@ describe("Booking Schemas", () => {
     });
 
     it("should accept all filters combined", () => {
+      const bookingDto = BookingFactory.createDto();
       const data = {
         page: "2",
         limit: "20",
-        user_id: "550e8400-e29b-41d4-a716-446655440001",
-        service_point_id: "550e8400-e29b-41d4-a716-446655440002",
-        workshop_id: "550e8400-e29b-41d4-a716-446655440003",
-        status: "confirmed",
-        start_date: "2025-10-20T00:00:00.000Z",
-        end_date: "2025-10-21T00:00:00.000Z",
+        user_id: bookingDto.user_id,
+        service_point_id: bookingDto.service_point_id,
+        workshop_id: bookingDto.workshop_id,
+        status: "confirmed" as const,
+        start_date: bookingDto.start_time,
+        end_date: bookingDto.end_time,
       };
       const result = queryBookingSchema.safeParse(data);
       expect(result.success).toBe(true);

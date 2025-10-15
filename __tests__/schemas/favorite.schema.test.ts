@@ -5,11 +5,12 @@ import {
   deleteFavoriteSchema,
   queryFavoriteSchema,
 } from "../../src/schemas/favorite.schema";
+import { generateUUID } from "../helpers/factories";
 
 describe("Favorite Schemas", () => {
-  const validUUID = "123e4567-e89b-12d3-a456-426614174000";
-  const validUUID2 = "123e4567-e89b-12d3-a456-426614174001";
-  const validUUID3 = "123e4567-e89b-12d3-a456-426614174002";
+  const validUUID = generateUUID();
+  const validUUID2 = generateUUID();
+  const validUUID3 = generateUUID();
 
   describe("createFavoriteSchema", () => {
     const validData = {

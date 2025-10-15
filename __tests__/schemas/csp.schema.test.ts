@@ -11,6 +11,7 @@ import {
   queryCSPSchema,
 } from "../../src/schemas/csp.schema";
 import { CSP_TYPE_VALUES } from "../../src/constants/enums";
+import { generateUUID } from "../helpers/factories";
 
 describe("CSP Schemas", () => {
   describe("createCSPSchema", () => {
@@ -299,7 +300,7 @@ describe("CSP Schemas", () => {
 
   describe("updateCSPSchema", () => {
     const validData = {
-      id: "550e8400-e29b-41d4-a716-446655440000",
+      id: generateUUID(),
     };
 
     it("should validate correct update data", () => {
@@ -359,7 +360,7 @@ describe("CSP Schemas", () => {
 
     it("should accept all optional fields", () => {
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: generateUUID(),
         name: "Updated Name",
         description: "Updated description",
         latitude: 43.123456,
@@ -387,7 +388,7 @@ describe("CSP Schemas", () => {
 
   describe("deleteCSPSchema", () => {
     it("should validate correct delete data", () => {
-      const data = { id: "550e8400-e29b-41d4-a716-446655440000" };
+      const data = { id: generateUUID() };
       const result = deleteCSPSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -424,7 +425,7 @@ describe("CSP Schemas", () => {
 
     it("should reject extra fields", () => {
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: generateUUID(),
         extra: "field",
       };
       const result = deleteCSPSchema.safeParse(data);
@@ -433,9 +434,9 @@ describe("CSP Schemas", () => {
 
     it("should validate different valid UUID formats", () => {
       const uuids = [
-        "550e8400-e29b-41d4-a716-446655440000",
+        generateUUID(),
         "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
-        "123e4567-e89b-12d3-a456-426614174000",
+        generateUUID(),
       ];
       uuids.forEach((uuid) => {
         const data = { id: uuid };

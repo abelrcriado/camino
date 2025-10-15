@@ -1,4 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
+import { generateUUID } from "../helpers/factories";
 import {
   createTallerManagerSchema,
   updateTallerManagerSchema,
@@ -7,8 +8,8 @@ import {
 } from "../../src/schemas/taller_manager.schema";
 
 describe("Taller Manager Schemas", () => {
-  const validUUID = "123e4567-e89b-12d3-a456-426614174000";
-  const validUUID2 = "123e4567-e89b-12d3-a456-426614174001";
+  const validUUID = generateUUID();
+  const validUUID2 = generateUUID();
   const invalidUUID = "invalid-uuid";
 
   describe("createTallerManagerSchema", () => {

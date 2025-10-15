@@ -16,6 +16,7 @@ import {
   getVentasActivasSchema,
   getVentasPorExpirarSchema,
 } from "../../src/schemas/venta_app.schema";
+import { generateUUID } from "../helpers/factories";
 
 describe("VentaApp Schemas", () => {
   // ============================================
@@ -23,8 +24,8 @@ describe("VentaApp Schemas", () => {
   // ============================================
   describe("createVentaAppSchema", () => {
     const validData = {
-      slot_id: "550e8400-e29b-41d4-a716-446655440001",
-      producto_id: "550e8400-e29b-41d4-a716-446655440002",
+      slot_id: generateUUID(),
+      producto_id: generateUUID(),
       cantidad: 2,
     };
 
@@ -36,7 +37,7 @@ describe("VentaApp Schemas", () => {
     it("should accept optional user_id", () => {
       const data = {
         ...validData,
-        user_id: "550e8400-e29b-41d4-a716-446655440003",
+        user_id: generateUUID(),
       };
       const result = createVentaAppSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -111,7 +112,7 @@ describe("VentaApp Schemas", () => {
   // ============================================
   describe("updateVentaAppSchema", () => {
     const validData = {
-      id: "550e8400-e29b-41d4-a716-446655440001",
+      id: generateUUID(),
       notas: "Cliente solicitó cambio",
     };
 
@@ -167,7 +168,7 @@ describe("VentaApp Schemas", () => {
   // ============================================
   describe("deleteVentaAppSchema", () => {
     it("should validate correct delete data", () => {
-      const data = { id: "550e8400-e29b-41d4-a716-446655440001" };
+      const data = { id: generateUUID() };
       const result = deleteVentaAppSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -189,7 +190,7 @@ describe("VentaApp Schemas", () => {
   // ============================================
   describe("reservarStockSchema", () => {
     it("should validate correct reservar stock data", () => {
-      const data = { venta_id: "550e8400-e29b-41d4-a716-446655440001" };
+      const data = { venta_id: generateUUID() };
       const result = reservarStockSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -211,8 +212,8 @@ describe("VentaApp Schemas", () => {
   // ============================================
   describe("confirmarPagoSchema", () => {
     const validData = {
-      venta_id: "550e8400-e29b-41d4-a716-446655440001",
-      payment_id: "550e8400-e29b-41d4-a716-446655440002",
+      venta_id: generateUUID(),
+      payment_id: generateUUID(),
     };
 
     it("should validate correct confirmar pago data", () => {
@@ -284,7 +285,7 @@ describe("VentaApp Schemas", () => {
   // ============================================
   describe("confirmarRetiroSchema", () => {
     const validData = {
-      venta_id: "550e8400-e29b-41d4-a716-446655440001",
+      venta_id: generateUUID(),
       codigo_retiro: "ABC123",
     };
 
@@ -347,7 +348,7 @@ describe("VentaApp Schemas", () => {
   // ============================================
   describe("cancelarVentaSchema", () => {
     const validData = {
-      venta_id: "550e8400-e29b-41d4-a716-446655440001",
+      venta_id: generateUUID(),
     };
 
     it("should validate correct cancelar venta data", () => {
@@ -390,9 +391,9 @@ describe("VentaApp Schemas", () => {
   // ============================================
   describe("crearYPagarVentaSchema", () => {
     const validData = {
-      slot_id: "550e8400-e29b-41d4-a716-446655440001",
-      producto_id: "550e8400-e29b-41d4-a716-446655440002",
-      payment_id: "550e8400-e29b-41d4-a716-446655440003",
+      slot_id: generateUUID(),
+      producto_id: generateUUID(),
+      payment_id: generateUUID(),
       cantidad: 2,
     };
 
@@ -404,7 +405,7 @@ describe("VentaApp Schemas", () => {
     it("should accept optional user_id and metadata", () => {
       const data = {
         ...validData,
-        user_id: "550e8400-e29b-41d4-a716-446655440004",
+        user_id: generateUUID(),
         metadata: { source: "mobile_checkout" },
       };
       const result = crearYPagarVentaSchema.safeParse(data);
@@ -504,9 +505,9 @@ describe("VentaApp Schemas", () => {
 
     it("should accept valid filters", () => {
       const data = {
-        user_id: "550e8400-e29b-41d4-a716-446655440001",
-        slot_id: "550e8400-e29b-41d4-a716-446655440002",
-        producto_id: "550e8400-e29b-41d4-a716-446655440003",
+        user_id: generateUUID(),
+        slot_id: generateUUID(),
+        producto_id: generateUUID(),
         estado: "pagado",
         fecha_desde: "2025-10-01T00:00:00Z",
         fecha_hasta: "2025-10-31T23:59:59Z",
@@ -596,7 +597,7 @@ describe("VentaApp Schemas", () => {
   // ============================================
   describe("getVentasActivasSchema", () => {
     it("should validate correct user_id", () => {
-      const data = { user_id: "550e8400-e29b-41d4-a716-446655440001" };
+      const data = { user_id: generateUUID() };
       const result = getVentasActivasSchema.safeParse(data);
       expect(result.success).toBe(true);
     });

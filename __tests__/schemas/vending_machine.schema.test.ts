@@ -14,9 +14,10 @@ import {
   type QueryVendingMachineInput,
 } from "../../src/schemas/vending_machine.schema";
 import { VENDING_MACHINE_STATUS_VALUES } from "../../src/constants/enums";
+import { generateUUID } from "../helpers/factories";
 
 describe("Vending Machine Schema Validation", () => {
-  const validUUID = "123e4567-e89b-12d3-a456-426614174000";
+  const validUUID = generateUUID();
 
   describe("createVendingMachineSchema", () => {
     const validVendingMachineData = {
