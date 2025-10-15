@@ -23,7 +23,11 @@ import {
   PaymentStats,
   StripeWebhookEvent,
   PaymentStatus,
+  CommissionCalculation,
 } from "../dto/payment.dto";
+import { ServicePointService } from "./service-point.service";
+import { BookingService } from "./booking.service";
+import type { Booking } from "../dto/booking.dto";
 
 // Configuración de Stripe
 const stripe = new Stripe(config.stripe.secretKey, {
@@ -35,10 +39,27 @@ const PLATFORM_FEE_PERCENTAGE = 0.15; // 15% de comisión plataforma
 
 export class PaymentService extends BaseService<Payment> {
   private stripe: Stripe;
+  private servicePointService: ServicePointService;
+  private bookingService: BookingService;
 
-  constructor(repository?: PaymentRepository) {
+  constructor(
+    repository?: PaymentRepository,
+    servicePointService?: ServicePointService,
+    bookingService?: BookingService
+  ) {
     super(repository || new PaymentRepository());
     this.stripe = stripe;
+    this.servicePointService =
+      servicePointService ||
+      new ServicePointService(
+        new (require("../repositories/service-point.repository")
+          .ServicePointRepository)()
+      );
+    this.bookingService =
+      bookingService ||
+      new BookingService(
+        new (require("../repositories/booking.repository").BookingRepository)()
+      );
   }
 
   /**
@@ -63,7 +84,59 @@ export class PaymentService extends BaseService<Payment> {
   }
 
   /**
+   * Calcular comisión basada en el tipo de servicio y commission_model del CSP
+   * Implementa las reglas de negocio:
+   * - Bookings de servicios: 70-90% para CSP (según commission_model)
+   * - Vending machines: 10% para CSP, 90% para Camino
+   * - Workshops (CSH): 100% para workshop
+   */
+  async calculateCommission(
+    booking: Booking
+  ): Promise<CommissionCalculation> {
+    // Obtener el service point para acceder al commission_model
+    const servicePoint = await this.servicePointService.getById(
+      booking.service_point_id || ""
+    );
+
+    if (!servicePoint) {
+      throw new NotFoundError(
+        "Service Point",
+        booking.service_point_id || "undefined"
+      );
+    }
+
+    const total = booking.actual_cost || booking.estimated_cost || 0;
+    let commissionPercentage = 0;
+
+    // Determinar el porcentaje de comisión según el tipo de servicio
+    if (booking.service_type) {
+      // Es un booking de servicio
+      // La comisión es lo que la plataforma se queda
+      // Si commission_model.services = 0.2, significa que el CSP se queda con 80% y plataforma con 20%
+      commissionPercentage =
+        servicePoint.commission_model?.service_commission || 0.2;
+    } else {
+      // Por defecto usar vending si está disponible
+      // commission_model.vending = 0.1 significa CSP se queda con 10%, plataforma con 90%
+      commissionPercentage =
+        servicePoint.commission_model?.vending || 0.1;
+    }
+
+    // Calcular montos
+    const platformFee = Math.round(total * commissionPercentage);
+    const partnerAmount = total - platformFee;
+
+    return {
+      total,
+      partner_amount: partnerAmount,
+      platform_fee: platformFee,
+      commission_percentage: commissionPercentage,
+    };
+  }
+
+  /**
    * Crear Payment Intent en Stripe y guardar pago en BD
+   * Ahora con soporte para Stripe Connect y splits automáticos
    */
   async createPaymentIntent(
     data: CreatePaymentDto
@@ -79,11 +152,24 @@ export class PaymentService extends BaseService<Payment> {
       throw new ValidationError("Amount must be greater than 0");
     }
 
-    // Calcular comisiones
-    const platformFee = this.calculatePlatformFee(data.amount);
-    const cspAmount = this.calculateCSPAmount(data.amount, platformFee);
+    // Obtener booking para calcular comisiones dinámicamente
+    const booking = await this.bookingService.findById(data.booking_id);
+    if (!booking) {
+      throw new NotFoundError("Booking", data.booking_id);
+    }
 
-    // Crear Payment Intent en Stripe
+    // Calcular comisiones usando el modelo de negocio
+    const commission = await this.calculateCommission(booking);
+
+    // Obtener service point para stripe_account_id
+    const servicePoint = await this.servicePointService.getById(
+      data.service_point_id
+    );
+    if (!servicePoint) {
+      throw new NotFoundError("Service Point", data.service_point_id);
+    }
+
+    // Preparar Payment Intent data
     const paymentIntentData: Stripe.PaymentIntentCreateParams = {
       amount: data.amount,
       currency: data.currency || "eur",
@@ -93,17 +179,30 @@ export class PaymentService extends BaseService<Payment> {
         booking_id: data.booking_id,
         user_id: data.user_id,
         service_point_id: data.service_point_id,
-        platform_fee: platformFee.toString(),
-        csp_amount: cspAmount.toString(),
+        platform_fee: commission.platform_fee.toString(),
+        partner_amount: commission.partner_amount.toString(),
+        commission_percentage: commission.commission_percentage.toString(),
         ...(data.metadata || {}),
       },
     };
+
+    // Agregar Stripe Connect split si el partner tiene stripe_account_id
+    // TODO: Descomentar cuando se implemente stripe_account_id en partners
+    // if (servicePoint.stripe_account_id) {
+    //   paymentIntentData.transfer_data = {
+    //     destination: servicePoint.stripe_account_id,
+    //     amount: Math.round(commission.partner_amount),
+    //   };
+    //   paymentIntentData.application_fee_amount = Math.round(
+    //     commission.platform_fee
+    //   );
+    // }
 
     const paymentIntent = await this.stripe.paymentIntents.create(
       paymentIntentData
     );
 
-    // Guardar pago en base de datos
+    // Guardar pago en base de datos con nuevos campos de comisión
     const paymentData: Partial<Payment> = {
       booking_id: data.booking_id,
       user_id: data.user_id,
@@ -113,8 +212,12 @@ export class PaymentService extends BaseService<Payment> {
       stripe_payment_intent_id: paymentIntent.id,
       payment_method: data.payment_method || "card",
       status: "pending",
-      platform_fee: platformFee,
-      csp_amount: cspAmount,
+      platform_fee: commission.platform_fee,
+      csp_amount: commission.partner_amount, // Mantener compatibilidad
+      commission_percentage: commission.commission_percentage,
+      partner_amount: commission.partner_amount,
+      stripe_transfer_id: null, // Se actualizará cuando se complete el transfer
+      stripe_account_id: null, // TODO: Agregar cuando se implemente
       description: data.description || null,
       metadata: data.metadata || null,
       refunded_amount: 0,

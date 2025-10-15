@@ -37,6 +37,10 @@ export interface Payment {
   // Comisiones y splits
   platform_fee: number; // Comisión plataforma en céntimos
   csp_amount: number; // Monto para el CSP en céntimos
+  commission_percentage?: number; // Porcentaje de comisión (0.0-1.0)
+  partner_amount?: number; // Monto neto para partner en céntimos
+  stripe_transfer_id?: string | null; // ID de transferencia Stripe Connect
+  stripe_account_id?: string | null; // Cuenta Stripe Connect del partner
 
   // Metadata
   description: string | null;
@@ -189,4 +193,14 @@ export interface PaymentWithDetails extends Payment {
   user_email?: string;
   csp_name?: string;
   booking_details?: unknown;
+}
+
+/**
+ * Resultado del cálculo de comisión
+ */
+export interface CommissionCalculation {
+  total: number; // Monto total en céntimos
+  partner_amount: number; // Monto para partner en céntimos
+  platform_fee: number; // Comisión plataforma en céntimos
+  commission_percentage: number; // Porcentaje aplicado (0.0-1.0)
 }

@@ -11,6 +11,7 @@ export interface Partner {
   contact_email?: string;
   contact_phone: string;
   type?: string;
+  stripe_account_id?: string; // Stripe Connect account ID for payment splits
   created_at: string;
   updated_at: string;
 }
@@ -28,6 +29,7 @@ export interface CreatePartnerDto {
   contact_email?: string;
   contact_phone: string;
   type?: string;
+  stripe_account_id?: string;
 }
 
 export interface UpdatePartnerDto {
@@ -39,4 +41,5 @@ export interface UpdatePartnerDto {
   contact_email?: string;
   contact_phone?: string;
   type?: string;
+  stripe_account_id?: string;
 }
