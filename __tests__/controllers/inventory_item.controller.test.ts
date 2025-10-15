@@ -2,6 +2,7 @@ import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { InventoryItemController } from "../../src/controllers/inventory_item.controller";
 import { InventoryItemService } from "../../src/services/inventory_item.service";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { InventoryItemFactory } from "../helpers/factories";
 
 describe("InventoryItemController", () => {
   let controller: InventoryItemController;
@@ -50,15 +51,15 @@ describe("InventoryItemController", () => {
 
   it("should create item", async () => {
     mockReq.method = "POST";
-    mockReq.body = {
-      inventory_id: "123e4567-e89b-12d3-a456-426614174000",
+    const reqBody = InventoryItemFactory.createDto({
       name: "Bike Chain",
       quantity: 5,
-    };
-    mockService.createInventoryItem.mockResolvedValue({
-      id: "item-1",
-      ...mockReq.body,
     });
+    mockReq.body = reqBody;
+    const createdItem = InventoryItemFactory.create({
+      ...reqBody,
+    });
+    mockService.createInventoryItem.mockResolvedValue(createdItem);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse
