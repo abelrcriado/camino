@@ -7,6 +7,7 @@ import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { VendingMachineSlotRepository } from "@/repositories/vending_machine_slot.repository";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { VendingMachineSlot } from "@/dto/vending_machine_slot.dto";
+import { VendingMachineSlotFactory } from "../helpers/factories";
 import {
   createSupabaseQueryMock,
   createMultiCallQueryMock,

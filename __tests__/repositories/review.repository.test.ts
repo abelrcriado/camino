@@ -9,6 +9,7 @@ import {
 import { ReviewRepository } from "../../src/repositories/review.repository";
 import { Review } from "../../src/dto/review.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { ReviewFactory } from "../helpers/factories";
 
 // Mock Supabase client con métodos de query builder
 /* eslint-disable @typescript-eslint/no-explicit-any */

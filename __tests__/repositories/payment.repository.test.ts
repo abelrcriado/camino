@@ -13,6 +13,7 @@ import {
   CreateRefundDto,
 } from "../../src/dto/payment.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { PaymentFactory } from "../helpers/factories";
 
 // Mock Supabase client con métodos de query builder
 /* eslint-disable @typescript-eslint/no-explicit-any */
