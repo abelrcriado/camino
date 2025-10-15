@@ -2,6 +2,7 @@ import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { UserController } from "../../src/controllers/user.controller";
 import { UserService } from "../../src/services/user.service";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { UserFactory } from "../helpers/factories";
 
 describe("UserController", () => {
   let controller: UserController;
@@ -45,7 +46,13 @@ describe("UserController", () => {
       mockReq.method = "GET";
       mockService.findAll.mockResolvedValue({
         data: [],
-        pagination: {} as any,
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+          hasMore: false,
+        },
       });
 
       await controller.handle(
@@ -59,18 +66,21 @@ describe("UserController", () => {
 
     it("should route POST requests to create", async () => {
       mockReq.method = "POST";
+      const reqBody = UserFactory.createDto({ role: "user" });
+      const userId = UserFactory.create().id; // Generate a valid UUID
       mockReq.body = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
-        email: "test@example.com",
-        full_name: "Test User",
+        id: userId,
+        ...reqBody,
       };
 
-      mockService.createUser.mockResolvedValue({
-        id: "123e4567-e89b-12d3-a456-426614174000",
-        email: "test@example.com",
-        full_name: "Test User",
+      const createdUser = UserFactory.create({
+        id: userId,
+        email: reqBody.email,
+        full_name: reqBody.full_name,
         role: "user",
-      } as any);
+      });
+
+      mockService.createUser.mockResolvedValue(createdUser);
 
       await controller.handle(
         mockReq as NextApiRequest,
@@ -83,15 +93,18 @@ describe("UserController", () => {
 
     it("should route PUT requests to update", async () => {
       mockReq.method = "PUT";
+      const existingUser = UserFactory.create();
       mockReq.body = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: existingUser.id,
         full_name: "Updated Name",
       };
 
-      mockService.updateUser.mockResolvedValue({
-        id: "123e4567-e89b-12d3-a456-426614174000",
+      const updatedUser = UserFactory.create({
+        id: existingUser.id,
         full_name: "Updated Name",
-      } as any);
+      });
+
+      mockService.updateUser.mockResolvedValue(updatedUser);
 
       await controller.handle(
         mockReq as NextApiRequest,
@@ -104,8 +117,9 @@ describe("UserController", () => {
 
     it("should route DELETE requests to delete", async () => {
       mockReq.method = "DELETE";
+      const userId = UserFactory.create().id;
       mockReq.body = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: userId,
       };
 
       mockService.delete.mockResolvedValue(undefined);
@@ -115,9 +129,7 @@ describe("UserController", () => {
         mockRes as NextApiResponse
       );
 
-      expect(mockService.delete).toHaveBeenCalledWith(
-        "123e4567-e89b-12d3-a456-426614174000"
-      );
+      expect(mockService.delete).toHaveBeenCalledWith(userId);
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: "Usuario eliminado correctamente",
@@ -148,14 +160,17 @@ describe("UserController", () => {
   describe("GET - Find All Users", () => {
     it("should return all users when no filters provided", async () => {
       mockReq.method = "GET";
-      const mockUsers = [
-        { id: "1", email: "user1@test.com", full_name: "User 1" },
-        { id: "2", email: "user2@test.com", full_name: "User 2" },
-      ];
+      const mockUsers = UserFactory.createMany(2, { role: "user" });
 
       mockService.findAll.mockResolvedValue({
         data: mockUsers,
-        pagination: {} as any,
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: mockUsers.length,
+          totalPages: 1,
+          hasMore: false,
+        },
       });
 
       await controller.handle(
@@ -170,22 +185,17 @@ describe("UserController", () => {
 
     it("should filter by email when email query param provided", async () => {
       mockReq.method = "GET";
-      mockReq.query = { email: "test@example.com" };
+      const mockUser = UserFactory.create({ email: "test@example.com" });
+      mockReq.query = { email: mockUser.email };
 
-      const mockUser = {
-        id: "1",
-        email: "test@example.com",
-        full_name: "Test User",
-      };
-
-      mockService.findByEmail.mockResolvedValue(mockUser as any);
+      mockService.findByEmail.mockResolvedValue(mockUser);
 
       await controller.handle(
         mockReq as NextApiRequest,
         mockRes as NextApiResponse
       );
 
-      expect(mockService.findByEmail).toHaveBeenCalledWith("test@example.com");
+      expect(mockService.findByEmail).toHaveBeenCalledWith(mockUser.email);
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith([mockUser]);
     });
@@ -208,12 +218,9 @@ describe("UserController", () => {
       mockReq.method = "GET";
       mockReq.query = { role: "admin" };
 
-      const mockAdmins = [
-        { id: "1", email: "admin1@test.com", role: "admin" },
-        { id: "2", email: "admin2@test.com", role: "admin" },
-      ];
+      const mockAdmins = UserFactory.createMany(2, { role: "admin" });
 
-      mockService.findByRole.mockResolvedValue(mockAdmins as any);
+      mockService.findByRole.mockResolvedValue(mockAdmins);
 
       await controller.handle(
         mockReq as NextApiRequest,
@@ -229,23 +236,26 @@ describe("UserController", () => {
   describe("POST - Create User", () => {
     it("should create user with valid data", async () => {
       mockReq.method = "POST";
+      const reqBody = UserFactory.createDto({
+        email: "newuser@example.com",
+        full_name: "New User",
+        phone: "+34123456789",
+        role: "user",
+      });
       mockReq.body = {
         id: "123e4567-e89b-12d3-a456-426614174000",
-        email: "newuser@example.com",
-        full_name: "New User",
-        phone: "+34123456789",
-        role: "user",
+        ...reqBody,
       };
 
-      const createdUser = {
+      const createdUser = UserFactory.create({
         id: "123e4567-e89b-12d3-a456-426614174000",
-        email: "newuser@example.com",
-        full_name: "New User",
-        phone: "+34123456789",
-        role: "user",
-      };
+        email: reqBody.email,
+        full_name: reqBody.full_name,
+        phone: reqBody.phone,
+        role: reqBody.role,
+      });
 
-      mockService.createUser.mockResolvedValue(createdUser as any);
+      mockService.createUser.mockResolvedValue(createdUser);
 
       await controller.handle(
         mockReq as NextApiRequest,
@@ -323,19 +333,20 @@ describe("UserController", () => {
   describe("PUT - Update User", () => {
     it("should update user with valid data", async () => {
       mockReq.method = "PUT";
+      const existingUser = UserFactory.create();
       mockReq.body = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: existingUser.id,
         full_name: "Updated Name",
         phone: "+34987654321",
       };
 
-      const updatedUser = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+      const updatedUser = UserFactory.create({
+        id: existingUser.id,
         full_name: "Updated Name",
         phone: "+34987654321",
-      };
+      });
 
-      mockService.updateUser.mockResolvedValue(updatedUser as any);
+      mockService.updateUser.mockResolvedValue(updatedUser);
 
       await controller.handle(
         mockReq as NextApiRequest,
@@ -344,7 +355,7 @@ describe("UserController", () => {
 
       expect(mockService.updateUser).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: "123e4567-e89b-12d3-a456-426614174000",
+          id: existingUser.id,
           full_name: "Updated Name",
           phone: "+34987654321",
         })
@@ -400,8 +411,9 @@ describe("UserController", () => {
   describe("DELETE - Delete User", () => {
     it("should delete user with valid id", async () => {
       mockReq.method = "DELETE";
+      const userId = UserFactory.create().id;
       mockReq.body = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
+        id: userId,
       };
 
       mockService.delete.mockResolvedValue(undefined);
@@ -411,9 +423,7 @@ describe("UserController", () => {
         mockRes as NextApiResponse
       );
 
-      expect(mockService.delete).toHaveBeenCalledWith(
-        "123e4567-e89b-12d3-a456-426614174000"
-      );
+      expect(mockService.delete).toHaveBeenCalledWith(userId);
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: "Usuario eliminado correctamente",
