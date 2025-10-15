@@ -2,6 +2,7 @@ import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { TallerManagerController } from "../../src/controllers/taller_manager.controller";
 import { TallerManagerService } from "../../src/services/taller_manager.service";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { TallerManagerFactory } from "../helpers/factories";
 
 describe("TallerManagerController", () => {
   let controller: TallerManagerController;
@@ -49,40 +50,39 @@ describe("TallerManagerController", () => {
   });
 
   it("should filter by workshop_id", async () => {
-    const workshopId = "550e8400-e29b-41d4-a716-446655440001";
-    mockReq.query = { workshop_id: workshopId };
-    mockService.findByWorkshop.mockResolvedValue([]);
+    const mockManager = TallerManagerFactory.create();
+    mockReq.query = { workshop_id: mockManager.workshop_id };
+    mockService.findByWorkshop.mockResolvedValue([mockManager]);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse
     );
-    expect(mockService.findByWorkshop).toHaveBeenCalledWith(workshopId);
+    expect(mockService.findByWorkshop).toHaveBeenCalledWith(mockManager.workshop_id);
   });
 
   it("should filter by user_id", async () => {
-    const userId = "550e8400-e29b-41d4-a716-446655440002";
-    mockReq.query = { user_id: userId };
-    mockService.findByUser.mockResolvedValue([]);
+    const mockManager = TallerManagerFactory.create();
+    mockReq.query = { user_id: mockManager.user_id };
+    mockService.findByUser.mockResolvedValue([mockManager]);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse
     );
-    expect(mockService.findByUser).toHaveBeenCalledWith(userId);
+    expect(mockService.findByUser).toHaveBeenCalledWith(mockManager.user_id);
   });
 
   it("should create manager", async () => {
     mockReq.method = "POST";
-    mockReq.body = {
-      workshop_id: "123e4567-e89b-12d3-a456-426614174000",
-      user_id: "223e4567-e89b-12d3-a456-426614174000",
+    const reqBody = TallerManagerFactory.createDto({
       name: "John Manager",
       email: "john@workshop.com",
       phone: "+34600123456",
-    };
-    mockService.createTallerManager.mockResolvedValue({
-      id: "tm-1",
-      ...mockReq.body,
     });
+    mockReq.body = reqBody;
+    const createdManager = TallerManagerFactory.create({
+      ...reqBody,
+    });
+    mockService.createTallerManager.mockResolvedValue(createdManager);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse
