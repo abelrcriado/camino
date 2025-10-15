@@ -11,13 +11,14 @@ import {
   queryCSPSchema,
 } from "../../src/schemas/csp.schema";
 import { CSP_TYPE_VALUES } from "../../src/constants/enums";
+import { TestDataGenerators, SchemaDataGenerators } from "../helpers/test-data-generators";
 
 describe("CSP Schemas", () => {
   describe("createCSPSchema", () => {
     const validData = {
-      name: "Estación de Bicicletas Centro",
-      latitude: 42.123456,
-      longitude: -8.654321,
+      name: SchemaDataGenerators.csp.name(),
+      latitude: SchemaDataGenerators.csp.latitude(),
+      longitude: SchemaDataGenerators.csp.longitude(),
     };
 
     it("should validate correct CSP data", () => {
@@ -148,7 +149,7 @@ describe("CSP Schemas", () => {
     it("should accept optional description", () => {
       const data = {
         ...validData,
-        description: "Una estación de bicicletas en el centro",
+        description: SchemaDataGenerators.csp.description(),
       };
       const result = createCSPSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -161,7 +162,7 @@ describe("CSP Schemas", () => {
     });
 
     it("should accept optional address", () => {
-      const data = { ...validData, address: "Calle Principal 123" };
+      const data = { ...validData, address: SchemaDataGenerators.csp.address() };
       const result = createCSPSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -299,7 +300,7 @@ describe("CSP Schemas", () => {
 
   describe("updateCSPSchema", () => {
     const validData = {
-      id: "550e8400-e29b-41d4-a716-446655440000",
+      id: SchemaDataGenerators.csp.id(),
     };
 
     it("should validate correct update data", () => {
@@ -314,7 +315,7 @@ describe("CSP Schemas", () => {
     });
 
     it("should reject invalid id UUID", () => {
-      const data = { ...validData, id: "invalid-uuid" };
+      const data = { ...validData, id: TestDataGenerators.alphanumeric(10) };
       const result = updateCSPSchema.safeParse(data);
       expect(result.success).toBe(false);
     });

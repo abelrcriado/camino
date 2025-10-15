@@ -9,16 +9,17 @@ import {
   deleteBookingSchema,
   queryBookingSchema,
 } from "../../src/schemas/booking.schema";
+import { TestDataGenerators, SchemaDataGenerators } from "../helpers/test-data-generators";
 
 describe("Booking Schemas", () => {
   describe("createBookingSchema", () => {
     const validData = {
-      user_id: "550e8400-e29b-41d4-a716-446655440001",
-      service_point_id: "550e8400-e29b-41d4-a716-446655440002",
-      workshop_id: "550e8400-e29b-41d4-a716-446655440003",
-      service_type: "maintenance",
-      start_time: "2025-10-20T10:00:00.000Z",
-      end_time: "2025-10-20T11:00:00.000Z",
+      user_id: SchemaDataGenerators.booking.userId(),
+      service_point_id: SchemaDataGenerators.booking.servicePointId(),
+      workshop_id: SchemaDataGenerators.booking.workshopId(),
+      service_type: SchemaDataGenerators.booking.serviceType(),
+      start_time: SchemaDataGenerators.booking.startTime(),
+      end_time: SchemaDataGenerators.booking.endTime(),
     };
 
     it("should validate correct booking data", () => {
@@ -51,7 +52,7 @@ describe("Booking Schemas", () => {
     });
 
     it("should reject invalid user_id UUID", () => {
-      const data = { ...validData, user_id: "invalid-uuid" };
+      const data = { ...validData, user_id: TestDataGenerators.alphanumeric(10) };
       const result = createBookingSchema.safeParse(data);
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -148,7 +149,7 @@ describe("Booking Schemas", () => {
 
   describe("updateBookingSchema", () => {
     const validData = {
-      id: "550e8400-e29b-41d4-a716-446655440000",
+      id: SchemaDataGenerators.booking.id(),
       status: "confirmed" as const,
     };
 
@@ -164,19 +165,24 @@ describe("Booking Schemas", () => {
     });
 
     it("should reject invalid id UUID", () => {
-      const data = { ...validData, id: "invalid-uuid" };
+      const data = { ...validData, id: TestDataGenerators.alphanumeric(10) };
       const result = updateBookingSchema.safeParse(data);
       expect(result.success).toBe(false);
     });
 
     it("should accept all optional fields", () => {
+      const startTime = TestDataGenerators.futureDate();
+      const startDate = new Date(startTime);
+      const endDate = new Date(startDate.getTime() + 3600000); // Add 1 hour
+      const endTime = endDate.toISOString();
+      
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
-        user_id: "550e8400-e29b-41d4-a716-446655440001",
-        service_point_id: "550e8400-e29b-41d4-a716-446655440002",
-        workshop_id: "550e8400-e29b-41d4-a716-446655440003",
-        start_time: "2025-10-20T10:00:00.000Z",
-        end_time: "2025-10-20T11:00:00.000Z",
+        id: SchemaDataGenerators.booking.id(),
+        user_id: SchemaDataGenerators.booking.userId(),
+        service_point_id: SchemaDataGenerators.booking.servicePointId(),
+        workshop_id: SchemaDataGenerators.booking.workshopId(),
+        start_time: startTime,
+        end_time: endTime,
         status: "confirmed" as const,
       };
       const result = updateBookingSchema.safeParse(data);
@@ -184,10 +190,12 @@ describe("Booking Schemas", () => {
     });
 
     it("should reject end_time before start_time when both provided", () => {
+      const startTime = TestDataGenerators.futureDate();
+      const endTime = TestDataGenerators.pastDate(); // Past date is earlier than future date
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
-        start_time: "2025-10-20T11:00:00.000Z",
-        end_time: "2025-10-20T10:00:00.000Z",
+        id: SchemaDataGenerators.booking.id(),
+        start_time: startTime,
+        end_time: endTime,
       };
       const result = updateBookingSchema.safeParse(data);
       expect(result.success).toBe(false);
@@ -195,8 +203,8 @@ describe("Booking Schemas", () => {
 
     it("should accept start_time without end_time", () => {
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
-        start_time: "2025-10-20T10:00:00.000Z",
+        id: SchemaDataGenerators.booking.id(),
+        start_time: SchemaDataGenerators.booking.startTime(),
       };
       const result = updateBookingSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -205,7 +213,7 @@ describe("Booking Schemas", () => {
 
   describe("deleteBookingSchema", () => {
     it("should validate correct delete data", () => {
-      const data = { id: "550e8400-e29b-41d4-a716-446655440000" };
+      const data = { id: SchemaDataGenerators.booking.id() };
       const result = deleteBookingSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -217,14 +225,14 @@ describe("Booking Schemas", () => {
     });
 
     it("should reject invalid id UUID", () => {
-      const data = { id: "invalid-uuid" };
+      const data = { id: TestDataGenerators.alphanumeric(10) };
       const result = deleteBookingSchema.safeParse(data);
       expect(result.success).toBe(false);
     });
 
     it("should reject extra fields", () => {
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: SchemaDataGenerators.booking.id(),
         extra: "field",
       };
       const result = deleteBookingSchema.safeParse(data);
@@ -265,21 +273,21 @@ describe("Booking Schemas", () => {
     });
 
     it("should accept user_id filter", () => {
-      const data = { user_id: "550e8400-e29b-41d4-a716-446655440001" };
+      const data = { user_id: SchemaDataGenerators.booking.userId() };
       const result = queryBookingSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
 
     it("should accept status filter", () => {
-      const data = { status: "pending" };
+      const data = { status: SchemaDataGenerators.booking.status() };
       const result = queryBookingSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
 
     it("should accept date filters", () => {
       const data = {
-        start_date: "2025-10-20T00:00:00.000Z",
-        end_date: "2025-10-21T00:00:00.000Z",
+        start_date: SchemaDataGenerators.booking.startTime(),
+        end_date: SchemaDataGenerators.booking.endTime(),
       };
       const result = queryBookingSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -289,12 +297,12 @@ describe("Booking Schemas", () => {
       const data = {
         page: "2",
         limit: "20",
-        user_id: "550e8400-e29b-41d4-a716-446655440001",
-        service_point_id: "550e8400-e29b-41d4-a716-446655440002",
-        workshop_id: "550e8400-e29b-41d4-a716-446655440003",
-        status: "confirmed",
-        start_date: "2025-10-20T00:00:00.000Z",
-        end_date: "2025-10-21T00:00:00.000Z",
+        user_id: SchemaDataGenerators.booking.userId(),
+        service_point_id: SchemaDataGenerators.booking.servicePointId(),
+        workshop_id: SchemaDataGenerators.booking.workshopId(),
+        status: SchemaDataGenerators.booking.status(),
+        start_date: SchemaDataGenerators.booking.startTime(),
+        end_date: SchemaDataGenerators.booking.endTime(),
       };
       const result = queryBookingSchema.safeParse(data);
       expect(result.success).toBe(true);

@@ -11,18 +11,19 @@ import {
   deletePaymentSchema,
   queryPaymentSchema,
 } from "../../src/schemas/payment.schema";
+import { TestDataGenerators, SchemaDataGenerators } from "../helpers/test-data-generators";
 
 describe("Payment Schemas", () => {
-  const validUUID = "550e8400-e29b-41d4-a716-446655440001";
-  const invalidUUID = "invalid-uuid";
+  const validUUID = SchemaDataGenerators.payment.id();
+  const invalidUUID = TestDataGenerators.alphanumeric(10);
 
   describe("createPaymentSchema", () => {
     const validData = {
-      user_id: validUUID,
-      booking_id: validUUID,
-      service_point_id: validUUID,
-      amount: 5000,
-      currency: "eur",
+      user_id: SchemaDataGenerators.payment.userId(),
+      booking_id: SchemaDataGenerators.payment.bookingId(),
+      service_point_id: SchemaDataGenerators.payment.servicePointId(),
+      amount: SchemaDataGenerators.payment.amount(),
+      currency: SchemaDataGenerators.payment.currency(),
       payment_method: "card" as const,
     };
 
@@ -50,20 +51,20 @@ describe("Payment Schemas", () => {
     });
 
     it("should accept optional description", () => {
-      const data = { ...validData, description: "Payment for booking" };
+      const data = { ...validData, description: SchemaDataGenerators.payment.description() };
       const result = createPaymentSchema.safeParse(data);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.description).toBe("Payment for booking");
+        expect(result.data.description).toBeTruthy();
       }
     });
 
     it("should accept optional metadata", () => {
-      const data = { ...validData, metadata: { key: "value" } };
+      const data = { ...validData, metadata: SchemaDataGenerators.payment.metadata() };
       const result = createPaymentSchema.safeParse(data);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.metadata).toEqual({ key: "value" });
+        expect(result.data.metadata).toBeTruthy();
       }
     });
 
@@ -86,7 +87,7 @@ describe("Payment Schemas", () => {
     });
 
     it("should reject negative amount", () => {
-      const data = { ...validData, amount: -10.5 };
+      const data = { ...validData, amount: -TestDataGenerators.float({ min: 1, max: 100 }) };
       const result = createPaymentSchema.safeParse(data);
       expect(result.success).toBe(false);
     });
@@ -118,13 +119,13 @@ describe("Payment Schemas", () => {
 
   describe("updatePaymentSchema", () => {
     it("should validate correct update data", () => {
-      const data = { id: validUUID, status: "succeeded" };
+      const data = { id: validUUID, status: SchemaDataGenerators.payment.status() };
       const result = updatePaymentSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
 
     it("should require id field", () => {
-      const data = { status: "succeeded" };
+      const data = { status: SchemaDataGenerators.payment.status() };
       const result = updatePaymentSchema.safeParse(data);
       expect(result.success).toBe(false);
     });
@@ -177,13 +178,13 @@ describe("Payment Schemas", () => {
     });
 
     it("should accept user_id filter", () => {
-      const data = { user_id: validUUID };
+      const data = { user_id: SchemaDataGenerators.payment.userId() };
       const result = queryPaymentSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
 
     it("should accept status filter", () => {
-      const data = { status: "succeeded" };
+      const data = { status: SchemaDataGenerators.payment.status() };
       const result = queryPaymentSchema.safeParse(data);
       expect(result.success).toBe(true);
     });

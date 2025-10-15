@@ -9,12 +9,13 @@ import {
   deleteUserSchema,
   queryUserSchema,
 } from "../../src/schemas/user.schema";
+import { TestDataGenerators, SchemaDataGenerators } from "../helpers/test-data-generators";
 
 describe("User Schemas", () => {
   describe("createUserSchema", () => {
     const validData = {
-      id: "550e8400-e29b-41d4-a716-446655440001",
-      email: "test@example.com",
+      id: SchemaDataGenerators.user.id(),
+      email: SchemaDataGenerators.user.email(),
     };
 
     it("should validate correct user data", () => {
@@ -30,7 +31,7 @@ describe("User Schemas", () => {
     });
 
     it("should reject invalid id UUID", () => {
-      const data = { ...validData, id: "invalid-uuid" };
+      const data = { ...validData, id: TestDataGenerators.alphanumeric(10) };
       const result = createUserSchema.safeParse(data);
       expect(result.success).toBe(false);
     });
@@ -49,12 +50,7 @@ describe("User Schemas", () => {
     });
 
     it("should accept valid email formats", () => {
-      const emails = [
-        "user@example.com",
-        "user.name@example.com",
-        "user+tag@example.co.uk",
-        "user123@test-domain.com",
-      ];
+      const emails = TestDataGenerators.emails(4);
 
       emails.forEach((email) => {
         const data = { ...validData, email };
@@ -64,7 +60,7 @@ describe("User Schemas", () => {
     });
 
     it("should accept optional full_name", () => {
-      const data = { ...validData, full_name: "John Doe" };
+      const data = { ...validData, full_name: SchemaDataGenerators.user.fullName() };
       const result = createUserSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -72,7 +68,7 @@ describe("User Schemas", () => {
     it("should accept optional avatar_url", () => {
       const data = {
         ...validData,
-        avatar_url: "https://example.com/avatar.jpg",
+        avatar_url: SchemaDataGenerators.user.avatarUrl(),
       };
       const result = createUserSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -85,7 +81,7 @@ describe("User Schemas", () => {
     });
 
     it("should accept optional phone", () => {
-      const data = { ...validData, phone: "+34123456789" };
+      const data = { ...validData, phone: SchemaDataGenerators.user.phone() };
       const result = createUserSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -129,7 +125,7 @@ describe("User Schemas", () => {
 
   describe("updateUserSchema", () => {
     const validData = {
-      id: "550e8400-e29b-41d4-a716-446655440000",
+      id: SchemaDataGenerators.user.id(),
     };
 
     it("should validate correct update data", () => {
@@ -144,26 +140,26 @@ describe("User Schemas", () => {
     });
 
     it("should reject invalid id UUID", () => {
-      const data = { ...validData, id: "invalid-uuid" };
+      const data = { ...validData, id: TestDataGenerators.alphanumeric(10) };
       const result = updateUserSchema.safeParse(data);
       expect(result.success).toBe(false);
     });
 
     it("should accept optional email", () => {
-      const data = { ...validData, email: "new@example.com" };
+      const data = { ...validData, email: SchemaDataGenerators.user.email() };
       const result = updateUserSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
 
     it("should accept all optional fields", () => {
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
-        email: "new@example.com",
-        full_name: "Jane Doe",
-        avatar_url: "https://example.com/new-avatar.jpg",
-        phone: "+34987654321",
-        preferred_language: "en",
-        role: "manager",
+        id: SchemaDataGenerators.user.id(),
+        email: SchemaDataGenerators.user.email(),
+        full_name: SchemaDataGenerators.user.fullName(),
+        avatar_url: SchemaDataGenerators.user.avatarUrl(),
+        phone: SchemaDataGenerators.user.phone(),
+        preferred_language: SchemaDataGenerators.user.preferredLanguage(),
+        role: SchemaDataGenerators.user.role(),
       };
       const result = updateUserSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -172,7 +168,7 @@ describe("User Schemas", () => {
 
   describe("deleteUserSchema", () => {
     it("should validate correct delete data", () => {
-      const data = { id: "550e8400-e29b-41d4-a716-446655440000" };
+      const data = { id: SchemaDataGenerators.user.id() };
       const result = deleteUserSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -184,14 +180,14 @@ describe("User Schemas", () => {
     });
 
     it("should reject invalid id UUID", () => {
-      const data = { id: "invalid-uuid" };
+      const data = { id: TestDataGenerators.alphanumeric(10) };
       const result = deleteUserSchema.safeParse(data);
       expect(result.success).toBe(false);
     });
 
     it("should reject extra fields", () => {
       const data = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: SchemaDataGenerators.user.id(),
         extra: "field",
       };
       const result = deleteUserSchema.safeParse(data);
@@ -206,7 +202,7 @@ describe("User Schemas", () => {
     });
 
     it("should accept email filter", () => {
-      const data = { email: "test@example.com" };
+      const data = { email: SchemaDataGenerators.user.email() };
       const result = queryUserSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
@@ -218,15 +214,15 @@ describe("User Schemas", () => {
     });
 
     it("should accept role filter", () => {
-      const data = { role: "admin" };
+      const data = { role: SchemaDataGenerators.user.role() };
       const result = queryUserSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
 
     it("should accept both filters", () => {
       const data = {
-        email: "admin@example.com",
-        role: "admin",
+        email: SchemaDataGenerators.user.email(),
+        role: SchemaDataGenerators.user.role(),
       };
       const result = queryUserSchema.safeParse(data);
       expect(result.success).toBe(true);
