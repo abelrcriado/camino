@@ -2,6 +2,7 @@ import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { PrecioRepository } from "@/repositories/precio.repository";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { NivelPrecio, EntidadTipo } from "@/dto/precio.dto";
+import { PrecioFactory } from "../helpers/factories";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

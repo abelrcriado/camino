@@ -1,6 +1,7 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { AvailabilityRepository } from "@/repositories/availability.repository";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { generateUUID } from "../helpers/factories";
 
 type MockedFunction = ReturnType<typeof jest.fn>;
 

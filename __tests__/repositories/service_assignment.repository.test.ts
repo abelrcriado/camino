@@ -7,6 +7,7 @@
 
 import { ServiceAssignmentRepository } from "../../src/repositories/service_assignment.repository";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { ServiceAssignmentFactory } from "../helpers/factories";
 
 describe("ServiceAssignmentRepository", () => {
   let repository: ServiceAssignmentRepository;

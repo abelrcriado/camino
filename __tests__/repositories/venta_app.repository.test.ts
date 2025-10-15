@@ -9,6 +9,7 @@ import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { VentaAppRepository } from "@/repositories/venta_app.repository";
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { CreateVentaAppDto } from "@/dto/venta_app.dto";
+import { VentaAppFactory } from "../helpers/factories";
 
 type MockedFunction = ReturnType<typeof jest.fn>;
 

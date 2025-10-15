@@ -9,6 +9,7 @@ import {
 import { PartnerRepository } from "../../src/repositories/partner.repository";
 import { Partner } from "../../src/dto/partner.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { PartnerFactory } from "../helpers/factories";
 
 // Mock Supabase client
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -25,16 +26,6 @@ const mockSupabase = {
 
 describe("PartnerRepository", () => {
   let repository: PartnerRepository;
-
-  const mockPartner: Partner = {
-    id: "550e8400-e29b-41d4-a716-446655440000",
-    name: "Test Partner",
-    type: "supplier",
-    contact_email: "partner@test.com",
-    contact_phone: "+34600000000",
-    created_at: "2025-01-01T00:00:00Z",
-    updated_at: "2025-01-01T00:00:00Z",
-  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -71,10 +62,7 @@ describe("PartnerRepository", () => {
 
   describe("findByType", () => {
     it("should find partners by type 'supplier'", async () => {
-      const mockPartners = [
-        mockPartner,
-        { ...mockPartner, id: "diff-id", name: "Another Supplier" },
-      ];
+      const mockPartners = PartnerFactory.createMany(2, { type: "supplier" });
       (mockSupabase.eq as jest.Mock).mockResolvedValue({
         data: mockPartners,
         error: null,
@@ -89,11 +77,7 @@ describe("PartnerRepository", () => {
     });
 
     it("should find partners by type 'manufacturer'", async () => {
-      const manufacturer = {
-        ...mockPartner,
-        type: "manufacturer",
-        name: "Manufacturer Co",
-      };
+      const manufacturer = PartnerFactory.create({ type: "manufacturer", name: "Manufacturer Co" });
       (mockSupabase.eq as jest.Mock).mockResolvedValue({
         data: [manufacturer],
         error: null,
@@ -107,11 +91,7 @@ describe("PartnerRepository", () => {
     });
 
     it("should find partners by type 'distributor'", async () => {
-      const distributor = {
-        ...mockPartner,
-        type: "distributor",
-        name: "Distributor Inc",
-      };
+      const distributor = PartnerFactory.create({ type: "distributor", name: "Distributor Inc" });
       (mockSupabase.eq as jest.Mock).mockResolvedValue({
         data: [distributor],
         error: null,
@@ -159,11 +139,7 @@ describe("PartnerRepository", () => {
     });
 
     it("should find multiple partners of the same type", async () => {
-      const partners = [
-        mockPartner,
-        { ...mockPartner, id: "id-2", name: "Partner 2" },
-        { ...mockPartner, id: "id-3", name: "Partner 3" },
-      ];
+      const partners = PartnerFactory.createMany(3, { type: "supplier" });
       (mockSupabase.eq as jest.Mock).mockResolvedValue({
         data: partners,
         error: null,

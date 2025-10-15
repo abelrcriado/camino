@@ -9,6 +9,7 @@ import {
 import { FavoriteRepository } from "../../src/repositories/favorite.repository";
 import { Favorite } from "../../src/dto/favorite.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { FavoriteFactory } from "../helpers/factories";
 
 // Mock Supabase client
 /* eslint-disable @typescript-eslint/no-explicit-any */
