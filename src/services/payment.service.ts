@@ -31,7 +31,17 @@ const stripe = new Stripe(config.stripe.secretKey, {
 });
 
 // Configuración de comisiones
-const PLATFORM_FEE_PERCENTAGE = 0.15; // 15% de comisión plataforma
+const PLATFORM_FEE_PERCENTAGE = 0.15; // 15% de comisión plataforma (default fallback)
+
+/**
+ * Interface para resultado de cálculo de comisión
+ */
+interface CommissionCalculation {
+  total: number;
+  partner_amount: number;
+  platform_fee: number;
+  commission_percentage: number;
+}
 
 export class PaymentService extends BaseService<Payment> {
   private stripe: Stripe;
@@ -63,6 +73,56 @@ export class PaymentService extends BaseService<Payment> {
   }
 
   /**
+   * Calcular comisión basada en el tipo de servicio y commission_model del service point
+   * 
+   * @param amount - Monto total del pago en céntimos
+   * @param serviceType - Tipo de servicio (vending, workshop, wash, charging, etc.)
+   * @param commissionModel - Modelo de comisión del service point
+   * @returns CommissionCalculation con desglose completo
+   */
+  async calculateCommission(
+    amount: number,
+    serviceType: string,
+    commissionModel?: Record<string, unknown>
+  ): Promise<CommissionCalculation> {
+    let commissionPercentage = PLATFORM_FEE_PERCENTAGE; // Default 15%
+
+    if (commissionModel) {
+      // Determinar qué porcentaje aplicar según el tipo de servicio
+      if (serviceType === "vending" || serviceType.includes("vending")) {
+        // Vending machines: 5-10% para partner, 90-95% para plataforma
+        commissionPercentage = (commissionModel.vending as number) || 0.1;
+      } else if (
+        serviceType === "workshop" ||
+        serviceType.includes("workshop")
+      ) {
+        // Workshop services: 30% para partner, 70% para plataforma
+        commissionPercentage = (commissionModel.workshop as number) || 0.3;
+      } else if (serviceType === "wash" || serviceType.includes("wash")) {
+        // Bike wash: 40% para partner, 60% para plataforma
+        commissionPercentage = (commissionModel.wash as number) || 0.4;
+      } else if (
+        serviceType === "charging" ||
+        serviceType.includes("charging")
+      ) {
+        // E-bike charging: 50% para partner, 50% para plataforma
+        commissionPercentage = (commissionModel.charging as number) || 0.5;
+      }
+    }
+
+    // Calcular montos
+    const platformFee = Math.round(amount * commissionPercentage);
+    const partnerAmount = amount - platformFee;
+
+    return {
+      total: amount,
+      partner_amount: partnerAmount,
+      platform_fee: platformFee,
+      commission_percentage: commissionPercentage,
+    };
+  }
+
+  /**
    * Crear Payment Intent en Stripe y guardar pago en BD
    */
   async createPaymentIntent(
@@ -79,9 +139,28 @@ export class PaymentService extends BaseService<Payment> {
       throw new ValidationError("Amount must be greater than 0");
     }
 
-    // Calcular comisiones
-    const platformFee = this.calculatePlatformFee(data.amount);
-    const cspAmount = this.calculateCSPAmount(data.amount, platformFee);
+    // Calcular comisiones (usa nuevo método si service_type disponible)
+    let platformFee: number;
+    let cspAmount: number;
+    let commissionPercentage: number | undefined;
+    let partnerAmount: number | undefined;
+
+    if (data.service_type && data.commission_model) {
+      // Usar nuevo cálculo de comisión basado en tipo de servicio
+      const commission = await this.calculateCommission(
+        data.amount,
+        data.service_type,
+        data.commission_model
+      );
+      platformFee = commission.platform_fee;
+      cspAmount = commission.partner_amount;
+      commissionPercentage = commission.commission_percentage;
+      partnerAmount = commission.partner_amount;
+    } else {
+      // Usar cálculo legacy para backward compatibility
+      platformFee = this.calculatePlatformFee(data.amount);
+      cspAmount = this.calculateCSPAmount(data.amount, platformFee);
+    }
 
     // Crear Payment Intent en Stripe
     const paymentIntentData: Stripe.PaymentIntentCreateParams = {
@@ -95,6 +174,10 @@ export class PaymentService extends BaseService<Payment> {
         service_point_id: data.service_point_id,
         platform_fee: platformFee.toString(),
         csp_amount: cspAmount.toString(),
+        ...(commissionPercentage && {
+          commission_percentage: commissionPercentage.toString(),
+        }),
+        ...(data.service_type && { service_type: data.service_type }),
         ...(data.metadata || {}),
       },
     };

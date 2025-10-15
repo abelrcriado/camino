@@ -155,6 +155,60 @@ describe("Payment Schemas", () => {
         expect(result.success).toBe(false);
       });
     });
+
+    it("should accept commission_percentage field", () => {
+      const data = {
+        id: validUUID,
+        commission_percentage: 0.15,
+      };
+      const result = updatePaymentSchema.safeParse(data);
+      expect(result.success).toBe(true);
+    });
+
+    it("should accept partner_amount field", () => {
+      const data = {
+        id: validUUID,
+        partner_amount: 8500,
+      };
+      const result = updatePaymentSchema.safeParse(data);
+      expect(result.success).toBe(true);
+    });
+
+    it("should accept stripe_transfer_id field", () => {
+      const data = {
+        id: validUUID,
+        stripe_transfer_id: "tr_1234567890",
+      };
+      const result = updatePaymentSchema.safeParse(data);
+      expect(result.success).toBe(true);
+    });
+
+    it("should reject commission_percentage < 0", () => {
+      const data = {
+        id: validUUID,
+        commission_percentage: -0.1,
+      };
+      const result = updatePaymentSchema.safeParse(data);
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject commission_percentage > 1", () => {
+      const data = {
+        id: validUUID,
+        commission_percentage: 1.5,
+      };
+      const result = updatePaymentSchema.safeParse(data);
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject negative partner_amount", () => {
+      const data = {
+        id: validUUID,
+        partner_amount: -100,
+      };
+      const result = updatePaymentSchema.safeParse(data);
+      expect(result.success).toBe(false);
+    });
   });
 
   describe("deletePaymentSchema", () => {

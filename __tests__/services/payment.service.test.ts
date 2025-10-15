@@ -176,4 +176,143 @@ describe("PaymentService", () => {
       expect(mockRepository.delete).toHaveBeenCalledWith("pay-1");
     });
   });
+
+  // ============================================================================
+  // Tests para calculateCommission
+  // ============================================================================
+  describe("calculateCommission", () => {
+    it("should calculate commission for vending machine (10%)", async () => {
+      const amount = 10000; // 100 EUR in cents
+      const serviceType = "vending";
+      const commissionModel = { vending: 0.1 };
+
+      const result = await service.calculateCommission(
+        amount,
+        serviceType,
+        commissionModel
+      );
+
+      expect(result.total).toBe(10000);
+      expect(result.platform_fee).toBe(1000); // 10%
+      expect(result.partner_amount).toBe(9000); // 90%
+      expect(result.commission_percentage).toBe(0.1);
+    });
+
+    it("should calculate commission for workshop (30%)", async () => {
+      const amount = 5000; // 50 EUR in cents
+      const serviceType = "workshop";
+      const commissionModel = { workshop: 0.3 };
+
+      const result = await service.calculateCommission(
+        amount,
+        serviceType,
+        commissionModel
+      );
+
+      expect(result.total).toBe(5000);
+      expect(result.platform_fee).toBe(1500); // 30%
+      expect(result.partner_amount).toBe(3500); // 70%
+      expect(result.commission_percentage).toBe(0.3);
+    });
+
+    it("should calculate commission for bike wash (40%)", async () => {
+      const amount = 2000; // 20 EUR in cents
+      const serviceType = "wash";
+      const commissionModel = { wash: 0.4 };
+
+      const result = await service.calculateCommission(
+        amount,
+        serviceType,
+        commissionModel
+      );
+
+      expect(result.total).toBe(2000);
+      expect(result.platform_fee).toBe(800); // 40%
+      expect(result.partner_amount).toBe(1200); // 60%
+      expect(result.commission_percentage).toBe(0.4);
+    });
+
+    it("should calculate commission for e-bike charging (50%)", async () => {
+      const amount = 1500; // 15 EUR in cents
+      const serviceType = "charging";
+      const commissionModel = { charging: 0.5 };
+
+      const result = await service.calculateCommission(
+        amount,
+        serviceType,
+        commissionModel
+      );
+
+      expect(result.total).toBe(1500);
+      expect(result.platform_fee).toBe(750); // 50%
+      expect(result.partner_amount).toBe(750); // 50%
+      expect(result.commission_percentage).toBe(0.5);
+    });
+
+    it("should use default commission (15%) when no commission model provided", async () => {
+      const amount = 10000;
+      const serviceType = "unknown";
+
+      const result = await service.calculateCommission(
+        amount,
+        serviceType,
+        undefined
+      );
+
+      expect(result.total).toBe(10000);
+      expect(result.platform_fee).toBe(1500); // 15% default
+      expect(result.partner_amount).toBe(8500); // 85%
+      expect(result.commission_percentage).toBe(0.15);
+    });
+
+    it("should use default values when commission model lacks specific type", async () => {
+      const amount = 10000;
+      const serviceType = "vending";
+      const commissionModel = {}; // Empty commission model
+
+      const result = await service.calculateCommission(
+        amount,
+        serviceType,
+        commissionModel
+      );
+
+      expect(result.total).toBe(10000);
+      expect(result.platform_fee).toBe(1000); // 10% default for vending
+      expect(result.partner_amount).toBe(9000);
+      expect(result.commission_percentage).toBe(0.1);
+    });
+
+    it("should handle service type containing keyword (e.g., 'vending_machine')", async () => {
+      const amount = 5000;
+      const serviceType = "vending_machine";
+      const commissionModel = { vending: 0.08 };
+
+      const result = await service.calculateCommission(
+        amount,
+        serviceType,
+        commissionModel
+      );
+
+      expect(result.platform_fee).toBe(400); // 8%
+      expect(result.partner_amount).toBe(4600);
+      expect(result.commission_percentage).toBe(0.08);
+    });
+
+    it("should round platform fee correctly", async () => {
+      const amount = 9999; // Odd amount
+      const serviceType = "vending";
+      const commissionModel = { vending: 0.1 };
+
+      const result = await service.calculateCommission(
+        amount,
+        serviceType,
+        commissionModel
+      );
+
+      // Platform fee should be rounded: Math.round(9999 * 0.1) = 1000
+      expect(result.platform_fee).toBe(1000);
+      expect(result.partner_amount).toBe(8999);
+      expect(result.total).toBe(9999);
+    });
+  });
 });

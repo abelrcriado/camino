@@ -61,6 +61,9 @@ export const updatePaymentSchema = z
     stripe_charge_id: z.string().optional(),
     paid_at: isoDateSchema.optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
+    commission_percentage: z.number().min(0).max(1).optional(),
+    partner_amount: z.number().positive().optional(),
+    stripe_transfer_id: z.string().optional(),
   })
   .strict();
 

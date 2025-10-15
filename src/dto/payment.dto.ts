@@ -37,6 +37,9 @@ export interface Payment {
   // Comisiones y splits
   platform_fee: number; // Comisión plataforma en céntimos
   csp_amount: number; // Monto para el CSP en céntimos
+  commission_percentage?: number; // Porcentaje de comisión aplicado (ej: 0.15 = 15%)
+  partner_amount?: number; // Monto transferido al partner en céntimos
+  stripe_transfer_id?: string | null; // ID de transferencia en Stripe
 
   // Metadata
   description: string | null;
@@ -65,6 +68,8 @@ export interface CreatePaymentDto {
   payment_method?: PaymentMethod; // Default: 'card'
   description?: string;
   metadata?: Record<string, unknown>;
+  service_type?: string; // Tipo de servicio para cálculo de comisión
+  commission_model?: Record<string, unknown>; // Modelo de comisión del service point
 }
 
 /**
