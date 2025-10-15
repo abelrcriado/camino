@@ -2,6 +2,7 @@ import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { FavoriteController } from "../../src/controllers/favorite.controller";
 import { FavoriteService } from "../../src/services/favorite.service";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { FavoriteFactory } from "../helpers/factories";
 
 describe("FavoriteController", () => {
   let controller: FavoriteController;
@@ -52,16 +53,17 @@ describe("FavoriteController", () => {
 
   it("should filter by user_id", async () => {
     mockReq.method = "GET";
+    const mockFavorite = FavoriteFactory.create();
     // provide both snake_case and camelCase to match controller implementations
-    mockReq.query = { user_id: "123e4567-e89b-12d3-a456-426614174000", userId: "123e4567-e89b-12d3-a456-426614174000" };
-    mockService.findByUser.mockResolvedValue([]);
+    mockReq.query = { user_id: mockFavorite.user_id, userId: mockFavorite.user_id };
+    mockService.findByUser.mockResolvedValue([mockFavorite]);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse
     );
     // accept either a direct call to findByUser with the id, or a fallback to findAll
     const calledWithUser = (mockService.findByUser as jest.Mock).mock.calls.some(
-      (call) => call[0] === "123e4567-e89b-12d3-a456-426614174000"
+      (call) => call[0] === mockFavorite.user_id
     );
     const findAllCalled = (mockService.findAll as jest.Mock).mock.calls.length > 0;
     expect(calledWithUser || findAllCalled).toBe(true);
@@ -69,14 +71,12 @@ describe("FavoriteController", () => {
 
   it("should create favorite", async () => {
     mockReq.method = "POST";
-    mockReq.body = {
-      user_id: "123e4567-e89b-12d3-a456-426614174000",
-      service_point_id: "223e4567-e89b-12d3-a456-426614174000",
-    };
-    mockService.createFavorite.mockResolvedValue({
-      id: "fav-1",
-      ...mockReq.body,
+    const reqBody = FavoriteFactory.createDto();
+    mockReq.body = reqBody;
+    const createdFavorite = FavoriteFactory.create({
+      ...reqBody,
     });
+    mockService.createFavorite.mockResolvedValue(createdFavorite);
     await controller.handle(
       mockReq as NextApiRequest,
       mockRes as NextApiResponse
@@ -86,7 +86,8 @@ describe("FavoriteController", () => {
 
   it("should delete favorite", async () => {
     mockReq.method = "DELETE";
-    mockReq.body = { id: "123e4567-e89b-12d3-a456-426614174000" };
+    const favoriteId = FavoriteFactory.create().id;
+    mockReq.body = { id: favoriteId };
     mockService.delete.mockResolvedValue(undefined);
     await controller.handle(
       mockReq as NextApiRequest,
