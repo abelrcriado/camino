@@ -5,6 +5,10 @@
 
 import { BaseService } from "./base.service";
 import { VendingMachineSlotRepository } from "@/repositories/vending_machine_slot.repository";
+import { VendingMachineService } from "./vending-machine.service";
+import { ServicePointService } from "./service-point.service";
+import { ServicePointRepository } from "@/repositories/service-point.repository";
+import { PrecioService } from "./precio.service";
 import {
   VendingMachineSlot,
   CreateVendingMachineSlotDto,
@@ -21,14 +25,30 @@ import {
   BusinessRuleError,
   DatabaseError,
 } from "@/errors/custom-errors";
+import { EntidadTipo } from "@/dto/precio.dto";
+import logger from "@/config/logger";
 
 export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
   private slotRepository: VendingMachineSlotRepository;
+  private vendingMachineService: VendingMachineService;
+  private servicePointService: ServicePointService;
+  private precioService: PrecioService;
 
-  constructor(repository?: VendingMachineSlotRepository) {
+  constructor(
+    repository?: VendingMachineSlotRepository,
+    vendingMachineService?: VendingMachineService,
+    servicePointService?: ServicePointService,
+    precioService?: PrecioService
+  ) {
     const repo = repository || new VendingMachineSlotRepository();
     super(repo);
     this.slotRepository = repo;
+    this.vendingMachineService =
+      vendingMachineService || new VendingMachineService();
+    this.servicePointService =
+      servicePointService ||
+      new ServicePointService(new ServicePointRepository());
+    this.precioService = precioService || new PrecioService();
   }
 
   /**
@@ -116,7 +136,7 @@ export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
   }
 
   /**
-   * Asignar producto a slot con validación
+   * Asignar producto a slot con validación y resolución automática de precio
    */
   async assignProduct(
     data: AssignProductToSlotDto
@@ -135,7 +155,56 @@ export class VendingMachineSlotService extends BaseService<VendingMachineSlot> {
     }
 
     // Asignar producto usando función DB
-    return await this.slotRepository.assignProductToSlot(data);
+    const assignedSlot = await this.slotRepository.assignProductToSlot(data);
+
+    // Resolver precio jerárquico automáticamente
+    try {
+      // 1. Obtener vending machine del slot
+      const machine = await this.vendingMachineService.getById(slot.machine_id);
+
+      // 2. Obtener service point de la máquina
+      const servicePoint = await this.servicePointService.getById(
+        machine.service_point_id
+      );
+
+      // 3. Resolver precio usando sistema jerárquico
+      const precioResuelto = await this.precioService.resolverPrecio({
+        entidad_tipo: EntidadTipo.PRODUCTO,
+        entidad_id: data.producto_id,
+        ubicacion_id: servicePoint.location_id,
+        service_point_id: servicePoint.id,
+      });
+
+      // 4. Si hay precio resuelto, actualizar precio_override del slot
+      if (precioResuelto) {
+        logger.info(
+          `[VendingMachineSlotService] Precio resuelto para slot ${data.slot_id}: ${precioResuelto.precio} centavos (nivel: ${precioResuelto.nivel})`
+        );
+        await this.slotRepository.updatePrecio(
+          data.slot_id,
+          precioResuelto.precio
+        );
+
+        // Retornar slot actualizado con precio
+        return {
+          ...assignedSlot,
+          precio_override: precioResuelto.precio,
+        };
+      } else {
+        logger.warn(
+          `[VendingMachineSlotService] No se encontró precio para producto ${data.producto_id} en contexto ubicacion=${servicePoint.location_id}, service_point=${servicePoint.id}`
+        );
+      }
+    } catch (error) {
+      // Si falla la resolución de precio, logueamos pero no fallamos la asignación
+      logger.error(
+        "[VendingMachineSlotService] Error al resolver precio:",
+        error
+      );
+      // El slot ya fue asignado con la función DB, solo falló la actualización de precio
+    }
+
+    return assignedSlot;
   }
 
   /**
