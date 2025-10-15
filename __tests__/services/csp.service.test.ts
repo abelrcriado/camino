@@ -1,13 +1,9 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { CSPService } from "../../src/services/csp.service";
 import { CSPRepository } from "../../src/repositories/csp.repository";
-import type {
-  CreateCSPDto,
-  UpdateCSPDto,
-  CSP,
-  CSPFilters,
-} from "../../src/dto/csp.dto";
+import type { UpdateCSPDto, CSP, CSPFilters } from "../../src/dto/csp.dto";
 import { DatabaseError } from "../../src/errors/custom-errors";
+import { CSPFactory } from "../helpers/factories";
 
 describe("CSPService", () => {
   let service: CSPService;
@@ -32,21 +28,7 @@ describe("CSPService", () => {
 
   describe("findAllCSPs", () => {
     it("should return paginated CSPs with default sorting", async () => {
-      const mockCSPs: CSP[] = [
-        {
-          id: "csp-1",
-          name: "CSP Madrid Centro",
-          type: "service_point",
-          latitude: 40.4168,
-          longitude: -3.7038,
-          city: "Madrid",
-          country: "Spain",
-          address: "Calle Principal 123",
-          status: "online",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
+      const mockCSPs = CSPFactory.createMany(1, { status: "online" });
 
       mockRepository.findAll.mockResolvedValue({
         data: mockCSPs,
@@ -87,30 +69,12 @@ describe("CSPService", () => {
 
   describe("createCSP", () => {
     it("should create CSP with provided status", async () => {
-      const createData: CreateCSPDto = {
-        name: "New CSP",
-        type: "service_point",
-        latitude: 40.4168,
-        longitude: -3.7038,
-        city: "Madrid",
-        country: "Spain",
-        address: "Test Address",
+      const createData = CSPFactory.createDto({ status: "online" });
+      const createdCSP = CSPFactory.create({
+        name: createData.name,
+        type: createData.type,
         status: "online",
-      };
-
-      const createdCSP: CSP = {
-        id: "csp-123",
-        name: "New CSP",
-        type: "service_point",
-        latitude: 40.4168,
-        longitude: -3.7038,
-        city: "Madrid",
-        country: "Spain",
-        address: "Test Address",
-        status: "online",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      });
 
       mockRepository.create.mockResolvedValue({
         data: [createdCSP],
@@ -124,29 +88,15 @@ describe("CSPService", () => {
     });
 
     it("should default status to active if not provided", async () => {
-      const createData: CreateCSPDto = {
-        name: "New CSP",
+      const createData = CSPFactory.createDto({
         type: "workshop",
-        latitude: 40.4168,
-        longitude: -3.7038,
-        city: "Madrid",
-        country: "Spain",
-        address: "Test Address",
-      };
-
-      const createdCSP: CSP = {
-        id: "csp-456",
-        name: "New CSP",
+        status: undefined,
+      });
+      const createdCSP = CSPFactory.create({
+        name: createData.name,
         type: "workshop",
-        latitude: 40.4168,
-        longitude: -3.7038,
-        city: "Madrid",
-        country: "Spain",
-        address: "Test Address",
         status: "online",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      });
 
       mockRepository.create.mockResolvedValue({
         data: [createdCSP],
@@ -164,25 +114,18 @@ describe("CSPService", () => {
 
   describe("updateCSP", () => {
     it("should update CSP successfully", async () => {
+      const cspId = CSPFactory.create().id;
       const updateData: UpdateCSPDto = {
-        id: "csp-1",
+        id: cspId,
         name: "Updated Name",
-        status: "inactive",
+        status: "offline",
       };
 
-      const updatedCSP: CSP = {
-        id: "csp-1",
+      const updatedCSP = CSPFactory.create({
+        id: cspId,
         name: "Updated Name",
-        type: "service_point",
-        latitude: 40.4168,
-        longitude: -3.7038,
-        city: "Madrid",
-        country: "Spain",
-        address: "Madrid, Spain",
-        status: "inactive",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+        status: "offline",
+      });
 
       mockRepository.update.mockResolvedValue({
         data: [updatedCSP],
@@ -192,54 +135,29 @@ describe("CSPService", () => {
       const result = await service.updateCSP(updateData);
 
       expect(result).toEqual(updatedCSP);
-      expect(mockRepository.update).toHaveBeenCalledWith("csp-1", {
+      expect(mockRepository.update).toHaveBeenCalledWith(cspId, {
         name: "Updated Name",
-        status: "inactive",
+        status: "offline",
       });
     });
   });
 
   describe("deleteCSP", () => {
     it("should delete CSP successfully", async () => {
+      const cspId = CSPFactory.create().id;
+
       mockRepository.delete.mockResolvedValue({
         error: null,
       });
 
-      await expect(service.deleteCSP("csp-1")).resolves.not.toThrow();
-      expect(mockRepository.delete).toHaveBeenCalledWith("csp-1");
+      await expect(service.deleteCSP(cspId)).resolves.not.toThrow();
+      expect(mockRepository.delete).toHaveBeenCalledWith(cspId);
     });
   });
 
   describe("findByType", () => {
     it("should return CSPs of specified type", async () => {
-      const mockCSPs: CSP[] = [
-        {
-          id: "csp-1",
-          name: "Workshop 1",
-          type: "workshop",
-          latitude: 40.4168,
-          longitude: -3.7038,
-          city: "Madrid",
-          country: "Spain",
-          address: "Address 1",
-          status: "online",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: "csp-2",
-          name: "Workshop 2",
-          type: "workshop",
-          latitude: 40.5,
-          longitude: -3.6,
-          city: "Madrid",
-          country: "Spain",
-          address: "Address 2",
-          status: "online",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
+      const mockCSPs = CSPFactory.createMany(2, { type: "workshop", status: "online" });
 
       mockRepository.findByType.mockResolvedValue({
         data: mockCSPs,
@@ -278,21 +196,7 @@ describe("CSPService", () => {
 
   describe("findActiveCSPs", () => {
     it("should return active CSPs", async () => {
-      const mockCSPs: CSP[] = [
-        {
-          id: "csp-1",
-          name: "Active CSP 1",
-          type: "service_point",
-          latitude: 40.4168,
-          longitude: -3.7038,
-          city: "Madrid",
-          country: "Spain",
-          address: "Address 1",
-          status: "online",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
+      const mockCSPs = CSPFactory.createMany(1, { status: "online" });
 
       mockRepository.findActive.mockResolvedValue({
         data: mockCSPs,

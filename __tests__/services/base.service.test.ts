@@ -7,6 +7,7 @@ import type {
   QueryFilters,
   SortParams,
 } from "../../src/types/common.types";
+import { generateUUID } from "../helpers/factories";
 
 // Clase concreta para testing (BaseService es abstracta)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -43,8 +44,8 @@ describe("BaseService", () => {
   describe("findAll", () => {
     it("should return paginated data successfully", async () => {
       const mockData = [
-        { id: "1", name: "Test 1" },
-        { id: "2", name: "Test 2" },
+        { id: generateUUID(), name: "Test 1" },
+        { id: generateUUID(), name: "Test 2" },
       ];
       const mockCount = 10;
 
@@ -75,7 +76,7 @@ describe("BaseService", () => {
     });
 
     it("should use default pagination values when not provided", async () => {
-      const mockData = [{ id: "1" }];
+      const mockData = [{ id: generateUUID(), name: "Test Item" }];
       mockRepository.findAll.mockResolvedValue({
         data: mockData,
         error: null,
@@ -168,16 +169,17 @@ describe("BaseService", () => {
 
   describe("findById", () => {
     it("should return data when record exists", async () => {
-      const mockData = { id: "test-id-123", name: "Test Item" };
+      const testId = generateUUID();
+      const mockData = { id: testId, name: "Test Item" };
       mockRepository.findById.mockResolvedValue({
         data: mockData,
         error: null,
       });
 
-      const result = await service.findById("test-id-123");
+      const result = await service.findById(testId);
 
       expect(result).toEqual(mockData);
-      expect(mockRepository.findById).toHaveBeenCalledWith("test-id-123");
+      expect(mockRepository.findById).toHaveBeenCalledWith(testId);
     });
 
     it("should throw NotFoundError when record does not exist", async () => {
@@ -208,7 +210,8 @@ describe("BaseService", () => {
   describe("create", () => {
     it("should create and return new record successfully", async () => {
       const inputData = { name: "New Item" };
-      const createdData = { id: "new-id-123", ...inputData };
+      const createdId = generateUUID();
+      const createdData = { id: createdId, ...inputData };
 
       mockRepository.create.mockResolvedValue({
         data: [createdData],
@@ -262,21 +265,19 @@ describe("BaseService", () => {
 
   describe("update", () => {
     it("should update and return updated record successfully", async () => {
+      const updateId = generateUUID();
       const updateData = { name: "Updated Name" };
-      const updatedRecord = { id: "update-id-123", ...updateData };
+      const updatedRecord = { id: updateId, ...updateData };
 
       mockRepository.update.mockResolvedValue({
         data: [updatedRecord],
         error: null,
       });
 
-      const result = await service.update("update-id-123", updateData);
+      const result = await service.update(updateId, updateData);
 
       expect(result).toEqual(updatedRecord);
-      expect(mockRepository.update).toHaveBeenCalledWith(
-        "update-id-123",
-        updateData
-      );
+      expect(mockRepository.update).toHaveBeenCalledWith(updateId, updateData);
     });
 
     it("should throw NotFoundError when record does not exist", async () => {
@@ -321,12 +322,14 @@ describe("BaseService", () => {
 
   describe("delete", () => {
     it("should delete record successfully", async () => {
+      const deleteId = generateUUID();
+      
       mockRepository.delete.mockResolvedValue({
         error: null,
       });
 
-      await expect(service.delete("delete-id-123")).resolves.not.toThrow();
-      expect(mockRepository.delete).toHaveBeenCalledWith("delete-id-123");
+      await expect(service.delete(deleteId)).resolves.not.toThrow();
+      expect(mockRepository.delete).toHaveBeenCalledWith(deleteId);
     });
 
     it("should throw DatabaseError when repository returns error", async () => {

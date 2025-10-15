@@ -1,6 +1,7 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { AvailabilityService } from "@/services/availability.service";
 import { AvailabilityRepository } from "@/repositories/availability.repository";
+import { generateUUID } from "../helpers/factories";
 
 type MockedFunction = ReturnType<typeof jest.fn>;
 
@@ -20,6 +21,7 @@ const mockRepository = {
 
 describe("AvailabilityService", () => {
   let service: AvailabilityService;
+  const testCSPId = generateUUID();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -30,13 +32,11 @@ describe("AvailabilityService", () => {
     it("should return true when CSP is open", async () => {
       (mockRepository.isCSPOpenNow as jest.Mock).mockResolvedValue(true);
 
-      const result = await service.isCSPOpen(
-        "123e4567-e89b-12d3-a456-426614174000"
-      );
+      const result = await service.isCSPOpen(testCSPId);
 
       expect(result).toBe(true);
       expect(mockRepository.isCSPOpenNow).toHaveBeenCalledWith(
-        "123e4567-e89b-12d3-a456-426614174000",
+        testCSPId,
         undefined
       );
     });
@@ -51,7 +51,7 @@ describe("AvailabilityService", () => {
   describe("getCSPAvailabilityStatus", () => {
     it("should return availability status", async () => {
       const mockStatus = {
-        csp_id: "123e4567-e89b-12d3-a456-426614174000",
+        csp_id: testCSPId,
         csp_name: "CSP Santiago",
         is_open: true,
         current_status: "open" as const,
@@ -63,9 +63,7 @@ describe("AvailabilityService", () => {
         mockStatus
       );
 
-      const result = await service.getCSPAvailabilityStatus(
-        "123e4567-e89b-12d3-a456-426614174000"
-      );
+      const result = await service.getCSPAvailabilityStatus(testCSPId);
 
       expect(result).toEqual(mockStatus);
     });
@@ -92,9 +90,7 @@ describe("AvailabilityService", () => {
         mockHours
       );
 
-      const result = await service.getOpeningHours(
-        "123e4567-e89b-12d3-a456-426614174000"
-      );
+      const result = await service.getOpeningHours(testCSPId);
 
       expect(result).toEqual(mockHours);
     });
@@ -115,10 +111,7 @@ describe("AvailabilityService", () => {
         inputHours[0]
       );
 
-      const result = await service.setOpeningHours(
-        "123e4567-e89b-12d3-a456-426614174000",
-        inputHours
-      );
+      const result = await service.setOpeningHours(testCSPId, inputHours);
 
       expect(result).toHaveLength(1);
       expect(mockRepository.createOpeningHours).toHaveBeenCalledTimes(1);
@@ -136,7 +129,7 @@ describe("AvailabilityService", () => {
 
       await expect(
         service.setOpeningHours(
-          "123e4567-e89b-12d3-a456-426614174000",
+          testCSPId,
           invalidHours
         )
       ).rejects.toThrow(
@@ -156,7 +149,7 @@ describe("AvailabilityService", () => {
 
       await expect(
         service.setOpeningHours(
-          "123e4567-e89b-12d3-a456-426614174000",
+          testCSPId,
           invalidHours
         )
       ).rejects.toThrow("Invalid open_time format");
@@ -174,7 +167,7 @@ describe("AvailabilityService", () => {
 
       await expect(
         service.setOpeningHours(
-          "123e4567-e89b-12d3-a456-426614174000",
+          testCSPId,
           invalidHours
         )
       ).rejects.toThrow("close_time must be after open_time");
@@ -198,7 +191,7 @@ describe("AvailabilityService", () => {
 
       await expect(
         service.setOpeningHours(
-          "123e4567-e89b-12d3-a456-426614174000",
+          testCSPId,
           duplicateHours
         )
       ).rejects.toThrow("Duplicate day_of_week values found");
@@ -210,7 +203,7 @@ describe("AvailabilityService", () => {
       const mockClosures = [
         {
           id: "123",
-          csp_id: "123e4567-e89b-12d3-a456-426614174000",
+          csp_id: testCSPId,
           start_date: "2025-12-24",
           end_date: "2025-12-26",
           reason: "Christmas",
@@ -223,7 +216,7 @@ describe("AvailabilityService", () => {
       );
 
       const result = await service.getSpecialClosures(
-        "123e4567-e89b-12d3-a456-426614174000"
+        testCSPId
       );
 
       expect(result).toEqual(mockClosures);
@@ -235,7 +228,7 @@ describe("AvailabilityService", () => {
 
       await expect(
         service.getSpecialClosures(
-          "123e4567-e89b-12d3-a456-426614174000",
+          testCSPId,
           fromDate,
           toDate
         )
@@ -253,7 +246,7 @@ describe("AvailabilityService", () => {
 
       const mockResult = {
         id: "123",
-        csp_id: "123e4567-e89b-12d3-a456-426614174000",
+        csp_id: testCSPId,
         ...closure,
         created_at: "2025-10-01T00:00:00Z",
       };
@@ -263,7 +256,7 @@ describe("AvailabilityService", () => {
       );
 
       const result = await service.createSpecialClosure(
-        "123e4567-e89b-12d3-a456-426614174000",
+        testCSPId,
         closure
       );
 
@@ -279,7 +272,7 @@ describe("AvailabilityService", () => {
 
       await expect(
         service.createSpecialClosure(
-          "123e4567-e89b-12d3-a456-426614174000",
+          testCSPId,
           invalidClosure
         )
       ).rejects.toThrow("start_date must be before or equal to end_date");
@@ -293,11 +286,11 @@ describe("AvailabilityService", () => {
       );
 
       await service.deleteSpecialClosure(
-        "123e4567-e89b-12d3-a456-426614174000"
+        testCSPId
       );
 
       expect(mockRepository.deleteSpecialClosure).toHaveBeenCalledWith(
-        "123e4567-e89b-12d3-a456-426614174000"
+        testCSPId
       );
     });
 
@@ -325,7 +318,7 @@ describe("AvailabilityService", () => {
       );
 
       const result = await service.getServiceAvailability(
-        "123e4567-e89b-12d3-a456-426614174000"
+        testCSPId
       );
 
       expect(result).toEqual(mockServices);
@@ -381,7 +374,7 @@ describe("AvailabilityService", () => {
       );
 
       const result = await service.checkSlotAvailability(
-        "123e4567-e89b-12d3-a456-426614174000",
+        testCSPId,
         "repair",
         new Date("2025-10-15T10:00:00Z"),
         60
@@ -393,7 +386,7 @@ describe("AvailabilityService", () => {
     it("should throw error for invalid duration", async () => {
       await expect(
         service.checkSlotAvailability(
-          "123e4567-e89b-12d3-a456-426614174000",
+          testCSPId,
           "repair",
           new Date(),
           0 // Invalid
@@ -404,7 +397,7 @@ describe("AvailabilityService", () => {
     it("should throw error for empty service type", async () => {
       await expect(
         service.checkSlotAvailability(
-          "123e4567-e89b-12d3-a456-426614174000",
+          testCSPId,
           "", // Empty
           new Date(),
           60

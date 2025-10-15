@@ -1,8 +1,9 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { WorkshopService } from '../../src/services/workshop.service';
 import { WorkshopRepository } from '../../src/repositories/workshop.repository';
-import type { CreateWorkshopDto, UpdateWorkshopDto, Workshop } from '../../src/dto/workshop.dto';
+import type { UpdateWorkshopDto } from '../../src/dto/workshop.dto';
 import { DatabaseError } from '../../src/errors/custom-errors';
+import { WorkshopFactory } from '../helpers/factories';
 
 describe('WorkshopService', () => {
   let service: WorkshopService;
@@ -26,23 +27,8 @@ describe('WorkshopService', () => {
 
   describe('createWorkshop', () => {
     it('should create workshop successfully', async () => {
-      const createData: CreateWorkshopDto = {
-        service_point_id: 'sp-123',
-        name: 'Main Workshop',
-        description: 'Primary bike workshop',
-      };
-
-      const createdWorkshop: Workshop = {
-        id: 'workshop-123',
-        service_point_id: 'sp-123',
-        name: 'Main Workshop',
-        description: 'Primary bike workshop',
-        capacity: undefined,
-        
-        services_offered: undefined,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      const createData = WorkshopFactory.createDto();
+      const createdWorkshop = WorkshopFactory.create(createData);
 
       mockRepository.create.mockResolvedValue({
         data: [createdWorkshop],
@@ -58,23 +44,18 @@ describe('WorkshopService', () => {
 
   describe('updateWorkshop', () => {
     it('should update workshop successfully', async () => {
+      const workshopId = 'workshop-test-id';
       const updateData: UpdateWorkshopDto = {
-        id: 'workshop-1',
+        id: workshopId,
         name: 'Updated Workshop Name',
         capacity: 10,
       };
 
-      const updatedWorkshop: Workshop = {
-        id: 'workshop-1',
-        service_point_id: 'sp-123',
+      const updatedWorkshop = WorkshopFactory.create({
+        id: workshopId,
         name: 'Updated Workshop Name',
-        description: 'Bike workshop',
         capacity: 10,
-        
-        services_offered: undefined,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      });
 
       mockRepository.update.mockResolvedValue({
         data: [updatedWorkshop],
@@ -84,7 +65,7 @@ describe('WorkshopService', () => {
       const result = await service.updateWorkshop(updateData);
 
       expect(result).toEqual(updatedWorkshop);
-      expect(mockRepository.update).toHaveBeenCalledWith('workshop-1', {
+      expect(mockRepository.update).toHaveBeenCalledWith(workshopId, {
         name: 'Updated Workshop Name',
         capacity: 10,
       });
@@ -93,41 +74,23 @@ describe('WorkshopService', () => {
 
   describe('findByServicePoint', () => {
     it('should return workshops for service point', async () => {
-      const mockWorkshops: Workshop[] = [
-        {
-          id: 'workshop-1',
-          service_point_id: 'sp-123',
-          name: 'Workshop 1',
-          description: 'First workshop',
-          capacity: undefined,
-          
-          services_offered: undefined,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: 'workshop-2',
-          service_point_id: 'sp-123',
-          name: 'Workshop 2',
-          description: 'Second workshop',
-          capacity: undefined,
-          
-          services_offered: undefined,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
+      const servicePointId = 'sp-123';
+      const mockWorkshops = WorkshopFactory.createMany(2, {
+        service_point_id: servicePointId,
+      });
 
       mockRepository.findByServicePoint.mockResolvedValue({
         data: mockWorkshops,
         error: null,
       });
 
-      const result = await service.findByServicePoint('sp-123');
+      const result = await service.findByServicePoint(servicePointId);
 
       expect(result).toEqual(mockWorkshops);
       expect(result).toHaveLength(2);
-      expect(mockRepository.findByServicePoint).toHaveBeenCalledWith('sp-123');
+      expect(mockRepository.findByServicePoint).toHaveBeenCalledWith(
+        servicePointId
+      );
     });
 
     it('should return empty array when service point has no workshops', async () => {

@@ -19,27 +19,11 @@ import type {
   CrearYPagarVentaDto,
 } from "@/dto/venta_app.dto";
 import { ValidationError, NotFoundError, BusinessRuleError } from "@/errors/custom-errors";
+import { VentaAppFactory } from "../helpers/factories";
 
 describe("VentaAppService", () => {
   let service: VentaAppService;
   let mockRepository: any;
-
-  // Helper para crear mock de VentaApp con valores por defecto
-  const createMockVenta = (overrides: Partial<VentaApp> = {}): VentaApp => ({
-    id: "550e8400-e29b-41d4-a716-446655440001",
-    slot_id: "550e8400-e29b-41d4-a716-446655440010",
-    user_id: "550e8400-e29b-41d4-a716-446655440011",
-    producto_id: "550e8400-e29b-41d4-a716-446655440012",
-    producto_nombre: "Product",
-    producto_sku: "SKU",
-    cantidad: 1,
-    precio_unitario: 1000,
-    precio_total: 1000,
-    estado: "borrador",
-    fecha_creacion: "2025-10-11T10:00:00Z",
-    created_at: "2025-10-11T10:00:00Z",
-    ...overrides,
-  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -81,7 +65,7 @@ describe("VentaAppService", () => {
     };
 
     it("should create venta successfully", async () => {
-      const mockVenta = createMockVenta({
+      const mockVenta = VentaAppFactory.create({
         slot_id: mockDto.slot_id,
         producto_id: mockDto.producto_id,
         cantidad: 2,
@@ -128,7 +112,7 @@ describe("VentaAppService", () => {
     };
 
     it("should reserve stock successfully", async () => {
-      const mockVenta = createMockVenta({ estado: "borrador" });
+      const mockVenta = VentaAppFactory.create({ estado: "borrador" });
       const mockResponse = {
         venta_id: mockDto.venta_id,
         estado: "reservado" as const,
@@ -150,7 +134,7 @@ describe("VentaAppService", () => {
     });
 
     it("should throw error when venta not in borrador state", async () => {
-      const mockVenta = createMockVenta({ estado: "pagado" });
+      const mockVenta = VentaAppFactory.create({ estado: "pagado" });
 
       mockRepository.findById.mockResolvedValue({
         data: mockVenta,
@@ -174,7 +158,7 @@ describe("VentaAppService", () => {
     };
 
     it("should confirm payment successfully", async () => {
-      const mockVenta = createMockVenta({ estado: "reservado" });
+      const mockVenta = VentaAppFactory.create({ estado: "reservado" });
       const mockResponse = {
         venta_id: mockDto.venta_id,
         estado: "pagado" as const,
@@ -199,7 +183,7 @@ describe("VentaAppService", () => {
     });
 
     it("should validate estado transition (reservado -> pagado)", async () => {
-      const mockVenta = createMockVenta({ estado: "borrador" });
+      const mockVenta = VentaAppFactory.create({ estado: "borrador" });
 
       mockRepository.findById.mockResolvedValue({
         data: mockVenta,
@@ -217,7 +201,7 @@ describe("VentaAppService", () => {
         payment_id: mockDto.payment_id,
         tiempo_expiracion_minutos: 2000, // Mayor a 1440
       };
-      const mockVenta = createMockVenta({ estado: "reservado" });
+      const mockVenta = VentaAppFactory.create({ estado: "reservado" });
 
       mockRepository.findById.mockResolvedValue({
         data: mockVenta,
@@ -240,7 +224,7 @@ describe("VentaAppService", () => {
     };
 
     it("should confirm pickup successfully", async () => {
-      const mockVenta = createMockVenta({
+      const mockVenta = VentaAppFactory.create({
         estado: "pagado",
         codigo_retiro: "ABC123",
       });
@@ -266,7 +250,7 @@ describe("VentaAppService", () => {
     });
 
     it("should throw error when venta not in pagado state", async () => {
-      const mockVenta = createMockVenta({ estado: "reservado" });
+      const mockVenta = VentaAppFactory.create({ estado: "reservado" });
 
       mockRepository.findById.mockResolvedValue({
         data: mockVenta,
@@ -280,7 +264,7 @@ describe("VentaAppService", () => {
 
     it("should validate codigo_retiro format", async () => {
       const invalidDto = { ...mockDto, codigo_retiro: "123" };
-      const mockVenta = createMockVenta({
+      const mockVenta = VentaAppFactory.create({
         estado: "pagado",
         codigo_retiro: "ABC123",
       });
@@ -307,7 +291,7 @@ describe("VentaAppService", () => {
     };
 
     it("should cancel venta successfully", async () => {
-      const mockVenta = createMockVenta({ estado: "reservado" });
+      const mockVenta = VentaAppFactory.create({ estado: "reservado" });
       const mockResponse = {
         venta_id: mockDto.venta_id,
         estado: "cancelado" as const,
@@ -331,7 +315,7 @@ describe("VentaAppService", () => {
     });
 
     it("should throw error when trying to cancel completado venta", async () => {
-      const mockVenta = createMockVenta({ estado: "completado" });
+      const mockVenta = VentaAppFactory.create({ estado: "completado" });
 
       mockRepository.findById.mockResolvedValue({
         data: mockVenta,
@@ -357,7 +341,7 @@ describe("VentaAppService", () => {
     };
 
     it("should create and pay venta in one step", async () => {
-      const mockVentaCreated = createMockVenta({
+      const mockVentaCreated = VentaAppFactory.create({
         slot_id: mockDto.slot_id,
         producto_id: mockDto.producto_id,
         cantidad: 2,
@@ -403,7 +387,7 @@ describe("VentaAppService", () => {
     });
 
     it("should rollback on payment failure", async () => {
-      const mockVentaCreated = createMockVenta();
+      const mockVentaCreated = VentaAppFactory.create();
 
       mockRepository.crearVenta.mockResolvedValue(mockVentaCreated);
       mockRepository.findById.mockResolvedValueOnce({
@@ -439,7 +423,7 @@ describe("VentaAppService", () => {
         user_id: "550e8400-e29b-41d4-a716-446655440001",
       };
 
-      const mockData = [createMockVenta({ estado: "pagado" })];
+      const mockData = [VentaAppFactory.create({ estado: "pagado" })];
 
       mockRepository.findAll.mockResolvedValue({
         data: mockData,
@@ -568,7 +552,7 @@ describe("VentaAppService", () => {
   describe("findByCodigoRetiro", () => {
     it("should find venta by codigo_retiro", async () => {
       const codigo = "ABC123";
-      const mockVenta = createMockVenta({
+      const mockVenta = VentaAppFactory.create({
         estado: "pagado",
         codigo_retiro: codigo,
       });
@@ -607,7 +591,7 @@ describe("VentaAppService", () => {
     };
 
     it("should update venta successfully", async () => {
-      const mockVenta = createMockVenta({
+      const mockVenta = VentaAppFactory.create({
         id: ventaId,
         notas: "Updated notes",
         updated_at: "2025-10-11T10:30:00Z",
@@ -640,7 +624,7 @@ describe("VentaAppService", () => {
     });
 
     it("should throw error when trying to update immutable fields in non-borrador", async () => {
-      const mockVenta = createMockVenta({
+      const mockVenta = VentaAppFactory.create({
         id: ventaId,
         estado: "reservado",
       });
@@ -668,7 +652,7 @@ describe("VentaAppService", () => {
     const ventaId = "550e8400-e29b-41d4-a716-446655440001";
 
     it("should delete venta in borrador state", async () => {
-      const mockVenta = createMockVenta({ id: ventaId, estado: "borrador" });
+      const mockVenta = VentaAppFactory.create({ id: ventaId, estado: "borrador" });
 
       mockRepository.findById.mockResolvedValue({
         data: mockVenta,
@@ -683,7 +667,7 @@ describe("VentaAppService", () => {
     });
 
     it("should throw error when trying to delete non-borrador venta", async () => {
-      const mockVenta = createMockVenta({ id: ventaId, estado: "pagado" });
+      const mockVenta = VentaAppFactory.create({ id: ventaId, estado: "pagado" });
 
       mockRepository.findById.mockResolvedValue({
         data: mockVenta,

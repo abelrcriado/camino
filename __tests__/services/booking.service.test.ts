@@ -1,8 +1,14 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { BookingService } from '../../src/services/booking.service';
 import { BookingRepository } from '../../src/repositories/booking.repository';
-import type { CreateBookingDto, Booking } from '../../src/dto/booking.dto';
+import type { CreateBookingDto } from '../../src/dto/booking.dto';
 import { DatabaseError } from '../../src/errors/custom-errors';
+import {
+  BookingFactory,
+  generateValidDateRange,
+  generateInvalidDateRange,
+  generateInvalidDateFormat,
+} from '../helpers/factories';
 
 describe('BookingService', () => {
   let service: BookingService;
@@ -28,30 +34,16 @@ describe('BookingService', () => {
 
   describe('createBooking', () => {
     it('should create booking with valid times', async () => {
-      const createData: CreateBookingDto = {
-        user_id: 'user-123',
-        service_point_id: 'sp-123',
-        service_type: 'repair',
-        start_time: '2025-06-15T10:00:00Z',
-        end_time: '2025-06-15T11:00:00Z',
-        notes: 'Brake adjustment needed',
-        estimated_cost: 25.00,
-      };
+      const validDates = generateValidDateRange();
+      const createData = BookingFactory.createDto({
+        ...validDates,
+      });
 
-      const createdBooking: Booking = {
-        id: 'booking-123',
-        user_id: 'user-123',
-        service_point_id: 'sp-123',
-        service_type: 'repair',
-        start_time: '2025-06-15T10:00:00Z',
-        end_time: '2025-06-15T11:00:00Z',
+      const createdBooking = BookingFactory.create({
+        ...createData,
         status: 'pending',
-        notes: 'Brake adjustment needed',
-        estimated_cost: 25.00,
         payment_status: 'pending',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      });
 
       mockRepository.create.mockResolvedValue({
         data: [createdBooking],
@@ -69,11 +61,10 @@ describe('BookingService', () => {
     });
 
     it('should throw error when start_time is after end_time', async () => {
+      const invalidDates = generateInvalidDateRange();
       const createData: CreateBookingDto = {
-        user_id: 'user-123',
-        service_type: 'repair',
-        start_time: '2025-06-15T12:00:00Z',
-        end_time: '2025-06-15T10:00:00Z',
+        ...BookingFactory.createDto(),
+        ...invalidDates,
       };
 
       await expect(service.createBooking(createData)).rejects.toThrow(
@@ -83,10 +74,9 @@ describe('BookingService', () => {
 
     it('should throw error with invalid date format', async () => {
       const createData: CreateBookingDto = {
-        user_id: 'user-123',
-        service_type: 'repair',
-        start_time: 'invalid-date',
-        end_time: '2025-06-15T11:00:00Z',
+        ...BookingFactory.createDto(),
+        start_time: generateInvalidDateFormat(),
+        end_time: generateValidDateRange().end_time,
       };
 
       await expect(service.createBooking(createData)).rejects.toThrow(
@@ -97,22 +87,18 @@ describe('BookingService', () => {
 
   describe('cancelBooking', () => {
     it('should cancel booking', async () => {
-      const cancelledBooking: Booking = {
-        id: 'booking-1',
-        user_id: 'user-123',
-        service_type: 'repair',
-        start_time: '2025-06-15T10:00:00Z',
-        end_time: '2025-06-15T11:00:00Z',
+      const bookingId = 'booking-test-id';
+      const cancelledBooking = BookingFactory.create({
+        id: bookingId,
         status: 'cancelled',
-        payment_status: 'pending',
-      };
+      });
 
       mockRepository.update.mockResolvedValue({
         data: [cancelledBooking],
         error: null,
       });
 
-      const result = await service.cancelBooking('booking-1');
+      const result = await service.cancelBooking(bookingId);
 
       expect(result.status).toBe('cancelled');
     });
@@ -120,22 +106,18 @@ describe('BookingService', () => {
 
   describe('confirmBooking', () => {
     it('should confirm booking', async () => {
-      const confirmedBooking: Booking = {
-        id: 'booking-1',
-        user_id: 'user-123',
-        service_type: 'repair',
-        start_time: '2025-06-15T10:00:00Z',
-        end_time: '2025-06-15T11:00:00Z',
+      const bookingId = 'booking-test-id';
+      const confirmedBooking = BookingFactory.create({
+        id: bookingId,
         status: 'confirmed',
-        payment_status: 'pending',
-      };
+      });
 
       mockRepository.update.mockResolvedValue({
         data: [confirmedBooking],
         error: null,
       });
 
-      const result = await service.confirmBooking('booking-1');
+      const result = await service.confirmBooking(bookingId);
 
       expect(result.status).toBe('confirmed');
     });
@@ -143,42 +125,32 @@ describe('BookingService', () => {
 
   describe('completeBooking', () => {
     it('should complete booking with actual cost', async () => {
-      const completedBooking: Booking = {
-        id: 'booking-1',
-        user_id: 'user-123',
-        service_type: 'repair',
-        start_time: '2025-06-15T10:00:00Z',
-        end_time: '2025-06-15T11:00:00Z',
+      const bookingId = 'booking-test-id';
+      const actualCost = 35.50;
+      const completedBooking = BookingFactory.create({
+        id: bookingId,
         status: 'completed',
-        actual_cost: 35.50,
+        actual_cost: actualCost,
         payment_status: 'paid',
-      };
+      });
 
       mockRepository.update.mockResolvedValue({
         data: [completedBooking],
         error: null,
       });
 
-      const result = await service.completeBooking('booking-1', 35.50);
+      const result = await service.completeBooking(bookingId, actualCost);
 
       expect(result.status).toBe('completed');
-      expect(result.actual_cost).toBe(35.50);
+      expect(result.actual_cost).toBe(actualCost);
     });
   });
 
   describe('findActiveBookings', () => {
     it('should return active bookings', async () => {
-      const mockActiveBookings: Booking[] = [
-        {
-          id: 'booking-1',
-          user_id: 'user-123',
-          service_type: 'repair',
-          start_time: '2025-06-15T10:00:00Z',
-          end_time: '2025-06-15T11:00:00Z',
-          status: 'confirmed',
-          payment_status: 'pending',
-        },
-      ];
+      const mockActiveBookings = BookingFactory.createMany(1, {
+        status: 'confirmed',
+      });
 
       mockRepository.findActive.mockResolvedValue({
         data: mockActiveBookings,
@@ -213,24 +185,19 @@ describe('BookingService', () => {
 
   describe('findByUserAndStatus', () => {
     it('should return bookings for user with specific status', async () => {
-      const mockUserBookings: Booking[] = [
-        {
-          id: 'booking-1',
-          user_id: 'user-123',
-          service_type: 'repair',
-          start_time: '2025-06-15T10:00:00Z',
-          end_time: '2025-06-15T11:00:00Z',
-          status: 'confirmed',
-          payment_status: 'pending',
-        },
-      ];
+      const userId = 'user-123';
+      const status = 'confirmed';
+      const mockUserBookings = BookingFactory.createMany(1, {
+        user_id: userId,
+        status,
+      });
 
       mockRepository.findByUserAndStatus.mockResolvedValue({
         data: mockUserBookings,
         error: null,
       });
 
-      const result = await service.findByUserAndStatus('user-123', 'confirmed');
+      const result = await service.findByUserAndStatus(userId, status);
 
       expect(result).toEqual(mockUserBookings);
     });
@@ -258,17 +225,9 @@ describe('BookingService', () => {
 
   describe('findUpcomingBookings', () => {
     it('should return upcoming bookings with default days', async () => {
-      const mockUpcomingBookings: Booking[] = [
-        {
-          id: 'booking-1',
-          user_id: 'user-123',
-          service_type: 'repair',
-          start_time: '2025-06-16T10:00:00Z',
-          end_time: '2025-06-16T11:00:00Z',
-          status: 'confirmed',
-          payment_status: 'pending',
-        },
-      ];
+      const mockUpcomingBookings = BookingFactory.createMany(1, {
+        status: 'confirmed',
+      });
 
       mockRepository.findUpcoming.mockResolvedValue({
         data: mockUpcomingBookings,

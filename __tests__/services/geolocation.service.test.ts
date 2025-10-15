@@ -2,6 +2,7 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { GeolocationServiceImpl } from '@/services/geolocation.service';
 import { GeolocationRepository } from '@/repositories/geolocation.repository';
 import { CSPWithDistance } from '@/dto/csp.dto';
+import { generateUUID } from '../helpers/factories';
 
 // Mock repository
 const mockRepository = {
@@ -15,6 +16,10 @@ const mockRepository = {
 
 describe('GeolocationService', () => {
   let service: GeolocationServiceImpl;
+  
+  // Coordenadas de referencia (Santiago de Compostela)
+  const refLatitude = 42.8782;
+  const refLongitude = -8.5448;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -25,13 +30,11 @@ describe('GeolocationService', () => {
     it('should find nearby CSPs successfully', async () => {
       const mockCSPs: CSPWithDistance[] = [
         {
-          id: '123e4567-e89b-12d3-a456-426614174000',
+          id: generateUUID(),
           name: 'CSP Santiago',
           type: 'workshop',
-          latitude: 42.8782,
-          longitude: -8.5448,
-          city: 'Santiago',
-          country: 'Spain',
+          latitude: refLatitude,
+          longitude: refLongitude,
           status: 'online',
           distance_km: 1.5,
         },
@@ -40,15 +43,15 @@ describe('GeolocationService', () => {
       (mockRepository.findNearby as jest.Mock<typeof mockRepository.findNearby>).mockResolvedValue(mockCSPs);
 
       const result = await service.findNearby({
-        latitude: 42.8782,
-        longitude: -8.5448,
+        latitude: refLatitude,
+        longitude: refLongitude,
         radiusKm: 10,
       });
 
       expect(result).toEqual(mockCSPs);
       expect(mockRepository.findNearby).toHaveBeenCalledWith({
-        latitude: 42.8782,
-        longitude: -8.5448,
+        latitude: refLatitude,
+        longitude: refLongitude,
         radiusKm: 10,
       });
     });
@@ -57,7 +60,7 @@ describe('GeolocationService', () => {
       await expect(
         service.findNearby({
           latitude: 91, // Invalid
-          longitude: -8.5448,
+          longitude: refLongitude,
           radiusKm: 10,
         })
       ).rejects.toThrow('Invalid latitude: 91. Must be between -90 and 90');
@@ -66,7 +69,7 @@ describe('GeolocationService', () => {
     it('should reject invalid longitude', async () => {
       await expect(
         service.findNearby({
-          latitude: 42.8782,
+          latitude: refLatitude,
           longitude: 181, // Invalid
           radiusKm: 10,
         })
@@ -76,8 +79,8 @@ describe('GeolocationService', () => {
     it('should reject invalid radius (negative)', async () => {
       await expect(
         service.findNearby({
-          latitude: 42.8782,
-          longitude: -8.5448,
+          latitude: refLatitude,
+          longitude: refLongitude,
           radiusKm: -5,
         })
       ).rejects.toThrow('Radius must be between 0 and 100 kilometers');
@@ -86,8 +89,8 @@ describe('GeolocationService', () => {
     it('should reject invalid radius (too large)', async () => {
       await expect(
         service.findNearby({
-          latitude: 42.8782,
-          longitude: -8.5448,
+          latitude: refLatitude,
+          longitude: refLongitude,
           radiusKm: 101,
         })
       ).rejects.toThrow('Radius must be between 0 and 100 kilometers');
@@ -136,8 +139,6 @@ describe('GeolocationService', () => {
           type: 'workshop',
           latitude: 42.8782,
           longitude: -8.5448,
-          city: 'Santiago',
-          country: 'Spain',
           status: 'online' as const,
           distance_from_route: 0.5,
           nearest_point_lat: 42.8780,
@@ -229,8 +230,6 @@ describe('GeolocationService', () => {
         type: 'workshop',
         latitude: 42.8782,
         longitude: -8.5448,
-        city: 'Santiago',
-        country: 'Spain',
         status: 'online',
         distance_km: 0.5,
       };
@@ -265,8 +264,6 @@ describe('GeolocationService', () => {
           type: 'workshop',
           latitude: 42.8782,
           longitude: -8.5448,
-          city: 'Santiago',
-          country: 'Spain',
           status: 'online' as const,
         },
       ];

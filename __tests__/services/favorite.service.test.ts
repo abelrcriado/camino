@@ -6,11 +6,8 @@ import {
   DatabaseError,
   NotFoundError,
 } from "../../src/errors/custom-errors";
-import type {
-  CreateFavoriteDto,
-  UpdateFavoriteDto,
-  Favorite,
-} from "../../src/dto/favorite.dto";
+import type { UpdateFavoriteDto } from "../../src/dto/favorite.dto";
+import { FavoriteFactory } from "../helpers/factories";
 
 describe("FavoriteService", () => {
   let service: FavoriteService;
@@ -35,16 +32,15 @@ describe("FavoriteService", () => {
     service = new FavoriteService(mockRepository as FavoriteRepository);
   });
 
-  // ============================================================================
+  // ============================================================================s
   // Tests heredados de BaseService
   // ============================================================================
 
   describe("findAll (inherited)", () => {
     it("should return paginated favorites", async () => {
-      const mockFavorites = [
-        { id: "1", user_id: "user-1", service_point_id: "sp-1" },
-        { id: "2", user_id: "user-1", service_point_id: "sp-2" },
-      ];
+      const mockFavorites = FavoriteFactory.createMany(2, {
+        user_id: "user-1",
+      });
 
       mockRepository.findAll.mockResolvedValue({
         data: mockFavorites,
@@ -61,17 +57,13 @@ describe("FavoriteService", () => {
 
   describe("findById (inherited)", () => {
     it("should return favorite when found", async () => {
-      const mockFavorite = {
-        id: "fav-id",
-        user_id: "user-1",
-        service_point_id: "sp-1",
-      };
+      const mockFavorite = FavoriteFactory.create();
       mockRepository.findById.mockResolvedValue({
         data: mockFavorite,
         error: null,
       });
 
-      const result = await service.findById("fav-id");
+      const result = await service.findById(mockFavorite.id);
 
       expect(result).toEqual(mockFavorite);
     });
@@ -94,17 +86,8 @@ describe("FavoriteService", () => {
 
   describe("createFavorite", () => {
     it("should create favorite successfully when not duplicate", async () => {
-      const createData: CreateFavoriteDto = {
-        user_id: "user-123",
-        service_point_id: "sp-456",
-      };
-
-      const createdFavorite: Favorite = {
-        id: "fav-789",
-        ...createData,
-        workshop_id: undefined,
-        created_at: new Date().toISOString(),
-      };
+      const createData = FavoriteFactory.createDto();
+      const createdFavorite = FavoriteFactory.create(createData);
 
       // Simular que no existe duplicado
       mockRepository.findDuplicate.mockResolvedValue({
@@ -122,21 +105,18 @@ describe("FavoriteService", () => {
 
       expect(result).toEqual(createdFavorite);
       expect(mockRepository.findDuplicate).toHaveBeenCalledWith(
-        "user-123",
-        "sp-456"
+        createData.user_id,
+        createData.service_point_id
       );
       expect(mockRepository.create).toHaveBeenCalledWith(createData);
     });
 
     it("should throw ConflictError when favorite already exists", async () => {
-      const createData: CreateFavoriteDto = {
-        user_id: "user-123",
-        service_point_id: "sp-456",
-      };
+      const createData = FavoriteFactory.createDto();
 
       // Simular que ya existe el favorito
       mockRepository.findDuplicate.mockResolvedValue({
-        data: { id: "existing-fav", ...createData },
+        data: FavoriteFactory.create(createData),
         error: null,
       });
 
@@ -150,17 +130,9 @@ describe("FavoriteService", () => {
     });
 
     it("should create favorite with optional workshop_id", async () => {
-      const createData: CreateFavoriteDto = {
-        user_id: "user-123",
-        service_point_id: "sp-456",
-        workshop_id: "workshop-789",
-      };
-
-      const createdFavorite: Favorite = {
-        id: "fav-abc",
-        ...createData,
-        created_at: new Date().toISOString(),
-      };
+      const workshopId = "workshop-789";
+      const createData = FavoriteFactory.createDto({ workshop_id: workshopId });
+      const createdFavorite = FavoriteFactory.create(createData);
 
       mockRepository.findDuplicate.mockResolvedValue({
         data: null,
@@ -175,24 +147,23 @@ describe("FavoriteService", () => {
       const result = await service.createFavorite(createData);
 
       expect(result).toEqual(createdFavorite);
-      expect(result.workshop_id).toBe("workshop-789");
+      expect(result.workshop_id).toBe(workshopId);
     });
   });
 
   describe("updateFavorite", () => {
     it("should update favorite successfully", async () => {
+      const favoriteId = "fav-id";
+      const workshopId = "new-workshop-id";
       const updateData: UpdateFavoriteDto = {
-        id: "fav-id",
-        workshop_id: "new-workshop-id",
+        id: favoriteId,
+        workshop_id: workshopId,
       };
 
-      const updatedFavorite: Favorite = {
-        id: "fav-id",
-        user_id: "user-123",
-        service_point_id: "sp-456",
-        workshop_id: "new-workshop-id",
-        created_at: new Date().toISOString(),
-      };
+      const updatedFavorite = FavoriteFactory.create({
+        id: favoriteId,
+        workshop_id: workshopId,
+      });
 
       mockRepository.update.mockResolvedValue({
         data: [updatedFavorite],
@@ -202,8 +173,8 @@ describe("FavoriteService", () => {
       const result = await service.updateFavorite(updateData);
 
       expect(result).toEqual(updatedFavorite);
-      expect(mockRepository.update).toHaveBeenCalledWith("fav-id", {
-        workshop_id: "new-workshop-id",
+      expect(mockRepository.update).toHaveBeenCalledWith(favoriteId, {
+        workshop_id: workshopId,
       });
     });
 
@@ -226,33 +197,19 @@ describe("FavoriteService", () => {
 
   describe("findByUser", () => {
     it("should return all favorites for a user", async () => {
-      const mockFavorites: Favorite[] = [
-        {
-          id: "fav-1",
-          user_id: "user-123",
-          service_point_id: "sp-1",
-          workshop_id: undefined,
-          created_at: new Date().toISOString(),
-        },
-        {
-          id: "fav-2",
-          user_id: "user-123",
-          service_point_id: "sp-2",
-          workshop_id: "workshop-1",
-          created_at: new Date().toISOString(),
-        },
-      ];
+      const userId = "user-123";
+      const mockFavorites = FavoriteFactory.createMany(2, { user_id: userId });
 
       mockRepository.findByUser.mockResolvedValue({
         data: mockFavorites,
         error: null,
       });
 
-      const result = await service.findByUser("user-123");
+      const result = await service.findByUser(userId);
 
       expect(result).toEqual(mockFavorites);
       expect(result).toHaveLength(2);
-      expect(mockRepository.findByUser).toHaveBeenCalledWith("user-123");
+      expect(mockRepository.findByUser).toHaveBeenCalledWith(userId);
     });
 
     it("should return empty array when user has no favorites", async () => {
@@ -283,33 +240,23 @@ describe("FavoriteService", () => {
 
   describe("findByServicePoint", () => {
     it("should return all favorites for a service point", async () => {
-      const mockFavorites: Favorite[] = [
-        {
-          id: "fav-1",
-          user_id: "user-1",
-          service_point_id: "sp-123",
-          workshop_id: undefined,
-          created_at: new Date().toISOString(),
-        },
-        {
-          id: "fav-2",
-          user_id: "user-2",
-          service_point_id: "sp-123",
-          workshop_id: undefined,
-          created_at: new Date().toISOString(),
-        },
-      ];
+      const servicePointId = "sp-123";
+      const mockFavorites = FavoriteFactory.createMany(2, {
+        service_point_id: servicePointId,
+      });
 
       mockRepository.findByServicePoint.mockResolvedValue({
         data: mockFavorites,
         error: null,
       });
 
-      const result = await service.findByServicePoint("sp-123");
+      const result = await service.findByServicePoint(servicePointId);
 
       expect(result).toEqual(mockFavorites);
       expect(result).toHaveLength(2);
-      expect(mockRepository.findByServicePoint).toHaveBeenCalledWith("sp-123");
+      expect(mockRepository.findByServicePoint).toHaveBeenCalledWith(
+        servicePointId
+      );
     });
 
     it("should return empty array when service point has no favorites", async () => {

@@ -1,12 +1,9 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { VendingMachineService } from "../../src/services/vending_machine.service";
 import { VendingMachineRepository } from "../../src/repositories/vending_machine.repository";
-import type {
-  CreateVendingMachineDto,
-  UpdateVendingMachineDto,
-  VendingMachine,
-} from "../../src/dto/vending_machine.dto";
+import type { UpdateVendingMachineDto } from "../../src/dto/vending_machine.dto";
 import { DatabaseError } from "../../src/errors/custom-errors";
+import { VendingMachineFactory } from "../helpers/factories";
 
 describe("VendingMachineService", () => {
   let service: VendingMachineService;
@@ -33,30 +30,8 @@ describe("VendingMachineService", () => {
 
   describe("createVendingMachine", () => {
     it("should create vending machine successfully", async () => {
-      const createData: CreateVendingMachineDto = {
-        service_point_id: "sp-123",
-        name: "Bike Parts Vending #1",
-        description: "Automated vending machine for bike parts",
-        model: "BVM-2000",
-        serial_number: "SN-2024-001",
-        status: "operational",
-        capacity: 100,
-        current_stock: 75,
-      };
-
-      const createdMachine: VendingMachine = {
-        id: "vm-123",
-        service_point_id: "sp-123",
-        name: "Bike Parts Vending #1",
-        description: "Automated vending machine for bike parts",
-        model: "BVM-2000",
-        serial_number: "SN-2024-001",
-        status: "operational",
-        capacity: 100,
-        current_stock: 75,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      const createData = VendingMachineFactory.createDto();
+      const createdMachine = VendingMachineFactory.create(createData);
 
       mockRepository.create.mockResolvedValue({
         data: [createdMachine],
@@ -72,25 +47,18 @@ describe("VendingMachineService", () => {
 
   describe("updateVendingMachine", () => {
     it("should update vending machine successfully", async () => {
+      const machineId = "vm-test-id";
       const updateData: UpdateVendingMachineDto = {
-        id: "vm-1",
+        id: machineId,
         current_stock: 50,
         status: "maintenance",
       };
 
-      const updatedMachine: VendingMachine = {
-        id: "vm-1",
-        service_point_id: "sp-123",
-        name: "Bike Parts Vending #1",
-        description: "Automated vending machine for bike parts",
-        model: "BVM-2000",
-        serial_number: "SN-2024-001",
-        status: "maintenance",
-        capacity: 100,
+      const updatedMachine = VendingMachineFactory.create({
+        id: machineId,
         current_stock: 50,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+        status: "maintenance",
+      });
 
       mockRepository.update.mockResolvedValue({
         data: [updatedMachine],
@@ -100,7 +68,7 @@ describe("VendingMachineService", () => {
       const result = await service.updateVendingMachine(updateData);
 
       expect(result).toEqual(updatedMachine);
-      expect(mockRepository.update).toHaveBeenCalledWith("vm-1", {
+      expect(mockRepository.update).toHaveBeenCalledWith(machineId, {
         current_stock: 50,
         status: "maintenance",
       });
@@ -109,45 +77,23 @@ describe("VendingMachineService", () => {
 
   describe("findByServicePoint", () => {
     it("should return vending machines for service point", async () => {
-      const mockMachines: VendingMachine[] = [
-        {
-          id: "vm-1",
-          service_point_id: "sp-123",
-          name: "Vending Machine #1",
-          description: "Main vending machine",
-          model: "BVM-2000",
-          serial_number: "SN-001",
-          status: "operational",
-          capacity: 100,
-          current_stock: 75,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: "vm-2",
-          service_point_id: "sp-123",
-          name: "Vending Machine #2",
-          description: "Secondary vending machine",
-          model: "BVM-2000",
-          serial_number: "SN-002",
-          status: "operational",
-          capacity: 80,
-          current_stock: 60,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
+      const servicePointId = "sp-123";
+      const mockMachines = VendingMachineFactory.createMany(2, {
+        service_point_id: servicePointId,
+      });
 
       mockRepository.findByServicePoint.mockResolvedValue({
         data: mockMachines,
         error: null,
       });
 
-      const result = await service.findByServicePoint("sp-123");
+      const result = await service.findByServicePoint(servicePointId);
 
       expect(result).toEqual(mockMachines);
       expect(result).toHaveLength(2);
-      expect(mockRepository.findByServicePoint).toHaveBeenCalledWith("sp-123");
+      expect(mockRepository.findByServicePoint).toHaveBeenCalledWith(
+        servicePointId
+      );
     });
 
     it("should return empty array when service point has no machines", async () => {
@@ -175,48 +121,22 @@ describe("VendingMachineService", () => {
 
   describe("findByStatus", () => {
     it("should return machines with specific status", async () => {
-      const mockMaintenanceMachines: VendingMachine[] = [
-        {
-          id: "vm-1",
-          service_point_id: "sp-123",
-          name: "Vending Machine #1",
-          description: "Machine under maintenance",
-          model: "BVM-2000",
-          serial_number: "SN-001",
-          status: "maintenance",
-          capacity: 100,
-          current_stock: 50,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: "vm-3",
-          service_point_id: "sp-456",
-          name: "Vending Machine #3",
-          description: "Machine under repair",
-          model: "BVM-3000",
-          serial_number: "SN-003",
-          status: "maintenance",
-          capacity: 120,
-          current_stock: 0,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
+      const status = "maintenance";
+      const mockMaintenanceMachines = VendingMachineFactory.createMany(2, {
+        status,
+      });
 
       mockRepository.findByStatus.mockResolvedValue({
         data: mockMaintenanceMachines,
         error: null,
       });
 
-      const result = await service.findByStatus("maintenance");
+      const result = await service.findByStatus(status);
 
       expect(result).toEqual(mockMaintenanceMachines);
       expect(result).toHaveLength(2);
-      expect(result.every((machine) => machine.status === "maintenance")).toBe(
-        true
-      );
-      expect(mockRepository.findByStatus).toHaveBeenCalledWith("maintenance");
+      expect(result.every((machine) => machine.status === status)).toBe(true);
+      expect(mockRepository.findByStatus).toHaveBeenCalledWith(status);
     });
 
     it("should return empty array when no machines have the status", async () => {

@@ -1,12 +1,9 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { PartnerService } from "../../src/services/partner.service";
 import { PartnerRepository } from "../../src/repositories/partner.repository";
-import type {
-  CreatePartnerDto,
-  UpdatePartnerDto,
-  Partner,
-} from "../../src/dto/partner.dto";
+import type { UpdatePartnerDto } from "../../src/dto/partner.dto";
 import { DatabaseError } from "../../src/errors/custom-errors";
+import { PartnerFactory } from "../helpers/factories";
 
 describe("PartnerService", () => {
   let service: PartnerService;
@@ -30,25 +27,13 @@ describe("PartnerService", () => {
 
   describe("createPartner", () => {
     it("should create partner successfully", async () => {
-      const createData: CreatePartnerDto = {
+      const createData = PartnerFactory.createDto({
         name: "Bike Shop Partner",
         type: "bike_shop",
         contact_email: "partner@bikeshop.com",
-        contact_phone: "+34123456789",
-      };
+      });
 
-      const createdPartner: Partner = {
-        id: "partner-123",
-        name: "Bike Shop Partner",
-        type: "bike_shop",
-        contact_email: "partner@bikeshop.com",
-        contact_phone: "+34123456789",
-        website_url: undefined,
-        description: undefined,
-
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      const createdPartner = PartnerFactory.create(createData);
 
       mockRepository.create.mockResolvedValue({
         data: [createdPartner],
@@ -64,22 +49,16 @@ describe("PartnerService", () => {
 
   describe("updatePartner", () => {
     it("should update partner successfully", async () => {
+      const partnerId = "partner-1";
       const updateData: UpdatePartnerDto = {
-        id: "partner-1",
+        id: partnerId,
         name: "Updated Partner Name",
       };
 
-      const updatedPartner: Partner = {
-        id: "partner-1",
+      const updatedPartner = PartnerFactory.create({
+        id: partnerId,
         name: "Updated Partner Name",
-        type: "bike_shop",
-        contact_email: "partner@example.com",
-        contact_phone: "+34123456789",
-        website_url: undefined,
-        description: undefined,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      });
 
       mockRepository.update.mockResolvedValue({
         data: [updatedPartner],
@@ -89,7 +68,7 @@ describe("PartnerService", () => {
       const result = await service.updatePartner(updateData);
 
       expect(result).toEqual(updatedPartner);
-      expect(mockRepository.update).toHaveBeenCalledWith("partner-1", {
+      expect(mockRepository.update).toHaveBeenCalledWith(partnerId, {
         name: "Updated Partner Name",
       });
     });
@@ -97,43 +76,19 @@ describe("PartnerService", () => {
 
   describe("findByType", () => {
     it("should return partners of specified type", async () => {
-      const mockPartners: Partner[] = [
-        {
-          id: "partner-1",
-          name: "Bike Shop 1",
-          type: "bike_shop",
-          contact_email: "shop1@example.com",
-          contact_phone: "+34123456789",
-          website_url: undefined,
-          description: undefined,
-
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: "partner-2",
-          name: "Bike Shop 2",
-          type: "bike_shop",
-          contact_email: "shop2@example.com",
-          contact_phone: "+34123456789",
-          website_url: undefined,
-          description: undefined,
-
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
+      const partnerType = "bike_shop";
+      const mockPartners = PartnerFactory.createMany(2, { type: partnerType });
 
       mockRepository.findByType.mockResolvedValue({
         data: mockPartners,
         error: null,
       });
 
-      const result = await service.findByType("bike_shop");
+      const result = await service.findByType(partnerType);
 
       expect(result).toEqual(mockPartners);
       expect(result).toHaveLength(2);
-      expect(mockRepository.findByType).toHaveBeenCalledWith("bike_shop");
+      expect(mockRepository.findByType).toHaveBeenCalledWith(partnerType);
     });
 
     it("should return empty array when no partners of type found", async () => {

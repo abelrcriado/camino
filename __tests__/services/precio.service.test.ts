@@ -4,9 +4,8 @@ import { PrecioRepository } from "@/repositories/precio.repository";
 import {
   NivelPrecio,
   EntidadTipo,
-  type Precio,
-  type CreatePrecioDto,
 } from "@/dto/precio.dto";
+import { PrecioFactory, generateUUID } from "../helpers/factories";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -14,11 +13,10 @@ describe("PrecioService", () => {
   let service: PrecioService;
   let mockRepository: any;
 
-  const validUUID = "550e8400-e29b-41d4-a716-446655440000";
-  const validUUID2 = "650e8400-e29b-41d4-a716-446655440001";
+  const validUUID = generateUUID();
+  const validUUID2 = generateUUID();
 
-  const mockPrecioBase: Precio = {
-    id: validUUID,
+  const mockPrecioBase = PrecioFactory.create({
     nivel: NivelPrecio.BASE,
     entidad_tipo: EntidadTipo.PRODUCTO,
     entidad_id: validUUID2,
@@ -28,9 +26,7 @@ describe("PrecioService", () => {
     fecha_inicio: "2025-01-01",
     fecha_fin: null,
     notas: "Precio base",
-    created_at: "2025-10-11T10:00:00Z",
-    updated_at: "2025-10-11T10:00:00Z",
-  };
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();

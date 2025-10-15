@@ -6,11 +6,8 @@ import {
   DatabaseError,
   NotFoundError,
 } from "../../src/errors/custom-errors";
-import type {
-  CreateUserDto,
-  UpdateUserDto,
-  User,
-} from "../../src/dto/user.dto";
+import type { UpdateUserDto } from "../../src/dto/user.dto";
+import { UserFactory } from "../helpers/factories";
 
 describe("UserService", () => {
   let service: UserService;
@@ -40,37 +37,31 @@ describe("UserService", () => {
 
   describe("findAll (inherited)", () => {
     it("should return paginated users", async () => {
-      const mockUsers = [
-        { id: "1", email: "user1@example.com", role: "user" },
-        { id: "2", email: "user2@example.com", role: "admin" },
-      ];
+      const mockUsers = UserFactory.createMany(2);
 
       mockRepository.findAll.mockResolvedValue({
         data: mockUsers,
         error: undefined,
-        count: 2,
+        count: mockUsers.length,
       });
 
       const result = await service.findAll({}, { page: 1, limit: 10 });
 
       expect(result.data).toEqual(mockUsers);
-      expect(result.pagination.total).toBe(2);
+      expect(result.pagination.total).toBe(mockUsers.length);
     });
   });
 
   describe("findById (inherited)", () => {
     it("should return user when found", async () => {
-      const mockUser = {
-        id: "test-id",
-        email: "test@example.com",
-        role: "user",
-      };
+      const mockUser = UserFactory.create();
+      
       mockRepository.findById.mockResolvedValue({
         data: mockUser,
         error: undefined,
       });
 
-      const result = await service.findById("test-id");
+      const result = await service.findById(mockUser.id);
 
       expect(result).toEqual(mockUser);
     });
@@ -93,21 +84,10 @@ describe("UserService", () => {
 
   describe("createUser", () => {
     it("should create user successfully when email is unique", async () => {
-      const createData: CreateUserDto = {
-        id: "new-user-id",
-        email: "newuser@example.com",
-        role: "user",
-      };
-
-      const createdUser: User = {
+      const createData = UserFactory.createDto();
+      const createdUser = UserFactory.create({
         ...createData,
-        full_name: undefined,
-        avatar_url: undefined,
-        phone: undefined,
-        preferred_language: undefined,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      });
 
       // Simular que el email no existe
       mockRepository.findByEmail.mockResolvedValue({
@@ -124,22 +104,17 @@ describe("UserService", () => {
       const result = await service.createUser(createData);
 
       expect(result).toEqual(createdUser);
-      expect(mockRepository.findByEmail).toHaveBeenCalledWith(
-        "newuser@example.com"
-      );
+      expect(mockRepository.findByEmail).toHaveBeenCalledWith(createData.email);
       expect(mockRepository.create).toHaveBeenCalledWith(createData);
     });
 
     it("should throw ConflictError when email already exists", async () => {
-      const createData: CreateUserDto = {
-        id: "new-user-id",
-        email: "existing@example.com",
-        role: "user",
-      };
+      const createData = UserFactory.createDto();
+      const existingUser = UserFactory.create({ email: createData.email });
 
       // Simular que el email ya existe
       mockRepository.findByEmail.mockResolvedValue({
-        data: { id: "existing-id", email: "existing@example.com" },
+        data: existingUser,
         error: undefined,
       });
 
@@ -153,22 +128,11 @@ describe("UserService", () => {
     });
 
     it("should create user when email is not provided", async () => {
-      const createData: CreateUserDto = {
-        id: "new-user-id",
-        role: "user",
-      };
-
-      const createdUser: User = {
-        id: "new-user-id",
+      const createData = UserFactory.createDto({ email: undefined });
+      const createdUser = UserFactory.create({
         email: undefined,
-        role: "user",
-        full_name: undefined,
-        avatar_url: undefined,
-        phone: undefined,
-        preferred_language: undefined,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+        role: createData.role,
+      });
 
       mockRepository.create.mockResolvedValue({
         data: [createdUser],
@@ -184,22 +148,16 @@ describe("UserService", () => {
 
   describe("updateUser", () => {
     it("should update user successfully", async () => {
+      const existingUser = UserFactory.create();
       const updateData: UpdateUserDto = {
-        id: "user-id",
+        id: existingUser.id,
         full_name: "Updated Name",
       };
 
-      const updatedUser: User = {
-        id: "user-id",
-        email: "user@example.com",
-        role: "user",
+      const updatedUser = UserFactory.create({
+        ...existingUser,
         full_name: "Updated Name",
-        avatar_url: undefined,
-        phone: undefined,
-        preferred_language: undefined,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      });
 
       mockRepository.update.mockResolvedValue({
         data: [updatedUser],
@@ -209,15 +167,17 @@ describe("UserService", () => {
       const result = await service.updateUser(updateData);
 
       expect(result).toEqual(updatedUser);
-      expect(mockRepository.update).toHaveBeenCalledWith("user-id", {
+      expect(mockRepository.update).toHaveBeenCalledWith(existingUser.id, {
         full_name: "Updated Name",
       });
     });
 
     it("should update email when it is unique", async () => {
+      const existingUser = UserFactory.create();
+      const newEmail = "newemail@example.com";
       const updateData: UpdateUserDto = {
-        id: "user-id",
-        email: "newemail@example.com",
+        id: existingUser.id,
+        email: newEmail,
       };
 
       // Simular que el nuevo email no existe
@@ -226,17 +186,10 @@ describe("UserService", () => {
         error: undefined,
       });
 
-      const updatedUser: User = {
-        id: "user-id",
-        email: "newemail@example.com",
-        role: "user",
-        full_name: undefined,
-        avatar_url: undefined,
-        phone: undefined,
-        preferred_language: undefined,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      const updatedUser = UserFactory.create({
+        ...existingUser,
+        email: newEmail,
+      });
 
       mockRepository.update.mockResolvedValue({
         data: [updatedUser],
@@ -246,20 +199,24 @@ describe("UserService", () => {
       const result = await service.updateUser(updateData);
 
       expect(result).toEqual(updatedUser);
-      expect(mockRepository.findByEmail).toHaveBeenCalledWith(
-        "newemail@example.com"
-      );
+      expect(mockRepository.findByEmail).toHaveBeenCalledWith(newEmail);
     });
 
     it("should throw ConflictError when updating to existing email", async () => {
+      const user1Id = "user-1-id";
+      const user2Id = "user-2-id";
+      const conflictEmail = "conflict@example.com";
+      
+      const user2 = UserFactory.create({ id: user2Id, email: conflictEmail });
+      
       const updateData: UpdateUserDto = {
-        id: "user-id",
-        email: "existing@example.com",
+        id: user1Id,
+        email: conflictEmail, // Intentar usar el email de otro usuario
       };
 
-      // Simular que el email existe para otro usuario
+      // Simular que el email existe para otro usuario (con ID diferente)
       mockRepository.findByEmail.mockResolvedValue({
-        data: { id: "other-user-id", email: "existing@example.com" },
+        data: user2,
         error: undefined,
       });
 
@@ -273,28 +230,19 @@ describe("UserService", () => {
     });
 
     it("should allow updating email to same user current email", async () => {
+      const existingUser = UserFactory.create();
       const updateData: UpdateUserDto = {
-        id: "user-id",
-        email: "myemail@example.com",
+        id: existingUser.id,
+        email: existingUser.email, // Mismo email
       };
 
       // Simular que el email existe pero es del mismo usuario
       mockRepository.findByEmail.mockResolvedValue({
-        data: { id: "user-id", email: "myemail@example.com" },
+        data: existingUser,
         error: undefined,
       });
 
-      const updatedUser: User = {
-        id: "user-id",
-        email: "myemail@example.com",
-        role: "user",
-        full_name: undefined,
-        avatar_url: undefined,
-        phone: undefined,
-        preferred_language: undefined,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      const updatedUser = UserFactory.create(existingUser);
 
       mockRepository.update.mockResolvedValue({
         data: [updatedUser],
@@ -310,29 +258,17 @@ describe("UserService", () => {
 
   describe("findByEmail", () => {
     it("should return user when found", async () => {
-      const mockUser: User = {
-        id: "user-id",
-        email: "test@example.com",
-        role: "user",
-        full_name: "Test User",
-        avatar_url: undefined,
-        phone: undefined,
-        preferred_language: undefined,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      const mockUser = UserFactory.create();
 
       mockRepository.findByEmail.mockResolvedValue({
         data: mockUser,
         error: undefined,
       });
 
-      const result = await service.findByEmail("test@example.com");
+      const result = await service.findByEmail(mockUser.email!);
 
       expect(result).toEqual(mockUser);
-      expect(mockRepository.findByEmail).toHaveBeenCalledWith(
-        "test@example.com"
-      );
+      expect(mockRepository.findByEmail).toHaveBeenCalledWith(mockUser.email);
     });
 
     it("should return null when user not found", async () => {
@@ -363,30 +299,7 @@ describe("UserService", () => {
 
   describe("findByRole", () => {
     it("should return users with specified role", async () => {
-      const mockUsers: User[] = [
-        {
-          id: "admin-1",
-          email: "admin1@example.com",
-          role: "admin",
-          full_name: "Admin One",
-          avatar_url: undefined,
-          phone: undefined,
-          preferred_language: undefined,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: "admin-2",
-          email: "admin2@example.com",
-          role: "admin",
-          full_name: "Admin Two",
-          avatar_url: undefined,
-          phone: undefined,
-          preferred_language: undefined,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
+      const mockUsers = UserFactory.createMany(2, { role: "admin" });
 
       mockRepository.findByRole.mockResolvedValue({
         data: mockUsers,

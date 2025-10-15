@@ -1,12 +1,9 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { ReviewService } from "../../src/services/review.service";
 import { ReviewRepository } from "../../src/repositories/review.repository";
-import type {
-  CreateReviewDto,
-  UpdateReviewDto,
-  Review,
-} from "../../src/dto/review.dto";
+import type { UpdateReviewDto } from "../../src/dto/review.dto";
 import { DatabaseError } from "../../src/errors/custom-errors";
+import { ReviewFactory } from "../helpers/factories";
 
 describe("ReviewService", () => {
   let service: ReviewService;
@@ -33,23 +30,8 @@ describe("ReviewService", () => {
 
   describe("createReview", () => {
     it("should create review successfully", async () => {
-      const createData: CreateReviewDto = {
-        user_id: "user-123",
-        service_point_id: "sp-123",
-        rating: 5,
-        comment: "Excellent service!",
-      };
-
-      const createdReview: Review = {
-        id: "review-123",
-        user_id: "user-123",
-        service_point_id: "sp-123",
-        workshop_id: undefined,
-        rating: 5,
-        comment: "Excellent service!",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      const createData = ReviewFactory.createDto();
+      const createdReview = ReviewFactory.create(createData);
 
       mockRepository.create.mockResolvedValue({
         data: [createdReview],
@@ -65,22 +47,18 @@ describe("ReviewService", () => {
 
   describe("updateReview", () => {
     it("should update review successfully", async () => {
+      const reviewId = "review-test-id";
       const updateData: UpdateReviewDto = {
-        id: "review-1",
+        id: reviewId,
         rating: 4,
         comment: "Updated comment",
       };
 
-      const updatedReview: Review = {
-        id: "review-1",
-        user_id: "user-123",
-        service_point_id: "sp-123",
-        workshop_id: undefined,
+      const updatedReview = ReviewFactory.create({
+        id: reviewId,
         rating: 4,
         comment: "Updated comment",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      });
 
       mockRepository.update.mockResolvedValue({
         data: [updatedReview],
@@ -90,7 +68,7 @@ describe("ReviewService", () => {
       const result = await service.updateReview(updateData);
 
       expect(result).toEqual(updatedReview);
-      expect(mockRepository.update).toHaveBeenCalledWith("review-1", {
+      expect(mockRepository.update).toHaveBeenCalledWith(reviewId, {
         rating: 4,
         comment: "Updated comment",
       });
@@ -99,39 +77,19 @@ describe("ReviewService", () => {
 
   describe("findByUser", () => {
     it("should return reviews for user", async () => {
-      const mockReviews: Review[] = [
-        {
-          id: "review-1",
-          user_id: "user-123",
-          service_point_id: "sp-1",
-          workshop_id: undefined,
-          rating: 5,
-          comment: "Great!",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: "review-2",
-          user_id: "user-123",
-          service_point_id: "sp-2",
-          workshop_id: undefined,
-          rating: 4,
-          comment: "Good",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
+      const userId = "user-123";
+      const mockReviews = ReviewFactory.createMany(2, { user_id: userId });
 
       mockRepository.findByUser.mockResolvedValue({
         data: mockReviews,
         error: null,
       });
 
-      const result = await service.findByUser("user-123");
+      const result = await service.findByUser(userId);
 
       expect(result).toEqual(mockReviews);
       expect(result).toHaveLength(2);
-      expect(mockRepository.findByUser).toHaveBeenCalledWith("user-123");
+      expect(mockRepository.findByUser).toHaveBeenCalledWith(userId);
     });
 
     it("should return empty array when user has no reviews", async () => {
@@ -159,28 +117,22 @@ describe("ReviewService", () => {
 
   describe("findByServicePoint", () => {
     it("should return reviews for service point", async () => {
-      const mockReviews: Review[] = [
-        {
-          id: "review-1",
-          user_id: "user-1",
-          service_point_id: "sp-123",
-          workshop_id: undefined,
-          rating: 5,
-          comment: "Excellent location",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
+      const servicePointId = "sp-123";
+      const mockReviews = ReviewFactory.createMany(1, {
+        service_point_id: servicePointId,
+      });
 
       mockRepository.findByServicePoint.mockResolvedValue({
         data: mockReviews,
         error: null,
       });
 
-      const result = await service.findByServicePoint("sp-123");
+      const result = await service.findByServicePoint(servicePointId);
 
       expect(result).toEqual(mockReviews);
-      expect(mockRepository.findByServicePoint).toHaveBeenCalledWith("sp-123");
+      expect(mockRepository.findByServicePoint).toHaveBeenCalledWith(
+        servicePointId
+      );
     });
 
     it("should return empty array when service point has no reviews", async () => {
@@ -208,41 +160,21 @@ describe("ReviewService", () => {
 
   describe("findByWorkshop", () => {
     it("should return reviews for workshop", async () => {
-      const mockReviews: Review[] = [
-        {
-          id: "review-1",
-          user_id: "user-1",
-          service_point_id: undefined,
-          workshop_id: "workshop-123",
-          rating: 5,
-          comment: "Great workshop",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: "review-2",
-          user_id: "user-2",
-          service_point_id: undefined,
-          workshop_id: "workshop-123",
-          rating: 4,
-          comment: "Good service",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
+      const workshopId = "workshop-123";
+      const mockReviews = ReviewFactory.createMany(2, {
+        workshop_id: workshopId,
+      });
 
       mockRepository.findByWorkshop.mockResolvedValue({
         data: mockReviews,
         error: null,
       });
 
-      const result = await service.findByWorkshop("workshop-123");
+      const result = await service.findByWorkshop(workshopId);
 
       expect(result).toEqual(mockReviews);
       expect(result).toHaveLength(2);
-      expect(mockRepository.findByWorkshop).toHaveBeenCalledWith(
-        "workshop-123"
-      );
+      expect(mockRepository.findByWorkshop).toHaveBeenCalledWith(workshopId);
     });
 
     it("should return empty array when workshop has no reviews", async () => {
@@ -270,39 +202,19 @@ describe("ReviewService", () => {
 
   describe("findByRating", () => {
     it("should return reviews with specific rating", async () => {
-      const mockReviews: Review[] = [
-        {
-          id: "review-1",
-          user_id: "user-1",
-          service_point_id: "sp-1",
-          workshop_id: undefined,
-          rating: 5,
-          comment: "Perfect!",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: "review-2",
-          user_id: "user-2",
-          service_point_id: "sp-2",
-          workshop_id: undefined,
-          rating: 5,
-          comment: "Amazing!",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
+      const rating = 5;
+      const mockReviews = ReviewFactory.createMany(2, { rating });
 
       mockRepository.findByRating.mockResolvedValue({
         data: mockReviews,
         error: null,
       });
 
-      const result = await service.findByRating(5);
+      const result = await service.findByRating(rating);
 
       expect(result).toEqual(mockReviews);
       expect(result).toHaveLength(2);
-      expect(mockRepository.findByRating).toHaveBeenCalledWith(5);
+      expect(mockRepository.findByRating).toHaveBeenCalledWith(rating);
     });
 
     it("should return empty array when no reviews with rating", async () => {

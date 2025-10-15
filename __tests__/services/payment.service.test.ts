@@ -1,11 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { PaymentService } from "../../src/services/payment.service";
 import { PaymentRepository } from "../../src/repositories/payment.repository";
-import type {
-  CreatePaymentDto,
-  UpdatePaymentDto,
-  Payment,
-} from "../../src/dto/payment.dto";
+import type { UpdatePaymentDto } from "../../src/dto/payment.dto";
+import { PaymentFactory } from "../helpers/factories";
 
 describe("PaymentService", () => {
   let service: PaymentService;
@@ -34,34 +31,13 @@ describe("PaymentService", () => {
   // ============================================================================
   describe("findById (inherited)", () => {
     it("should return payment when found", async () => {
-      const mockPayment: Payment = {
-        id: "pay-1",
-        user_id: "user-1",
-        booking_id: "booking-1",
-        service_point_id: "sp-1",
-        amount: 50,
-        currency: "eur",
-        payment_method: "card",
-        status: "succeeded",
-        stripe_payment_intent_id: "pi-1",
-        stripe_charge_id: "ch-1",
-        platform_fee: 5,
-        csp_amount: 45,
-        description: null,
-        metadata: null,
-        refunded_amount: 0,
-        refund_reason: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        paid_at: null,
-        refunded_at: null,
-      };
+      const mockPayment = PaymentFactory.create();
 
       mockRepository.findById.mockResolvedValue({
         data: mockPayment,
         error: null,
       });
-      const result = await service.findById("pay-1");
+      const result = await service.findById(mockPayment.id);
       expect(result).toEqual(mockPayment);
     });
   });
@@ -71,37 +47,8 @@ describe("PaymentService", () => {
   // ============================================================================
   describe("createPayment", () => {
     it("should create payment successfully", async () => {
-      const createData: CreatePaymentDto = {
-        user_id: "user-1",
-        booking_id: "booking-123",
-        service_point_id: "sp-1",
-        amount: 75,
-        currency: "eur",
-        payment_method: "card",
-      };
-
-      const createdPayment: Payment = {
-        id: "pay-456",
-        user_id: "user-1",
-        booking_id: "booking-123",
-        service_point_id: "sp-1",
-        amount: 75,
-        currency: "eur",
-        payment_method: "card",
-        status: "pending",
-        stripe_payment_intent_id: "pi-2",
-        stripe_charge_id: "ch-2",
-        platform_fee: 5,
-        csp_amount: 70,
-        description: null,
-        metadata: null,
-        refunded_amount: 0,
-        refund_reason: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        paid_at: null,
-        refunded_at: null,
-      };
+      const createData = PaymentFactory.createDto();
+      const createdPayment = PaymentFactory.create(createData);
 
       mockRepository.create.mockResolvedValue({
         data: [createdPayment],
@@ -115,99 +62,38 @@ describe("PaymentService", () => {
 
   describe("updatePayment", () => {
     it("should update payment successfully", async () => {
+      const paymentId = "pay-test-id";
       const updateData: UpdatePaymentDto = {
         status: "succeeded",
         stripe_payment_intent_id: "pi-1-updated",
         stripe_charge_id: "ch-1-updated",
       };
 
-      const updatedPayment: Payment = {
-        id: "pay-1",
-        user_id: "user-1",
-        booking_id: "booking-1",
-        service_point_id: "sp-1",
-        amount: 50,
-        currency: "eur",
-        payment_method: "card",
-        status: "succeeded",
-        stripe_payment_intent_id: "pi-1-updated",
-        stripe_charge_id: "ch-1-updated",
-        platform_fee: 5,
-        csp_amount: 45,
-        description: null,
-        metadata: null,
-        refunded_amount: 0,
-        refund_reason: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        paid_at: null,
-        refunded_at: null,
-      };
+      const updatedPayment = PaymentFactory.create({
+        id: paymentId,
+        ...updateData,
+      });
 
       mockRepository.update.mockResolvedValue({
         data: [updatedPayment],
         error: null,
       });
-      const result = await service.updatePayment("pay-1", updateData);
+      const result = await service.updatePayment(paymentId, updateData);
       expect(result).toEqual(updatedPayment);
-      expect(mockRepository.update).toHaveBeenCalledWith("pay-1", updateData);
+      expect(mockRepository.update).toHaveBeenCalledWith(paymentId, updateData);
     });
   });
 
   describe("findByUser", () => {
     it("should return payments for user", async () => {
-      const mockPayments: Payment[] = [
-        {
-          id: "pay-1",
-          user_id: "user-1",
-          booking_id: "booking-1",
-          service_point_id: "sp-1",
-          amount: 50,
-          currency: "eur",
-          payment_method: "card",
-          status: "succeeded",
-          stripe_payment_intent_id: "pi-1",
-          stripe_charge_id: "ch-1",
-          platform_fee: 5,
-          csp_amount: 45,
-          description: null,
-          metadata: null,
-          refunded_amount: 0,
-          refund_reason: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          paid_at: null,
-          refunded_at: null,
-        },
-        {
-          id: "pay-2",
-          user_id: "user-1",
-          booking_id: "booking-2",
-          service_point_id: "sp-1",
-          amount: 100,
-          currency: "eur",
-          payment_method: "cash",
-          status: "succeeded",
-          stripe_payment_intent_id: "pi-2",
-          stripe_charge_id: "ch-2",
-          platform_fee: 10,
-          csp_amount: 90,
-          description: null,
-          metadata: null,
-          refunded_amount: 0,
-          refund_reason: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          paid_at: null,
-          refunded_at: null,
-        },
-      ];
+      const userId = "user-123";
+      const mockPayments = PaymentFactory.createMany(2, { user_id: userId });
 
       mockRepository.findByUserId.mockResolvedValue(mockPayments);
-      const result = await service.findByUser("user-123");
+      const result = await service.findByUser(userId);
       expect(result).toEqual(mockPayments);
       expect(result).toHaveLength(2);
-      expect(mockRepository.findByUserId).toHaveBeenCalledWith("user-123");
+      expect(mockRepository.findByUserId).toHaveBeenCalledWith(userId);
     });
 
     it("should return empty array when user has no payments", async () => {
@@ -228,37 +114,15 @@ describe("PaymentService", () => {
 
   describe("findByBooking", () => {
     it("should return payments for booking", async () => {
-      const mockPayments: Payment[] = [
-        {
-          id: "pay-1",
-          user_id: "user-1",
-          booking_id: "booking-123",
-          service_point_id: "sp-1",
-          amount: 50,
-          currency: "eur",
-          payment_method: "card",
-          status: "succeeded",
-          stripe_payment_intent_id: "pi-3",
-          stripe_charge_id: "ch-3",
-          platform_fee: 5,
-          csp_amount: 45,
-          description: null,
-          metadata: null,
-          refunded_amount: 0,
-          refund_reason: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          paid_at: null,
-          refunded_at: null,
-        },
-      ];
+      const bookingId = "booking-123";
+      const mockPayments = PaymentFactory.createMany(1, {
+        booking_id: bookingId,
+      });
 
       mockRepository.findByBookingId.mockResolvedValue(mockPayments);
-      const result = await service.findByBooking("booking-123");
+      const result = await service.findByBooking(bookingId);
       expect(result).toEqual(mockPayments);
-      expect(mockRepository.findByBookingId).toHaveBeenCalledWith(
-        "booking-123"
-      );
+      expect(mockRepository.findByBookingId).toHaveBeenCalledWith(bookingId);
     });
 
     it("should return empty array when booking has no payments", async () => {
@@ -279,60 +143,14 @@ describe("PaymentService", () => {
 
   describe("findByStatus", () => {
     it("should return payments with status", async () => {
-      const mockPayments: Payment[] = [
-        {
-          id: "pay-1",
-          user_id: "user-1",
-          booking_id: "booking-1",
-          service_point_id: "sp-1",
-          amount: 50,
-          currency: "eur",
-          payment_method: "card",
-          status: "pending",
-          stripe_payment_intent_id: "pi-4",
-          stripe_charge_id: "ch-4",
-          platform_fee: 5,
-          csp_amount: 45,
-          description: null,
-          metadata: null,
-          refunded_amount: 0,
-          refund_reason: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          paid_at: null,
-          refunded_at: null,
-        },
-        {
-          id: "pay-2",
-          user_id: "user-1",
-          booking_id: "booking-2",
-          service_point_id: "sp-1",
-          amount: 75,
-          currency: "eur",
-          payment_method: "cash",
-          status: "pending",
-          stripe_payment_intent_id: "pi-5",
-          stripe_charge_id: "ch-5",
-          platform_fee: 10,
-          csp_amount: 65,
-          description: null,
-          metadata: null,
-          refunded_amount: 0,
-          refund_reason: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          paid_at: null,
-          refunded_at: null,
-        },
-      ];
+      const status = "pending";
+      const mockPayments = PaymentFactory.createMany(2, { status });
 
       mockRepository.findWithFilters.mockResolvedValue(mockPayments);
-      const result = await service.findByStatus("pending");
+      const result = await service.findByStatus(status);
       expect(result).toEqual(mockPayments);
       expect(result).toHaveLength(2);
-      expect(mockRepository.findWithFilters).toHaveBeenCalledWith({
-        status: "pending",
-      });
+      expect(mockRepository.findWithFilters).toHaveBeenCalledWith({ status });
     });
 
     it("should return empty array when no payments with status", async () => {

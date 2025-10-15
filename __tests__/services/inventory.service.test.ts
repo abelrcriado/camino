@@ -1,12 +1,9 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { InventoryService } from "../../src/services/inventory.service";
 import { InventoryRepository } from "../../src/repositories/inventory.repository";
-import type {
-  CreateInventoryDto,
-  UpdateInventoryDto,
-  Inventory,
-} from "../../src/dto/inventory.dto";
+import type { UpdateInventoryDto } from "../../src/dto/inventory.dto";
 import { DatabaseError } from "../../src/errors/custom-errors";
+import { InventoryFactory } from "../helpers/factories";
 
 describe("InventoryService", () => {
   let service: InventoryService;
@@ -31,26 +28,8 @@ describe("InventoryService", () => {
 
   describe("createInventory", () => {
     it("should create inventory successfully", async () => {
-      const createData: CreateInventoryDto = {
-        service_point_id: "sp-123",
-        name: "Bike Tires",
-        description: "Road bike tires 700x23c",
-        quantity: 50,
-        min_stock: 10,
-        max_stock: 100,
-      };
-
-      const createdInventory: Inventory = {
-        id: "inv-123",
-        service_point_id: "sp-123",
-        name: "Bike Tires",
-        description: "Road bike tires 700x23c",
-        quantity: 50,
-        min_stock: 10,
-        max_stock: 100,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      const createData = InventoryFactory.createDto();
+      const createdInventory = InventoryFactory.create(createData);
 
       mockRepository.create.mockResolvedValue({
         data: [createdInventory],
@@ -66,23 +45,18 @@ describe("InventoryService", () => {
 
   describe("updateInventory", () => {
     it("should update inventory successfully", async () => {
+      const inventoryId = "inv-1";
       const updateData: UpdateInventoryDto = {
-        id: "inv-1",
+        id: inventoryId,
         quantity: 75,
         min_stock: 15,
       };
 
-      const updatedInventory: Inventory = {
-        id: "inv-1",
-        service_point_id: "sp-123",
-        name: "Bike Tires",
-        description: "Road bike tires 700x23c",
+      const updatedInventory = InventoryFactory.create({
+        id: inventoryId,
         quantity: 75,
         min_stock: 15,
-        max_stock: 100,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      });
 
       mockRepository.update.mockResolvedValue({
         data: [updatedInventory],
@@ -92,7 +66,7 @@ describe("InventoryService", () => {
       const result = await service.updateInventory(updateData);
 
       expect(result).toEqual(updatedInventory);
-      expect(mockRepository.update).toHaveBeenCalledWith("inv-1", {
+      expect(mockRepository.update).toHaveBeenCalledWith(inventoryId, {
         quantity: 75,
         min_stock: 15,
       });
@@ -101,41 +75,23 @@ describe("InventoryService", () => {
 
   describe("findByServicePoint", () => {
     it("should return inventory items for service point", async () => {
-      const mockInventory: Inventory[] = [
-        {
-          id: "inv-1",
-          service_point_id: "sp-123",
-          name: "Bike Tires",
-          description: "Road bike tires",
-          quantity: 50,
-          min_stock: 10,
-          max_stock: 100,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: "inv-2",
-          service_point_id: "sp-123",
-          name: "Brake Pads",
-          description: "Disc brake pads",
-          quantity: 30,
-          min_stock: 5,
-          max_stock: 50,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
+      const servicePointId = "sp-123";
+      const mockInventory = InventoryFactory.createMany(2, {
+        service_point_id: servicePointId,
+      });
 
       mockRepository.findByServicePoint.mockResolvedValue({
         data: mockInventory,
         error: null,
       });
 
-      const result = await service.findByServicePoint("sp-123");
+      const result = await service.findByServicePoint(servicePointId);
 
       expect(result).toEqual(mockInventory);
       expect(result).toHaveLength(2);
-      expect(mockRepository.findByServicePoint).toHaveBeenCalledWith("sp-123");
+      expect(mockRepository.findByServicePoint).toHaveBeenCalledWith(
+        servicePointId
+      );
     });
 
     it("should return empty array when service point has no inventory", async () => {
@@ -163,29 +119,10 @@ describe("InventoryService", () => {
 
   describe("findLowStock", () => {
     it("should return items with low stock", async () => {
-      const mockLowStockItems: Inventory[] = [
-        {
-          id: "inv-1",
-          service_point_id: "sp-123",
-          name: "Brake Pads",
-          description: "Disc brake pads",
-          quantity: 4,
-          min_stock: 5,
-          max_stock: 50,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: "inv-2",
-          service_point_id: "sp-456",
-          name: "Chain Lubricant",
-          description: "Bike chain oil",
-          quantity: 2,
-          min_stock: 10,
-          max_stock: 30,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
+      // Crear items con low stock: quantity < min_stock
+      const mockLowStockItems = [
+        InventoryFactory.create({ quantity: 4, min_stock: 5 }),
+        InventoryFactory.create({ quantity: 2, min_stock: 10 }),
       ];
 
       mockRepository.findLowStock.mockResolvedValue({
