@@ -6,6 +6,7 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { CaminoRepository } from "@/repositories/camino.repository";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { CaminoFactory, generateUUID } from "../helpers/factories";
 
 type MockedFunction = ReturnType<typeof jest.fn>;
 
@@ -25,11 +26,7 @@ describe("CaminoRepository", () => {
 
   describe("findByCodigo", () => {
     it("should return camino data when found", async () => {
-      const mockCamino = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
-        nombre: "Camino de Santiago Francés",
-        codigo: "CSF",
-      };
+      const mockCamino = CaminoFactory.create({ codigo: "CSF" });
 
       const mockChain = {
         select: jest.fn().mockReturnThis(),
@@ -55,9 +52,7 @@ describe("CaminoRepository", () => {
 
   describe("findByEstado", () => {
     it("should return caminos by estado", async () => {
-      const mockCaminos = [
-        { id: "1", nombre: "Camino Norte", estado_operativo: "activo" },
-      ];
+      const mockCaminos = CaminoFactory.createMany(1, { estado_operativo: "activo" });
 
       const mockChain = {
         select: jest.fn().mockReturnThis(),
@@ -80,6 +75,7 @@ describe("CaminoRepository", () => {
 
   describe("getStats", () => {
     it("should return stats for a camino", async () => {
+      const caminoId = generateUUID();
       const mockStats = {
         total_ubicaciones: 15,
         total_service_points: 25,
@@ -90,12 +86,10 @@ describe("CaminoRepository", () => {
         error: null,
       });
 
-      const result = await repository.getStats(
-        "123e4567-e89b-12d3-a456-426614174000"
-      );
+      const result = await repository.getStats(caminoId);
 
       expect(mockSupabase.rpc).toHaveBeenCalledWith("get_camino_stats", {
-        p_camino_id: "123e4567-e89b-12d3-a456-426614174000",
+        p_camino_id: caminoId,
       });
       expect(result.data).toEqual(mockStats);
       expect(result.error).toBeNull();
@@ -104,8 +98,9 @@ describe("CaminoRepository", () => {
 
   describe("getAllSummary", () => {
     it("should return summary of all caminos", async () => {
+      const caminoId = generateUUID();
       const mockSummary = [
-        { camino_id: "123", camino_nombre: "CSF", total_ubicaciones: 15 },
+        { camino_id: caminoId, camino_nombre: "CSF", total_ubicaciones: 15 },
       ];
 
       (mockSupabase.rpc as jest.Mock).mockResolvedValueOnce({
@@ -127,8 +122,9 @@ describe("CaminoRepository", () => {
         eq: jest.fn().mockReturnThis(),
       };
 
+      const mockId = generateUUID();
       (mockChain.eq as jest.Mock).mockResolvedValueOnce({
-        data: [{ id: "123" }],
+        data: [{ id: mockId }],
         error: null,
       });
 
@@ -159,6 +155,7 @@ describe("CaminoRepository", () => {
     });
 
     it("should exclude specific id when provided", async () => {
+      const excludeId = generateUUID();
       const mockChain = {
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
@@ -172,15 +169,9 @@ describe("CaminoRepository", () => {
 
       (mockSupabase.from as jest.Mock).mockReturnValue(mockChain);
 
-      const result = await repository.codigoExists(
-        "CSF",
-        "123e4567-e89b-12d3-a456-426614174000"
-      );
+      const result = await repository.codigoExists("CSF", excludeId);
 
-      expect(mockChain.neq).toHaveBeenCalledWith(
-        "id",
-        "123e4567-e89b-12d3-a456-426614174000"
-      );
+      expect(mockChain.neq).toHaveBeenCalledWith("id", excludeId);
       expect(result.exists).toBe(false);
     });
   });
