@@ -54,6 +54,7 @@ describe("InventoryItemController", () => {
     const reqBody = InventoryItemFactory.createDto({
       name: "Bike Chain",
       quantity: 5,
+      type: "tool", // Valor válido del enum
     });
     mockReq.body = reqBody;
     const createdItem = InventoryItemFactory.create({

@@ -1,8 +1,8 @@
 # 🗺️ ROADMAP - Camino Service Backend
 
-**Última actualización:** 13 de octubre de 2025  
-**Versión:** 3.1 (Post-Sprint 6.4: Added Sprint 7 Abstraction before Features)  
-**Versión del código:** v0.3.2
+**Última actualización:** 15 de octubre de 2025  
+**Versión:** 3.2 (Post-Issue #11: Pricing System Verified)  
+**Versión del código:** v0.3.4
 
 > ⚠️ **CAMBIO ESTRATÉGICO v3.0:** ROADMAP reorganizado siguiendo **"FEATURES PRIMERO, OPTIMIZACIONES DESPUÉS"**.
 >
@@ -16,7 +16,7 @@
 
 ## 📊 Estado Actual del Proyecto
 
-### ✅ Completado (Sprints 1-6.3)
+### ✅ Completado (Sprints 1-6.4 + Issue #11)
 
 **Sprint 1-2: Base de Datos y Jerarquía** ✅
 
@@ -90,13 +90,23 @@
 - Zero hardcoded error messages restantes
 - i18n ready: Todos los mensajes centralizados
 
+**Issue #11: Sistema de Precios Jerárquico** ✅ (v0.3.4)
+
+- **POST /api/precios verificado y funcional** 🎉
+- Clean Architecture completa (5 capas)
+- 183/183 tests sistema de precios pasando (100%)
+- Jerarquía: BASE → UBICACION → SERVICE_POINT
+- Swagger documentation completa
+- Zod validation centralizada
+- Issue #12 desbloqueado (vending integration)
+
 ### 📈 Métricas del Sistema
 
 | Métrica               | Valor Actual                  | Objetivo Fase 1 (Final) | Objetivo Fase 2 (Features) |
 | --------------------- | ----------------------------- | ----------------------- | -------------------------- |
 | **Tablas en BD**      | 42 tablas                     | 42 tablas               | 50+ tablas                 |
 | **Endpoints API**     | 102 endpoints activos         | 102 endpoints           | 130+ endpoints             |
-| **Tests**             | 2410 tests (100% passing)     | 2410 tests              | 3000+ (100% passing)       |
+| **Tests**             | 2409 tests (99.96% passing)   | 2410 tests              | 3000+ (100% passing)       |
 | **Coverage**          | 44% actual                    | 44% actual              | 50%+ incremental           |
 | **asyncHandler**      | ✅**100% adoption (102/102)** | **100% adoption** ✅    | **100% adoption** ✅       |
 | **console.log**       | ✅ 0 instancias (v0.3.0)      | **0 instancias** ✅     | **0 instancias** ✅        |

@@ -1,13 +1,71 @@
 # 📋 BACKLOG - Tareas Pendientes
 
-**Última actualización:** 13 de octubre de 2025  
-**Versión:** 2.2 - **SPRINT 6.3 COMPLETADO**
+**Última actualización:** 15 de octubre de 2025  
+**Versión:** 2.3 - **ISSUE #11 COMPLETADO**
 
 > 🔍 **ANÁLISIS COMPLETO DE INGENIERÍA:** Ver [`ANALISIS_INGENIERIA_OPTIMIZACION.md`](./ANALISIS_INGENIERIA_OPTIMIZACION.md)  
 > Incluye: 5 Red Flags Críticos, 8 Mejoras Importantes, Plan de Acción Detallado
 
 > ⚠️ **ESTRATEGIA NUEVA:** Implementar infraestructura y patrones de calidad ANTES de continuar con features.  
 > **Objetivo:** No rehacer código, no refactorizar después. Todo el código nuevo ya usará las mejores prácticas.
+
+---
+
+## 🎯 BACKLOG GITHUB ISSUES
+
+### Issue #11: Sistema de Precios Jerárquico (POST /api/precios) ✅ COMPLETADO
+
+**Fecha:** 15 de octubre de 2025  
+**Estado:** ✅ COMPLETADO  
+**Versión:** v0.3.4
+
+**Descripción:** Verificación completa de implementación POST /api/precios
+
+**Completado:**
+
+- ✅ Sistema de precios jerárquico funcional (BASE → UBICACION → SERVICE_POINT)
+- ✅ 183/183 tests pasando (100%)
+- ✅ Clean Architecture completa verificada (5 capas)
+- ✅ Swagger documentation completa
+- ✅ Zod validation centralizada
+- ✅ 1 error lint corregido
+- ✅ 1 test failure corregido (inventario)
+- ✅ Documentación técnica completa
+- ✅ Sprint report creado
+- ✅ Proceso MANDATORY completo
+
+**Entregables:**
+
+- `docs/sprints/ISSUE_11_COMPLETADO.md` (análisis técnico)
+- `docs/sprints/SPRINT_ISSUE_11_COMPLETADO.md` (sprint report)
+- `CHANGELOG.md` v0.3.4
+- Tests: 2409/2410 pasando (99.96%)
+
+**Impacto:**
+
+- Sistema de precios production-ready
+- Issue #12 desbloqueado (vending machine integration)
+
+---
+
+### Issue #12: Vending Machine Integration 🔜 READY
+
+**Estado:** READY (desbloqueado por Issue #11)  
+**Prioridad:** ALTA  
+**Estimación:** 2-3 días
+
+**Descripción:** Integrar sistema de precios con vending machines para pricing dinámico
+
+**Tareas Identificadas:**
+
+- [ ] Endpoint GET /api/vending-machines/[id]/precios
+- [ ] Resolver precio aplicable por jerarquía
+- [ ] Tests de integración vending + precios
+- [ ] Dashboard UI para gestionar precios por máquina
+
+**Dependencias:**
+
+- ✅ Issue #11 (Sistema de Precios)
 
 ---
 

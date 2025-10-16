@@ -20,7 +20,7 @@ import {
   getPrecioAplicableSchema,
   queryPreciosVigentesSchema,
 } from "@/schemas/precio.schema";
-import type { NivelPrecio, EntidadTipo } from "@/dto/precio.dto";
+import type { NivelPrecio, EntidadTipo, PrecioFilters } from "@/dto/precio.dto";
 
 export class PrecioController {
   private service: PrecioService;
@@ -164,7 +164,7 @@ export class PrecioController {
       // Nota: order_by puede tener 'dias_restantes' que no está en PrecioFilters
        
       const { data, total } = await this.service.getPreciosVigentes(
-        filters as any
+        filters as Partial<PrecioFilters>
       );
 
       // Calcular metadata de paginación
