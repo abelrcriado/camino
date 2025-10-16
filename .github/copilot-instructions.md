@@ -2,101 +2,132 @@
 
 ## Project Overview
 
-This is a **Next.js** service backend implementing **Clean Architecture** with TypeScript, Supabase, and Stripe integration. The system manages a service marketplace with users, workshops, inventory, bookings## MANDATORY: Documentation Process After Each Sprint
+**Next.js 14 + TypeScript + Supabase** backend for Camino de Santiago service marketplace. **44% test coverage** (2409/2410 passing), strict Clean Architecture enforcement.
 
-**CRITICAL RULE:** Al finalizar CUALQUIER sprint o bloque de trabajo, EJECUTAR proceso completo:
+**Core Domain:** Caminos → Ubicaciones → Service Points → Vending Machines → Productos/Bookings/Ventas
 
-### Mandatory Steps (NO OPTIONAL)
+### 🎯 Two Separate Sub-Projects
 
-1. **Generate CHANGELOG**
-   ```bash
-   npm run release  # Semantic version bump + CHANGELOG.md
-   ```
+**CRITICAL ARCHITECTURAL PRINCIPLE:** This is **NOT a monolithic project**. It consists of two independent sub-projects with distinct responsibilities:
 
-2. **Create Sprint Report**
-   - Copy `docs/templates/SPRINT_REPORT_TEMPLATE.md` to `docs/sprints/SPRINT_X.X_COMPLETADO.md`
-   - Complete ALL sections (no skipping):
-     - Resumen ejecutivo
-     - Tasks por día
-     - Problemas y soluciones
-     - Métricas finales
-     - Lecciones aprendidas
-     - Issues conocidos
-     - Impacto en backlog
+#### 1. **API REST** (`pages/api/` + `src/`)
+- **Purpose:** Serve data to mobile app (future)
+- **Consumers:** Mobile app, third-party integrations
+- **Priority:** **HIGH** - All API features come FIRST
+- **Scope:** 
+  - Public endpoints for app consumption
+  - Authentication & authorization
+  - Business logic (services, repositories)
+  - Data validation and transformation
+  - Payments, bookings, inventory management
 
-3. **Update COMPLETED_SPRINTS.md**
-   - Add new sprint entry at TOP
-   - Include: date, duration, metrics, deliverables
-   - Update "Resumen General" table
+#### 2. **Dashboard/Admin** (`pages/dashboard/`)
+- **Purpose:** Configure and manage data served by the API
+- **Consumers:** Internal admin users (service point managers, admins)
+- **Priority:** **LOW** - Only after API features are complete
+- **Scope:**
+  - Admin UI for managing caminos, ubicaciones, service points
+  - Inventory management interface
+  - Pricing and configuration tools
+  - Reports and analytics
 
-4. **Update BACKLOG.md**
-   - Mark completed tasks as ✅
-   - Move completed tasks to appropriate section
-   - Add new tasks discovered during sprint
-   - Update priorities if changed
-   - Move pending tasks to future sprints
+**DO NOT MIX RESPONSIBILITIES:**
+- ❌ API endpoints should NOT contain admin-only logic
+- ❌ Dashboard should NOT duplicate API business logic
+- ✅ Dashboard **consumes** the API (calls API endpoints)
+- ✅ API is **independent** of dashboard (can work without it)
 
-5. **Update ROADMAP.md**
-   - Mark sprint as ✅ COMPLETADO
-   - Update "Próximos Sprints" section
-   - Adjust estimations if necessary
+**Development Order:**
+1. **Phase 1:** API features (current focus)
+2. **Phase 2:** Dashboard UI (after API is feature-complete)
 
-### Enforcement Rule
+## CRITICAL: Task Completion at 100%
 
-**If ANY of these 5 steps is skipped, the sprint is NOT complete.**
+**NON-NEGOTIABLE RULE:** When assigned a task (e.g., "refactor tests"), complete it at **100%**, NOT 3-4 files out of 20.
 
-No exceptions. This ensures:
-- Complete historical record
-- CHANGELOG always up to date
-- Backlog reflects reality
-- Roadmap is accurate
-- Future developers understand decisions
+**Mandatory workflow:**
+1. Identify ALL affected files/components
+2. Complete ALL before marking task as done
+3. Document in CHANGELOG.md (`npm run release`)
+4. Update `docs/ROADMAP.md` (move completed task, add new discovered tasks)
+5. If new issues discovered → Add to ROADMAP backlog
 
-### Frequency
+**Example:**
+- ❌ **WRONG:** "Refactor tests" → Only 4/20 files updated
+- ✅ **CORRECT:** "Refactor tests" → 20/20 files updated + documented
 
-- **Sprint completo (3-5 días):** FULL process MANDATORY
-- **Bloque de trabajo (1 día):** Minimum BACKLOG.md update
-- **Bug fix crítico:** CHANGELOG + BACKLOG.md
+## Documentation After Each Work Block
 
-### Checklist Before Completing Sprint
+**After completing ANY work block:**
 
-```markdown
-- [ ] npm run release executed → CHANGELOG.md generated
-- [ ] Sprint report created in docs/sprints/
-- [ ] COMPLETED_SPRINTS.md updated
-- [ ] BACKLOG.md updated (all tasks moved)
-- [ ] ROADMAP.md updated (sprint marked complete)
-- [ ] Tests: 100% passing
-- [ ] Lint: 0 errors
-- [ ] Git commit: "chore(release): vX.X.X"
-- [ ] Git tag: vX.X.X pushed
+1. `npm run release` → Auto-generates CHANGELOG.md
+2. Update `docs/ROADMAP.md`:
+   - Move task from BACKLOG to COMPLETED
+   - Add new tasks discovered during work
+   - Update priorities if needed
+
+**Documentation structure:**
+- 📋 **Work tracking:** `docs/ROADMAP.md` (single source of truth)
+- 🏗️ **Architecture:** `docs/CLEAN_ARCHITECTURE.md`, `docs/ARCHITECTURE.md`
+- � **Business model:** `docs/notas.md`
+- 📦 **History:** Git commits + `CHANGELOG.md`
+
+## ZERO TOLERANCE: Quality Gates
+
+**Before marking ANY task complete:**
+
+```bash
+npm test          # ALL tests MUST pass (currently 2409/2410)
+npm run lint      # ZERO errors allowed
+npm run build     # Must succeed
 ```
 
-## MANDATORY TESTING: Si hay un test fallando del ámbito que sea, se arregla antes de dar por finalizada cualquier tarea y si se detecta que falta un test, se añade and payments.
+**Task NOT complete until:**
+- ✅ All affected files updated (100%, not partial)
+- ✅ CHANGELOG.md generated (`npm run release`)
+- ✅ ROADMAP.md updated (task moved + new tasks added)
+- ✅ All tests passing
+
+**If ANY test fails or component lacks tests → CREATE TESTS FIRST, then continue.**
 
 ## Architecture: 5-Layer Clean Architecture
 
-The codebase follows a strict 5-layer architecture pattern (see `docs/CLEAN_ARCHITECTURE.md` for full details):
+**Strict separation of concerns** (see `docs/CLEAN_ARCHITECTURE.md`):
 
 ```
-pages/api/          ← Layer 5: Endpoints (Swagger docs + delegation)
-src/controllers/    ← Layer 4: HTTP handling + Zod validation
-src/services/       ← Layer 3: Business logic
-src/repositories/   ← Layer 2: Data access (Supabase queries)
-src/dto/           ← Layer 1: Type definitions
+pages/api/          ← Layer 5: Swagger docs + delegate to controller
+src/controllers/    ← Layer 4: HTTP + Zod validation + error handling
+src/services/       ← Layer 3: Business logic ONLY
+src/repositories/   ← Layer 2: Supabase queries ONLY
+src/dto/            ← Layer 1: TypeScript interfaces
 ```
 
-### Critical Patterns
+### Mandatory Base Classes
 
-**BaseRepository & BaseService**: All repositories extend `BaseRepository<T>` and services extend `BaseService<T>` providing CRUD operations with TypeScript generics.
+**ALL repositories extend `BaseRepository<T>`:**
+- Provides `findAll()`, `findById()`, `create()`, `update()`, `delete()`, `count()`
+- Constructor: `constructor(db?: SupabaseClient)` (dependency injection for testing)
+- Custom queries added as methods
 
-**Response Conventions**:
+**ALL services extend `BaseService<T>`:**
+- Inherits CRUD operations with pagination, filtering, sorting
+- Custom business logic added as methods
+- Never touches Supabase directly (use repository)
 
-- GET: Returns object or array
-- POST/PUT: Returns array with single item `[item]`
-- DELETE: Returns message object `{ message: "..." }`
+### Response Format Conventions
 
-**Error Handling**: All errors returned in Spanish with consistent format.
+```typescript
+// GET single/collection
+{ data: T | T[], pagination?: PaginationMeta }
+
+// POST/PUT (always array with single item)
+{ data: [T] }
+
+// DELETE
+{ message: "..." }
+```
+
+**All errors in Spanish.**
 
 ## Development Workflow
 
@@ -139,39 +170,245 @@ echo "-- Backup $(date)" > backups/backup_$(date +%Y%m%d_%H%M%S).sql
 psql "postgresql://..." < supabase/migrations/migration_file.sql
 ```
 
-### Testing
+## Testing: 44% Coverage Standard
 
-- Jest with Next.js integration
-- Test files in `__tests__/` directory
-- Coverage thresholds: 50% statements, 40% branches
-- UUID mocking in `__mocks__/uuid.js`
+### Current Metrics
 
-## Creating New Endpoints
+- **2409/2410 tests passing (99.96%)**
+- **Coverage: 44% actual** (configured in jest.config.js)
+- **Target: 50%+ incremental** (grow organically, don't force prematurely)
 
-Follow this exact pattern for all new endpoints:
+### Test Structure (Mirror Source)
 
-1. **DTO** (`src/dto/entity.dto.ts`): Define interfaces
-2. **Repository** (`src/repositories/entity.repository.ts`): Extend BaseRepository, add custom queries
-3. **Service** (`src/services/entity.service.ts`): Extend BaseService, implement business rules
-4. **Controller** (`src/controllers/entity.controller.ts`): Handle HTTP, validate with Zod
-5. **Endpoint** (`pages/api/entity.ts`): Swagger docs + delegate to controller
+```
+__tests__/
+  schemas/entity.schema.test.ts      # Zod validation tests
+  repositories/entity.repository.test.ts  # Data access tests
+  services/entity.service.test.ts    # Business logic tests
+  controllers/entity.controller.test.ts   # HTTP handler tests
+  api/entity.test.ts                 # Integration tests
+```
 
-### Validation Patterns
-
-**Zod schemas** for all input validation:
+### Repository Test Pattern (Dependency Injection)
 
 ```typescript
-const EntitySchema = z.object({
-  name: z.string().min(2).max(150),
-  email: z.string().email(),
-  role: z.enum(["admin", "user"]).optional(),
+import { SupabaseClient } from "@supabase/supabase-js";
+import { EntityRepository } from "@/repositories/entity.repository";
+
+describe("EntityRepository", () => {
+  let repository: EntityRepository;
+  let mockSupabase: jest.Mocked<SupabaseClient>;
+
+  beforeEach(() => {
+    mockSupabase = {
+      from: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn(),
+    } as any;
+    
+    repository = new EntityRepository(mockSupabase);
+  });
+
+  it("should find by id", async () => {
+    mockSupabase.single.mockResolvedValue({ 
+      data: { id: "123", nombre: "Test" }, 
+      error: null 
+    });
+    
+    const result = await repository.findById("123");
+    expect(result.data?.nombre).toBe("Test");
+  });
 });
 ```
 
-**UUID validation** with regex:
+### Controller Test Pattern (node-mocks-http)
 
 ```typescript
-/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import { createMocks } from "node-mocks-http";
+import { EntityController } from "@/controllers/entity.controller";
+
+describe("EntityController", () => {
+  let controller: EntityController;
+  let mockService: jest.Mocked<EntityService>;
+
+  beforeEach(() => {
+    mockService = {
+      findById: jest.fn(),
+      create: jest.fn(),
+    } as any;
+    controller = new EntityController(mockService);
+  });
+
+  it("GET should return 200 with data", async () => {
+    const { req, res } = createMocks({ 
+      method: "GET", 
+      query: { id: "123" } 
+    });
+    
+    mockService.findById.mockResolvedValue({ id: "123", nombre: "Test" });
+    
+    await controller.handle(req, res);
+    
+    expect(res._getStatusCode()).toBe(200);
+    expect(JSON.parse(res._getData())).toEqual({
+      data: { id: "123", nombre: "Test" }
+    });
+  });
+});
+```
+
+### Run Tests
+
+```bash
+npm test              # All 2409 tests (target: 100% passing)
+npm run test:watch    # Watch mode (development)
+npm run test:coverage # Coverage report (current: 44%)
+
+# Specific test
+npm test -- entity.controller.test
+
+# If ANY test fails → FIX BEFORE CONTINUING
+```
+
+## Creating New Endpoints: 5-Step Pattern
+
+**Follow this EXACT sequence** for all new endpoints:
+
+1. **DTO** (`src/dto/entity.dto.ts`):
+   ```typescript
+   export interface Entity { id: string; nombre: string; created_at?: string; }
+   export interface CreateEntityDto { /* without id */ }
+   export interface UpdateEntityDto { id: string; /* optional fields */ }
+   export interface EntityFilters { /* query params */ }
+   ```
+
+2. **Repository** (`src/repositories/entity.repository.ts`):
+   ```typescript
+   export class EntityRepository extends BaseRepository<Entity> {
+     constructor(db?: SupabaseClient) {
+       super(db || supabase, "tabla_nombre");
+     }
+     // Add custom queries here
+   }
+   ```
+
+3. **Service** (`src/services/entity.service.ts`):
+   ```typescript
+   export class EntityService extends BaseService<Entity> {
+     constructor(repo?: EntityRepository) {
+       super(repo || new EntityRepository());
+     }
+     // Add business logic here
+   }
+   ```
+
+4. **Controller** (`src/controllers/entity.controller.ts`):
+   ```typescript
+   import { createEntitySchema, updateEntitySchema, deleteEntitySchema, queryEntitySchema } from "@/schemas/entity.schema";
+   
+   export class EntityController {
+     async handle(req, res) {
+       switch (req.method) {
+         case "GET": return this.handleGet(req, res);
+         case "POST": return this.handlePost(req, res);
+         // ...
+       }
+     }
+     
+     private async handleGet(req, res) {
+       const query = queryEntitySchema.parse(req.query);
+       const result = await this.service.findAll(query);
+       return res.status(200).json(result);
+     }
+   }
+   ```
+
+5. **Endpoint** (`pages/api/entity.ts`):
+   ```typescript
+   /**
+    * @swagger
+    * /api/entity:
+    *   get:
+    *     summary: Obtener entidades
+    *     // ... full OpenAPI spec
+    */
+   export default async function handler(req, res) {
+     const controller = new EntityController();
+     return controller.handle(req, res);
+   }
+   ```
+
+## Validation & Error Handling
+
+### Zod Schemas (MANDATORY)
+
+**Centralize ALL validation** in `src/schemas/entity.schema.ts`:
+
+```typescript
+import { z } from "zod";
+
+export const createEntitySchema = z.object({
+  nombre: z.string().min(2).max(150),
+  email: z.string().email(),
+});
+
+export const updateEntitySchema = z.object({
+  id: z.string().uuid(),
+  nombre: z.string().min(2).max(150).optional(),
+});
+
+export const queryEntitySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+});
+
+// Type inference
+export type CreateEntityInput = z.infer<typeof createEntitySchema>;
+```
+
+### UUID Validation (Centralized)
+
+**NEVER write manual UUID validation.** Use:
+
+```typescript
+import { validateUUID, validateUUIDs } from "@/middlewares/validate-uuid";
+
+// Single UUID
+const error = validateUUID(id, "producto");
+if (error) return res.status(400).json({ error });
+
+// Multiple UUIDs
+const error = validateUUIDs({ id, slotId }, {
+  customNames: { slotId: "slot" }
+});
+if (error) return res.status(400).json({ error });
+```
+
+### Error Messages (Centralized)
+
+**NEVER hardcode error strings.** Use:
+
+```typescript
+import { ErrorMessages } from "@/constants/error-messages";
+
+return res.status(400).json({ error: ErrorMessages.REQUIRED_ID("producto") });
+return res.status(404).json({ error: ErrorMessages.PRODUCTO_NOT_FOUND });
+return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
+```
+
+### Ownership Validation
+
+**For nested resources** (slots in machines, ubicaciones in caminos):
+
+```typescript
+import { validateSlotOwnership, validateOwnership } from "@/utils/validate-ownership";
+
+const slot = await service.findById(slotId);
+const ownershipError = validateSlotOwnership(slot, machineId);
+if (ownershipError) {
+  return res.status(ownershipError.status).json({ error: ownershipError.message });
+}
 ```
 
 ## Key Integrations

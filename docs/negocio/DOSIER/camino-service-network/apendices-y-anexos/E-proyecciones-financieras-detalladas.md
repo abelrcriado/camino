@@ -1,1 +1,0 @@
-# Proyecciones financieras detalladas
