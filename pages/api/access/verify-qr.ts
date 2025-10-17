@@ -160,7 +160,16 @@
  */
 
 import { QRValidationController } from '@/api/controllers/qr-validation.controller';
+import { TransactionRepository } from '@/api/repositories/transaction.repository';
+import { AccessLogRepository } from '@/api/repositories/access_log.repository';
+import { UserRepository } from '@/api/repositories/user.repository';
 
-const controller = new QRValidationController();
+// Instanciar repositorios con DI pattern
+const transactionRepo = new TransactionRepository();
+const accessLogRepo = new AccessLogRepository();
+const userRepo = new UserRepository();
+
+// Instanciar controller con repositorios inyectados
+const controller = new QRValidationController(transactionRepo, accessLogRepo, userRepo);
 
 export default controller.verifyQR;

@@ -3,15 +3,23 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { asyncHandler } from '@/api/middlewares/error-handler';
 import { AppError } from '@/api/errors/custom-errors';
-import { supabase } from '@/api/services/supabase';
 import { logger } from '@/config/logger';
 import { createReturnSchema } from '@/api/schemas/qr.schema';
 import type { CreateReturnDto, Return } from '@/api/dto/qr.dto';
+import { TransactionRepository } from '@/api/repositories/transaction.repository';
+import { ReturnRepository } from '@/api/repositories/return.repository';
 
 /**
  * Controller para procesamiento de devoluciones de productos/servicios
  */
 export class QRReturnController {
+  private transactionRepo: TransactionRepository;
+  private returnRepo: ReturnRepository;
+
+  constructor(transactionRepo?: TransactionRepository, returnRepo?: ReturnRepository) {
+    this.transactionRepo = transactionRepo || new TransactionRepository();
+    this.returnRepo = returnRepo || new ReturnRepository();
+  }
   /**
    * POST /api/transactions/return
    * Procesa una devolución de producto/servicio
@@ -30,11 +38,9 @@ export class QRReturnController {
       });
 
       // 2. Buscar transacción original
-      const { data: originalTransaction, error: txError } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('id', original_transaction_id)
-        .single();
+      const { data: originalTransaction, error: txError } = await this.transactionRepo.findById(
+        original_transaction_id
+      );
 
       if (txError || !originalTransaction) {
         logger.warn('Transacción no encontrada para devolución', { original_transaction_id });
@@ -107,14 +113,10 @@ export class QRReturnController {
       const newTotal = parseFloat(originalTransaction.total.toString()) - (refund_amount ?? 0);
 
       // 7. Invalidar transacción original
-      const { error: invalidateError } = await supabase
-        .from('transactions')
-        .update({
-          qr_invalidated: true,
-          qr_invalidated_at: new Date().toISOString(),
-          qr_invalidated_reason: reason || 'devolución',
-        })
-        .eq('id', original_transaction_id);
+      const { error: invalidateError } = await this.transactionRepo.invalidateQR(
+        original_transaction_id,
+        reason || 'devolución'
+      );
 
       if (invalidateError) {
         logger.error('Error al invalidar transacción original', { error: invalidateError });
@@ -125,27 +127,23 @@ export class QRReturnController {
       let newTransactionId: string | null = null;
 
       if (remainingItems.length > 0 && newTotal > 0) {
-        const { data: newTransaction, error: createError } = await supabase
-          .from('transactions')
-          .insert({
-            user_id: originalTransaction.user_id,
-            items: remainingItems,
-            total: newTotal,
-            status: 'pending', // Nuevo QR sin usar aún
-            parent_transaction_id: original_transaction_id,
-            created_at: new Date().toISOString(),
-            qr_used: false,
-            qr_invalidated: false,
-          })
-          .select('id')
-          .single();
+        const { data: newTransactionArray, error: createError } = await this.transactionRepo.create({
+          user_id: originalTransaction.user_id,
+          items: remainingItems,
+          total: newTotal,
+          status: 'pending_sync', // Nuevo QR sin usar aún
+          parent_transaction_id: original_transaction_id,
+          created_at: new Date().toISOString(),
+          qr_used: false,
+          qr_invalidated: false,
+        });
 
         if (createError) {
           logger.error('Error al crear nueva transacción', { error: createError });
           throw new AppError('Error al crear nueva transacción', 500);
         }
 
-        newTransactionId = newTransaction.id;
+        newTransactionId = newTransactionArray?.[0]?.id || null;
 
         logger.info('Nueva transacción creada tras devolución', {
           new_transaction_id: newTransactionId,
@@ -158,18 +156,13 @@ export class QRReturnController {
       }
 
       // 9. Registrar devolución en tabla returns
-      const { data: returnRecord, error: returnError } = await supabase
-        .from('returns')
-        .insert({
-          original_transaction_id,
-          new_transaction_id: newTransactionId,
-          returned_items,
-          refund_amount,
-          reason: reason || null,
-          processed_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
+      const { data: returnRecord, error: returnError } = await this.returnRepo.createReturn({
+        original_transaction_id,
+        new_transaction_id: newTransactionId,
+        returned_items,
+        refund_amount,
+        reason: reason || null,
+      });
 
       if (returnError) {
         logger.error('Error al registrar devolución', { error: returnError });
@@ -183,7 +176,7 @@ export class QRReturnController {
         refund_amount,
       });
 
-      return res.status(201).json({ data: returnRecord as Return });
+      return res.status(201).json({ data: [returnRecord] });
     }
   );
 }

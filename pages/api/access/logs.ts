@@ -164,7 +164,12 @@
  */
 
 import { QRLogsController } from '@/api/controllers/qr-logs.controller';
+import { AccessLogRepository } from '@/api/repositories/access_log.repository';
 
-const controller = new QRLogsController();
+// Instanciar repositorio con DI pattern
+const accessLogRepo = new AccessLogRepository();
+
+// Instanciar controller con repositorio inyectado
+const controller = new QRLogsController(accessLogRepo);
 
 export default controller.getLogs;

@@ -9,8 +9,8 @@
  * - 13-step validation process flow
  * - Error scenarios: 400, 403, 404, 409, 410, 500
  * 
- * Mock Strategy:
- * - Dependency injection: Controller accepts mocked Supabase client
+ * Mock Strategy (UPDATED - Repository DI Pattern):
+ * - Repository dependency injection: Controller accepts mocked repositories
  * - HTTP mocking: node-mocks-http for request/response
  * - Factory pattern: generateUUID(), generateISODate(), generateHMACSignature()
  */
@@ -18,74 +18,25 @@
 import { createMocks } from 'node-mocks-http';
 import crypto from 'crypto';
 import { QRValidationController } from '@/api/controllers/qr-validation.controller';
+import { TransactionRepository } from '@/api/repositories/transaction.repository';
+import { AccessLogRepository } from '@/api/repositories/access_log.repository';
+import { UserRepository } from '@/api/repositories/user.repository';
 import { generateUUID, generateISODate } from '../helpers/factories';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { QRPayload, TransactionItem } from '@/api/dto/qr.dto';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// Mock del módulo supabase
-jest.mock('@/api/services/supabase', () => {
-  const mockFrom = jest.fn();
-  const mockSelect = jest.fn();
-  const mockInsert = jest.fn();
-  const mockUpdate = jest.fn();
-  const mockEq = jest.fn();
-  const mockSingle = jest.fn();
-
-  // Configurar chaining
-  mockFrom.mockReturnValue({
-    select: mockSelect,
-    insert: mockInsert,
-    update: mockUpdate,
-    eq: mockEq,
-  });
-
-  mockSelect.mockReturnValue({
-    eq: mockEq,
-    single: mockSingle,
-  });
-
-  mockInsert.mockReturnValue({
-    select: mockSelect,
-    single: mockSingle,
-  });
-
-  mockUpdate.mockReturnValue({
-    eq: mockEq,
-  });
-
-  mockEq.mockReturnValue({
-    eq: mockEq,
-    single: mockSingle,
-    select: mockSelect,
-  });
-
-  const mockSupabase = {
-    from: mockFrom,
-    select: mockSelect,
-    insert: mockInsert,
-    update: mockUpdate,
-    eq: mockEq,
-    single: mockSingle,
-  };
-
-  return { supabase: mockSupabase };
-});
-
-// Mock del logger (logger.ts usa export default)
-jest.mock('@/config/logger', () => {
-  const mockLogger = {
+// Mock del logger (default export)
+jest.mock('@/config/logger', () => ({
+  __esModule: true,
+  default: {
     info: jest.fn(),
     warn: jest.fn(),
     error: jest.fn(),
     debug: jest.fn(),
-  };
-  return {
-    default: mockLogger,
-    logger: mockLogger, // También exportar como named para compatibilidad
-  };
-});
+  },
+}));
 
 // Mock del asyncHandler para que ejecute directamente
 jest.mock('@/api/middlewares/error-handler', () => ({
@@ -190,22 +141,52 @@ const generateFutureQR = (secret: string): string => {
   return qrData;
 };
 
-/**
- * Obtiene el mock de Supabase del módulo mockeado
- */
-import { supabase as mockSupabaseModule } from '@/api/services/supabase';
-
 // ============================================================================
 // Test Suite
 // ============================================================================
 
 describe('QRValidationController', () => {
   let controller: QRValidationController;
-  let mockSupabase: any;
+  let mockTransactionRepo: jest.Mocked<TransactionRepository>;
+  let mockAccessLogRepo: jest.Mocked<AccessLogRepository>;
+  let mockUserRepo: jest.Mocked<UserRepository>;
 
   beforeEach(() => {
-    mockSupabase = mockSupabaseModule;
-    controller = new QRValidationController();
+    // Create mocked repository instances with all methods
+    mockTransactionRepo = {
+      findById: jest.fn(),
+      create: jest.fn(),
+      markQRAsUsed: jest.fn(),
+      invalidateQR: jest.fn(),
+      upsert: jest.fn(),
+      createFromQRPayload: jest.fn(),
+      updateStatus: jest.fn(),
+      findByUserId: jest.fn(),
+    } as any;
+
+    mockAccessLogRepo = {
+      logAccess: jest.fn(),
+      findWithFilters: jest.fn(),
+      findByTransactionId: jest.fn(),
+      findByUserId: jest.fn(),
+      countByValidationResult: jest.fn(),
+    } as any;
+
+    mockUserRepo = {
+      findById: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      findAll: jest.fn(),
+    } as any;
+
+    // Inject mocked repositories into controller
+    controller = new QRValidationController(
+      mockTransactionRepo,
+      mockAccessLogRepo,
+      mockUserRepo
+    );
+
     jest.clearAllMocks();
   });
 
@@ -233,43 +214,60 @@ describe('QRValidationController', () => {
       });
 
       // Mock: Usuario existe con qr_secret
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: payload.user_id, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       // Mock: Transacción NO existe (crear desde QR)
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: null,
         error: null,
-      });
+      } as any);
 
-      // Mock: Crear nueva transacción
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: {
-          id: payload.transaction_id,
+      // Mock: Crear nueva transacción desde payload QR
+      const testTransaction = {
+        id: payload.transaction_id,
+        user_id: payload.user_id,
+        items: payload.items,
+        total: 3.50,
+        status: 'pending_sync' as const,
+        qr_used: false,
+        qr_invalidated: false,
+        qr_used_at: undefined,
+        qr_used_location: undefined,
+        qr_used_by: undefined,
+        qr_invalidated_at: undefined,
+        qr_invalidated_reason: undefined,
+        parent_transaction_id: undefined,
+        created_at: new Date(payload.timestamp).toISOString(),
+        updated_at: new Date().toISOString(),
+        synced_at: undefined,
+      };
+      
+      mockTransactionRepo.createFromQRPayload.mockResolvedValue({
+        data: testTransaction,  // single() returns object, not array
+        error: null,
+      } as any);
+
+      // Mock: Marcar transacción como usada
+      mockTransactionRepo.markQRAsUsed.mockResolvedValue({
+        data: null,
+        error: null,
+      } as any);
+
+      // Mock: Log de acceso (non-blocking)
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{
+          id: generateUUID(),
+          transaction_id: payload.transaction_id,
           user_id: payload.user_id,
-          items: payload.items,
-          total: 3.50,
-          status: 'pending_sync',
-          qr_used: false,
-          qr_invalidated: false,
-          created_at: new Date(payload.timestamp).toISOString(),
-        },
+          location_id: locationId,
+          validation_result: 'valid',
+          scanned_by: scannedBy,
+        }],
         error: null,
-      });
-
-      // Mock: Actualizar transacción (marcar como usado)
-      (mockSupabase.update as jest.Mock).mockResolvedValue({
-        data: null,
-        error: null,
-      });
-
-      // Mock: Insertar log de acceso
-      (mockSupabase.insert as jest.Mock).mockResolvedValue({
-        data: null,
-        error: null,
-      });
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -293,37 +291,38 @@ describe('QRValidationController', () => {
       });
 
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: payload.user_id, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       // Mock: Transacción existe y NO está usada
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: {
           id: payload.transaction_id,
           user_id: payload.user_id,
           items: payload.items,
           total: 3.50,
-          status: 'pending_sync',
+          status: 'pending_sync' as const,
           qr_used: false,
           qr_invalidated: false,
           created_at: new Date(payload.timestamp).toISOString(),
+          updated_at: new Date().toISOString(),
         },
         error: null,
-      });
+      } as any);
 
-      // Mock: Actualizar transacción
-      (mockSupabase.update as jest.Mock).mockResolvedValue({
+      // Mock: Marcar como usado
+      mockTransactionRepo.markQRAsUsed.mockResolvedValue({
         data: null,
         error: null,
-      });
+      } as any);
 
-      // Mock: Insertar log
-      (mockSupabase.insert as jest.Mock).mockResolvedValue({
-        data: null,
+      // Mock: Log de acceso
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{ id: generateUUID() }],
         error: null,
-      });
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -334,7 +333,7 @@ describe('QRValidationController', () => {
 
     it('should validate QR within 24h expiration window', async () => {
       const twentyThreeHoursAgo = Date.now() - (23 * 60 * 60 * 1000);
-      const { qrData, secret } = generateValidQRPayload({ timestamp: twentyThreeHoursAgo });
+      const { qrData, payload, secret } = generateValidQRPayload({ timestamp: twentyThreeHoursAgo });
       const locationId = generateUUID();
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -346,32 +345,38 @@ describe('QRValidationController', () => {
       });
 
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: payload.user_id, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       // Mock: Transacción no existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: null,
         error: null,
-      });
+      } as any);
 
       // Mock: Crear transacción
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.createFromQRPayload.mockResolvedValue({
         data: {
-          id: generateUUID(),
+          id: payload.transaction_id,
+          user_id: payload.user_id,
           qr_used: false,
           qr_invalidated: false,
-          items: [],
-          total: 0,
+          items: payload.items,
+          total: 3.50,
+          status: 'pending_sync' as const,
+          created_at: new Date(twentyThreeHoursAgo).toISOString(),
+          updated_at: new Date().toISOString(),
         },
         error: null,
-      });
+      } as any);
 
-      // Mock: Update y insert
-      (mockSupabase.update as jest.Mock).mockResolvedValue({ data: null, error: null });
-      (mockSupabase.insert as jest.Mock).mockResolvedValue({ data: null, error: null });
+      // Mock: Marcar como usado
+      mockTransactionRepo.markQRAsUsed.mockResolvedValue({ data: null, error: null } as any);
+      
+      // Mock: Log
+      mockAccessLogRepo.logAccess.mockResolvedValue({ data: [{}], error: null } as any);
 
       await controller.verifyQR(req, res);
 
@@ -419,7 +424,7 @@ describe('QRValidationController', () => {
     });
 
     it('should reject QR with unsupported version (e.g., 2.0) with 400', async () => {
-      const { qrData, secret } = generateValidQRPayload({ version: '2.0' });
+      const { qrData, payload, secret } = generateValidQRPayload({ version: '2.0' });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
@@ -429,11 +434,11 @@ describe('QRValidationController', () => {
         },
       });
 
-      // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      // Mock: Usuario existe (pero falla antes por versión)
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: payload.user_id, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -477,16 +482,16 @@ describe('QRValidationController', () => {
       });
 
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: 'test-secret-key-12345' },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: generateUUID(), qr_secret: 'test-secret-key-12345' },
         error: null,
-      });
+      } as any);
 
-      // Mock: Insertar log (falsified)
-      (mockSupabase.insert as jest.Mock).mockResolvedValue({
-        data: null,
+      // Mock: Log (falsified)
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{}],
         error: null,
-      });
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -496,7 +501,7 @@ describe('QRValidationController', () => {
     });
 
     it('should reject QR with tampered items (altered after signing)', async () => {
-      const { qrData, secret } = generateValidQRPayload();
+      const { qrData, payload, secret } = generateValidQRPayload();
       const locationId = generateUUID();
 
       // Alterar el payload DESPUÉS de generar la firma
@@ -515,16 +520,16 @@ describe('QRValidationController', () => {
       });
 
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: payload.user_id, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
-      // Mock: Insertar log
-      (mockSupabase.insert as jest.Mock).mockResolvedValue({
-        data: null,
+      // Mock: Log
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{}],
         error: null,
-      });
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -552,16 +557,16 @@ describe('QRValidationController', () => {
       });
 
       // Mock: Usuario NO existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockUserRepo.findById.mockResolvedValue({
         data: null,
         error: { message: 'User not found' },
-      });
+      } as any);
 
-      // Mock: Insertar log (invalid)
-      (mockSupabase.insert as jest.Mock).mockResolvedValue({
-        data: null,
+      // Mock: Log (invalid)
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{}],
         error: null,
-      });
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -594,8 +599,14 @@ describe('QRValidationController', () => {
         error: null,
       });
 
+      // Mock: Usuario existe
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: payload.user_id, qr_secret: secret },
+        error: null,
+      } as any);
+
       // Mock: Transacción existe y YA ESTÁ USADA
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: {
           id: payload.transaction_id,
           user_id: payload.user_id,
@@ -606,13 +617,13 @@ describe('QRValidationController', () => {
           total: 3.50,
         },
         error: null,
-      });
+      } as any);
 
-      // Mock: Insertar log (already_used)
-      (mockSupabase.insert as jest.Mock).mockResolvedValue({
-        data: null,
+      // Mock: Log (already_used)
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{}],
         error: null,
-      });
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -640,17 +651,22 @@ describe('QRValidationController', () => {
         },
       });
 
-      // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
-        error: null,
-      });
+      // Decode to get user_id from expired QR
+      const decodedPayload = JSON.parse(
+        Buffer.from(qrData, 'base64').toString('utf-8')
+      );
 
-      // Mock: Insertar log (expired)
-      (mockSupabase.insert as jest.Mock).mockResolvedValue({
-        data: null,
+      // Mock: Usuario existe
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: decodedPayload.user_id, qr_secret: secret },
         error: null,
-      });
+      } as any);
+
+      // Mock: Log (expired)
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{}],
+        error: null,
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -672,13 +688,13 @@ describe('QRValidationController', () => {
       });
 
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: payload.user_id, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       // Mock: Transacción existe y está INVALIDADA
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: {
           id: payload.transaction_id,
           user_id: payload.user_id,
@@ -689,13 +705,13 @@ describe('QRValidationController', () => {
           total: 3.50,
         },
         error: null,
-      });
+      } as any);
 
-      // Mock: Insertar log (invalid)
-      (mockSupabase.insert as jest.Mock).mockResolvedValue({
-        data: null,
+      // Mock: Log (invalid)
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{}],
         error: null,
-      });
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -718,33 +734,53 @@ describe('QRValidationController', () => {
         },
       });
 
+      // Decode to get user_id and transaction_id from future QR
+      const decodedPayload = JSON.parse(
+        Buffer.from(qrData, 'base64').toString('utf-8')
+      );
+
+      const testTransaction = {
+        id: decodedPayload.transaction_id,
+        user_id: decodedPayload.user_id,
+        items: decodedPayload.items,
+        total: decodedPayload.total,
+        status: 'pending_sync' as const,
+        qr_used: false,
+        qr_invalidated: false,
+        created_at: new Date(decodedPayload.timestamp).toISOString(),
+        updated_at: new Date().toISOString(),
+        synced_at: new Date().toISOString(),
+      };
+
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: decodedPayload.user_id, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       // Mock: Transacción no existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: null,
         error: null,
-      });
+      } as any);
 
       // Mock: Crear transacción
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: {
-          id: generateUUID(),
-          qr_used: false,
-          qr_invalidated: false,
-          items: [],
-          total: 0,
-        },
+      mockTransactionRepo.createFromQRPayload.mockResolvedValue({
+        data: testTransaction,
         error: null,
-      });
+      } as any);
 
-      // Mock: Update y insert
-      (mockSupabase.update as jest.Mock).mockResolvedValue({ data: null, error: null });
-      (mockSupabase.insert as jest.Mock).mockResolvedValue({ data: null, error: null });
+      // Mock: Mark as used
+      mockTransactionRepo.markQRAsUsed.mockResolvedValue({
+        data: null,
+        error: null,
+      } as any);
+
+      // Mock: Log
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{}],
+        error: null,
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -771,8 +807,8 @@ describe('QRValidationController', () => {
         },
       });
 
-      // Mock: Error de base de datos
-      (mockSupabase.single as jest.Mock).mockRejectedValueOnce(
+      // Mock: Error de base de datos (user lookup fails)
+      mockUserRepo.findById.mockRejectedValue(
         new Error('Database connection failed')
       );
 
@@ -796,22 +832,22 @@ describe('QRValidationController', () => {
       });
 
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: userId, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       // Mock: Transacción no existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: null,
         error: null,
-      });
+      } as any);
 
       // Mock: Error al crear transacción
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.createFromQRPayload.mockResolvedValue({
         data: null,
         error: { message: 'Insert failed' },
-      });
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -844,28 +880,32 @@ describe('QRValidationController', () => {
       });
 
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: userId, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       // Mock: Transacción existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: {
           id: transactionId,
+          user_id: userId,
           qr_used: false,
           qr_invalidated: false,
           items,
           total: 3.50,
+          status: 'pending_sync' as const,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         },
         error: null,
-      });
+      } as any);
 
-      // Mock: Error al actualizar
-      (mockSupabase.update as jest.Mock).mockResolvedValue({
+      // Mock: Error al actualizar (markQRAsUsed fails)
+      mockTransactionRepo.markQRAsUsed.mockResolvedValue({
         data: null,
         error: { message: 'Update failed' },
-      });
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -894,43 +934,58 @@ describe('QRValidationController', () => {
         },
       });
 
+      // Decode to get user_id and transaction_id
+      const decodedPayload = JSON.parse(
+        Buffer.from(qrData, 'base64').toString('utf-8')
+      );
+
+      const testTransaction = {
+        id: decodedPayload.transaction_id,
+        user_id: decodedPayload.user_id,
+        items: decodedPayload.items,
+        total: decodedPayload.total,
+        status: 'pending_sync' as const,
+        qr_used: false,
+        qr_invalidated: false,
+        created_at: new Date(decodedPayload.timestamp).toISOString(),
+        updated_at: new Date().toISOString(),
+        synced_at: new Date().toISOString(),
+      };
+
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: decodedPayload.user_id, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       // Mock: Transacción no existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: null,
         error: null,
-      });
+      } as any);
 
       // Mock: Crear transacción
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: {
-          id: generateUUID(),
-          qr_used: false,
-          qr_invalidated: false,
-          items: [],
-          total: 0,
-        },
+      mockTransactionRepo.createFromQRPayload.mockResolvedValue({
+        data: testTransaction,
         error: null,
-      });
+      } as any);
 
-      // Mock: Update
-      (mockSupabase.update as jest.Mock).mockResolvedValue({ data: null, error: null });
-
-      // Mock: Insert log
-      const insertMock = (mockSupabase.insert as jest.Mock).mockResolvedValue({
+      // Mock: Mark as used
+      mockTransactionRepo.markQRAsUsed.mockResolvedValue({
         data: null,
         error: null,
-      });
+      } as any);
+
+      // Mock: Insert log
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{}],
+        error: null,
+      } as any);
 
       await controller.verifyQR(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      expect(insertMock).toHaveBeenCalledWith(
+      expect(mockAccessLogRepo.logAccess).toHaveBeenCalledWith(
         expect.objectContaining({
           location_id: locationId,
           scanned_by: scannedBy,
@@ -951,22 +1006,27 @@ describe('QRValidationController', () => {
         },
       });
 
+      // Decode to get user_id
+      const decodedPayload = JSON.parse(
+        Buffer.from(qrData, 'base64').toString('utf-8')
+      );
+
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: 'test-secret-key-12345' },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: decodedPayload.user_id, qr_secret: 'test-secret-key-12345' },
         error: null,
-      });
+      } as any);
 
       // Mock: Insert log
-      const insertMock = (mockSupabase.insert as jest.Mock).mockResolvedValue({
-        data: null,
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{}],
         error: null,
-      });
+      } as any);
 
       await controller.verifyQR(req, res);
 
       expect(res._getStatusCode()).toBe(403);
-      expect(insertMock).toHaveBeenCalledWith(
+      expect(mockAccessLogRepo.logAccess).toHaveBeenCalledWith(
         expect.objectContaining({
           validation_result: 'falsified',
         })
@@ -988,13 +1048,13 @@ describe('QRValidationController', () => {
       });
 
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: userId, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       // Mock: Transacción ya usada
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: {
           id: transactionId,
           user_id: userId,
@@ -1003,20 +1063,23 @@ describe('QRValidationController', () => {
           qr_invalidated: false,
           items: [],
           total: 3.50,
+          status: 'completed' as const,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         },
         error: null,
-      });
+      } as any);
 
       // Mock: Insert log
-      const insertMock = (mockSupabase.insert as jest.Mock).mockResolvedValue({
-        data: null,
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{}],
         error: null,
-      });
+      } as any);
 
       await controller.verifyQR(req, res);
 
       expect(res._getStatusCode()).toBe(409);
-      expect(insertMock).toHaveBeenCalledWith(
+      expect(mockAccessLogRepo.logAccess).toHaveBeenCalledWith(
         expect.objectContaining({
           validation_result: 'already_used',
         })
@@ -1035,35 +1098,50 @@ describe('QRValidationController', () => {
         },
       });
 
+      // Decode to get user_id and transaction_id
+      const decodedPayload = JSON.parse(
+        Buffer.from(qrData, 'base64').toString('utf-8')
+      );
+
+      const testTransaction = {
+        id: decodedPayload.transaction_id,
+        user_id: decodedPayload.user_id,
+        items: decodedPayload.items,
+        total: decodedPayload.total,
+        status: 'pending_sync' as const,
+        qr_used: false,
+        qr_invalidated: false,
+        created_at: new Date(decodedPayload.timestamp).toISOString(),
+        updated_at: new Date().toISOString(),
+        synced_at: new Date().toISOString(),
+      };
+
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: decodedPayload.user_id, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       // Mock: Transacción no existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: null,
         error: null,
-      });
+      } as any);
 
       // Mock: Crear transacción
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: {
-          id: generateUUID(),
-          qr_used: false,
-          qr_invalidated: false,
-          items: [],
-          total: 0,
-        },
+      mockTransactionRepo.createFromQRPayload.mockResolvedValue({
+        data: testTransaction,
         error: null,
-      });
+      } as any);
 
-      // Mock: Update
-      (mockSupabase.update as jest.Mock).mockResolvedValue({ data: null, error: null });
+      // Mock: Mark as used
+      mockTransactionRepo.markQRAsUsed.mockResolvedValue({
+        data: null,
+        error: null,
+      } as any);
 
-      // Mock: Log insertion FAILS
-      (mockSupabase.insert as jest.Mock).mockRejectedValue(
+      // Mock: Log insertion FAILS (non-blocking)
+      mockAccessLogRepo.logAccess.mockRejectedValue(
         new Error('Log insertion failed')
       );
 
@@ -1182,33 +1260,53 @@ describe('QRValidationController', () => {
         },
       });
 
+      // Decode to get user_id and transaction_id
+      const decodedPayload = JSON.parse(
+        Buffer.from(qrData, 'base64').toString('utf-8')
+      );
+
+      const testTransaction = {
+        id: decodedPayload.transaction_id,
+        user_id: decodedPayload.user_id,
+        items: [],
+        total: 0,
+        status: 'pending_sync' as const,
+        qr_used: false,
+        qr_invalidated: false,
+        created_at: new Date(decodedPayload.timestamp).toISOString(),
+        updated_at: new Date().toISOString(),
+        synced_at: new Date().toISOString(),
+      };
+
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: decodedPayload.user_id, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       // Mock: Transacción no existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: null,
         error: null,
-      });
+      } as any);
 
       // Mock: Crear transacción con total = 0
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: {
-          id: generateUUID(),
-          qr_used: false,
-          qr_invalidated: false,
-          items: [],
-          total: 0,
-        },
+      mockTransactionRepo.createFromQRPayload.mockResolvedValue({
+        data: testTransaction,
         error: null,
-      });
+      } as any);
 
-      // Mock: Update y insert
-      (mockSupabase.update as jest.Mock).mockResolvedValue({ data: null, error: null });
-      (mockSupabase.insert as jest.Mock).mockResolvedValue({ data: null, error: null });
+      // Mock: Mark as used
+      mockTransactionRepo.markQRAsUsed.mockResolvedValue({
+        data: null,
+        error: null,
+      } as any);
+
+      // Mock: Log
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{}],
+        error: null,
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -1245,33 +1343,53 @@ describe('QRValidationController', () => {
         },
       });
 
+      // Decode to get user_id and transaction_id
+      const decodedPayload = JSON.parse(
+        Buffer.from(qrData, 'base64').toString('utf-8')
+      );
+
+      const testTransaction = {
+        id: decodedPayload.transaction_id,
+        user_id: decodedPayload.user_id,
+        items,
+        total: 20.00,
+        status: 'pending_sync' as const,
+        qr_used: false,
+        qr_invalidated: false,
+        created_at: new Date(decodedPayload.timestamp).toISOString(),
+        updated_at: new Date().toISOString(),
+        synced_at: new Date().toISOString(),
+      };
+
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: decodedPayload.user_id, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       // Mock: Transacción no existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: null,
         error: null,
-      });
+      } as any);
 
       // Mock: Crear transacción con total calculado (2*5 + 1*10 = 20)
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: {
-          id: generateUUID(),
-          qr_used: false,
-          qr_invalidated: false,
-          items,
-          total: 20.00,
-        },
+      mockTransactionRepo.createFromQRPayload.mockResolvedValue({
+        data: testTransaction,
         error: null,
-      });
+      } as any);
 
-      // Mock: Update y insert
-      (mockSupabase.update as jest.Mock).mockResolvedValue({ data: null, error: null });
-      (mockSupabase.insert as jest.Mock).mockResolvedValue({ data: null, error: null });
+      // Mock: Mark as used
+      mockTransactionRepo.markQRAsUsed.mockResolvedValue({
+        data: null,
+        error: null,
+      } as any);
+
+      // Mock: Log
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{}],
+        error: null,
+      } as any);
 
       await controller.verifyQR(req, res);
 
@@ -1294,49 +1412,62 @@ describe('QRValidationController', () => {
         },
       });
 
+      // Decode to get user_id and transaction_id
+      const decodedPayload = JSON.parse(
+        Buffer.from(qrData, 'base64').toString('utf-8')
+      );
+
+      const testTransaction = {
+        id: decodedPayload.transaction_id,
+        user_id: decodedPayload.user_id,
+        items: [],
+        total: 0,
+        status: 'pending_sync' as const,
+        qr_used: false,
+        qr_invalidated: false,
+        created_at: new Date(decodedPayload.timestamp).toISOString(),
+        updated_at: new Date().toISOString(),
+        synced_at: new Date().toISOString(),
+      };
+
       // Mock: Usuario existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: { qr_secret: secret },
+      mockUserRepo.findById.mockResolvedValue({
+        data: { id: decodedPayload.user_id, qr_secret: secret },
         error: null,
-      });
+      } as any);
 
       // Mock: Transacción no existe
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
+      mockTransactionRepo.findById.mockResolvedValue({
         data: null,
         error: null,
-      });
+      } as any);
 
       // Mock: Crear transacción
-      (mockSupabase.single as jest.Mock).mockResolvedValueOnce({
-        data: {
-          id: generateUUID(),
-          qr_used: false,
-          qr_invalidated: false,
-          items: [],
-          total: 0,
-        },
+      mockTransactionRepo.createFromQRPayload.mockResolvedValue({
+        data: testTransaction,
         error: null,
-      });
+      } as any);
 
-      // Mock: Update (qr_used_by should be null)
-      const updateMock = (mockSupabase.update as jest.Mock).mockResolvedValue({
+      // Mock: Mark as used (qr_used_by should be null)
+      mockTransactionRepo.markQRAsUsed.mockResolvedValue({
         data: null,
         error: null,
-      });
+      } as any);
 
-      // Mock: Insert log
-      (mockSupabase.insert as jest.Mock).mockResolvedValue({
-        data: null,
+      // Mock: Log
+      mockAccessLogRepo.logAccess.mockResolvedValue({
+        data: [{}],
         error: null,
-      });
+      } as any);
 
       await controller.verifyQR(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      expect(updateMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          qr_used_by: null,
-        })
+      // Verify markQRAsUsed was called with null for scanned_by
+      expect(mockTransactionRepo.markQRAsUsed).toHaveBeenCalledWith(
+        decodedPayload.transaction_id,
+        locationId,
+        null // scanned_by is null (optional field omitted)
       );
     });
   });

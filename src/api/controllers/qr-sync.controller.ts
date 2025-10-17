@@ -4,8 +4,9 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { asyncHandler } from '@/api/middlewares/error-handler';
 import { AppError } from '@/api/errors/custom-errors';
 import { ErrorMessages } from '@/shared/constants/error-messages';
-import { supabase } from '@/api/services/supabase';
-import { logger } from '@/config/logger';
+import { TransactionRepository } from '../repositories/transaction.repository';
+import { UserRepository } from '../repositories/user.repository';
+import logger from '@/config/logger';
 import { syncTransactionSchema } from '@/api/schemas/qr.schema';
 import type { SyncTransactionDto, Transaction } from '@/api/dto/qr.dto';
 
@@ -13,6 +14,16 @@ import type { SyncTransactionDto, Transaction } from '@/api/dto/qr.dto';
  * Controller para sincronización de compras offline con el servidor
  */
 export class QRSyncController {
+  private transactionRepo: TransactionRepository;
+  private userRepo: UserRepository;
+
+  constructor(
+    transactionRepo?: TransactionRepository,
+    userRepo?: UserRepository
+  ) {
+    this.transactionRepo = transactionRepo || new TransactionRepository();
+    this.userRepo = userRepo || new UserRepository();
+  }
   /**
    * POST /api/transactions/sync
    * Sincroniza una transacción creada offline con el servidor
@@ -26,11 +37,7 @@ export class QRSyncController {
       logger.info('Sincronizando transacción offline', { transaction_id, user_id });
 
       // 2. Verificar que el usuario existe
-      const { data: user, error: userError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', user_id)
-        .single();
+      const { data: user, error: userError } = await this.userRepo.findById(user_id);
 
       if (userError || !user) {
         logger.warn('Usuario no encontrado para sync', { user_id });
@@ -38,28 +45,20 @@ export class QRSyncController {
       }
 
       // 3. Verificar si la transacción ya existe
-      const { data: existingTransaction } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('id', transaction_id)
-        .single();
+      const { data: existingTransaction } = await this.transactionRepo.findById(transaction_id);
 
       if (existingTransaction) {
         // Transacción ya existe - actualizar si está en pending_sync
         if (existingTransaction.status === 'pending_sync') {
           logger.info('Actualizando transacción pending_sync', { transaction_id });
 
-          const { data: updated, error: updateError } = await supabase
-            .from('transactions')
-            .update({
-              items,
-              total,
-              synced_at: new Date().toISOString(),
-              status: existingTransaction.qr_used ? 'completed' : 'pending',
-            })
-            .eq('id', transaction_id)
-            .select()
-            .single();
+          const { data: updated, error: updateError } = await this.transactionRepo.upsert({
+            id: transaction_id,
+            items,
+            total,
+            synced_at: new Date().toISOString(),
+            status: existingTransaction.qr_used ? 'completed' : 'pending_sync',
+          });
 
           if (updateError) {
             logger.error('Error al actualizar transacción', { error: updateError });
@@ -78,24 +77,20 @@ export class QRSyncController {
         }
       }
 
-      // 4. Crear nueva transacción
+      // Crear nueva transacción
       logger.info('Creando nueva transacción desde sync', { transaction_id });
 
-      const { data: newTransaction, error: createError } = await supabase
-        .from('transactions')
-        .insert({
-          id: transaction_id,
-          user_id,
-          items,
-          total,
-          status: 'pending', // Estado inicial: esperando uso de QR
-          created_at,
-          synced_at: new Date().toISOString(),
-          qr_used: false,
-          qr_invalidated: false,
-        })
-        .select()
-        .single();
+      const { data: newTransactionArray, error: createError } = await this.transactionRepo.create({
+        id: transaction_id,
+        user_id,
+        items,
+        total,
+        status: 'pending_sync',
+        created_at,
+        synced_at: new Date().toISOString(),
+        qr_used: false,
+        qr_invalidated: false,
+      });
 
       if (createError) {
         // Check si es error de duplicado (race condition)
@@ -104,11 +99,7 @@ export class QRSyncController {
             transaction_id,
           });
 
-          const { data: raceTransaction } = await supabase
-            .from('transactions')
-            .select('*')
-            .eq('id', transaction_id)
-            .single();
+          const { data: raceTransaction } = await this.transactionRepo.findById(transaction_id);
 
           if (raceTransaction) {
             return res.status(200).json({ data: raceTransaction as Transaction });
@@ -125,7 +116,7 @@ export class QRSyncController {
         items_count: items.length,
       });
 
-      return res.status(201).json({ data: newTransaction as Transaction });
+      return res.status(201).json({ data: newTransactionArray });
     }
   );
 }

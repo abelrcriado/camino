@@ -5,8 +5,10 @@ import crypto from 'crypto';
 import { asyncHandler } from '@/api/middlewares/error-handler';
 import { AppError } from '@/api/errors/custom-errors';
 import { ErrorMessages } from '@/shared/constants/error-messages';
-import { supabase } from '@/api/services/supabase';
-import { logger } from '@/config/logger';
+import { TransactionRepository } from '../repositories/transaction.repository';
+import { AccessLogRepository } from '../repositories/access_log.repository';
+import { UserRepository } from '../repositories/user.repository';
+import logger from '@/config/logger';
 import { verifyQRSchema, qrPayloadSchema } from '@/api/schemas/qr.schema';
 import type { QRPayload, VerifyQRDto, VerifyQRResponse } from '@/api/dto/qr.dto';
 
@@ -14,6 +16,19 @@ import type { QRPayload, VerifyQRDto, VerifyQRResponse } from '@/api/dto/qr.dto'
  * Controller para validación de códigos QR en puntos de servicio
  */
 export class QRValidationController {
+  private transactionRepo: TransactionRepository;
+  private accessLogRepo: AccessLogRepository;
+  private userRepo: UserRepository;
+
+  constructor(
+    transactionRepo?: TransactionRepository,
+    accessLogRepo?: AccessLogRepository,
+    userRepo?: UserRepository
+  ) {
+    this.transactionRepo = transactionRepo || new TransactionRepository();
+    this.accessLogRepo = accessLogRepo || new AccessLogRepository();
+    this.userRepo = userRepo || new UserRepository();
+  }
   /**
    * POST /api/access/verify-qr
    * Valida un código QR escaneado en un punto de servicio
@@ -46,11 +61,7 @@ export class QRValidationController {
       }
 
       // 4. Obtener secret del usuario para verificar firma
-      const { data: user, error: userError } = await supabase
-        .from('profiles')
-        .select('qr_secret')
-        .eq('id', payload.user_id)
-        .single();
+      const { data: user, error: userError } = await this.userRepo.findById(payload.user_id);
 
       if (userError || !user) {
         logger.warn('Usuario no encontrado para QR', { user_id: payload.user_id });
@@ -66,6 +77,20 @@ export class QRValidationController {
         );
         
         throw new AppError(ErrorMessages.USUARIO_NOT_FOUND, 404);
+      }
+
+      // Verificar que el usuario tenga qr_secret
+      if (!user.qr_secret) {
+        logger.warn('Usuario sin qr_secret', { user_id: payload.user_id });
+        await this.logAccess(
+          payload.transaction_id,
+          payload.user_id,
+          location_id,
+          qr_data.substring(0, 100),
+          'invalid',
+          scanned_by
+        );
+        throw new AppError('Usuario no configurado para QR', 400);
       }
 
       // 5. Verificar firma HMAC (anti-falsificación)
@@ -113,11 +138,7 @@ export class QRValidationController {
       }
 
       // 7. Buscar transacción en BD (puede no existir si aún no sincronizó)
-      let { data: transaction } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('id', payload.transaction_id)
-        .single();
+      let { data: transaction } = await this.transactionRepo.findById(payload.transaction_id);
 
       // 8. Si no existe, crear transacción "pending_sync"
       if (!transaction) {
@@ -125,20 +146,13 @@ export class QRValidationController {
           transaction_id: payload.transaction_id,
         });
 
-        const { data: newTransaction, error: createError } = await supabase
-          .from('transactions')
-          .insert({
-            id: payload.transaction_id,
-            user_id: payload.user_id,
-            items: payload.items,
-            total: payload.items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-            status: 'pending_sync',
-            created_at: new Date(payload.timestamp).toISOString(),
-            qr_used: false,
-            qr_invalidated: false,
-          })
-          .select()
-          .single();
+        const { data: newTransaction, error: createError } = await this.transactionRepo.createFromQRPayload({
+          id: payload.transaction_id,
+          user_id: payload.user_id,
+          items: payload.items,
+          total: payload.items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+          created_at: new Date(payload.timestamp).toISOString(),
+        });
 
         if (createError) {
           logger.error('Error al crear transacción desde QR', { error: createError });
@@ -192,17 +206,11 @@ export class QRValidationController {
       }
 
       // 11. Marcar QR como usado
-      const { error: updateError } = await supabase
-        .from('transactions')
-        .update({
-          qr_used: true,
-          qr_used_at: new Date().toISOString(),
-          qr_used_location: location_id,
-          qr_used_by: scanned_by || null,
-          status: 'completed', // Cambiar de pending_sync a completed
-          synced_at: new Date().toISOString(), // Marcar como sincronizado
-        })
-        .eq('id', payload.transaction_id);
+      const { error: updateError } = await this.transactionRepo.markQRAsUsed(
+        payload.transaction_id,
+        location_id,
+        scanned_by
+      );
 
       if (updateError) {
         logger.error('Error al marcar QR como usado', { error: updateError });
@@ -274,19 +282,13 @@ export class QRValidationController {
     result: 'valid' | 'invalid' | 'expired' | 'already_used' | 'falsified',
     scannedBy?: string
   ): Promise<void> {
-    try {
-      await supabase.from('access_logs').insert({
-        transaction_id: transactionId,
-        user_id: userId,
-        location_id: locationId,
-        qr_data: qrData,
-        validation_result: result,
-        scanned_by: scannedBy || null,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      // No lanzar error, solo loggear (el log no debe bloquear la operación)
-      logger.error('Error al registrar log de acceso', { error, transactionId });
-    }
+    await this.accessLogRepo.logAccess({
+      transaction_id: transactionId,
+      user_id: userId,
+      location_id: locationId,
+      qr_data: qrData,
+      validation_result: result,
+      scanned_by: scannedBy,
+    });
   }
 }

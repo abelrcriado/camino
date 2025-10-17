@@ -188,7 +188,14 @@
  */
 
 import { QRSyncController } from '@/api/controllers/qr-sync.controller';
+import { TransactionRepository } from '@/api/repositories/transaction.repository';
+import { UserRepository } from '@/api/repositories/user.repository';
 
-const controller = new QRSyncController();
+// Instanciar repositorios con DI pattern
+const transactionRepo = new TransactionRepository();
+const userRepo = new UserRepository();
+
+// Instanciar controller con repositorios inyectados
+const controller = new QRSyncController(transactionRepo, userRepo);
 
 export default controller.syncTransaction;

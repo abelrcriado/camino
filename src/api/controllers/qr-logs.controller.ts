@@ -2,11 +2,10 @@
 
 import { NextApiRequest, NextApiResponse } from 'next';
 import { asyncHandler } from '@/api/middlewares/error-handler';
-import { AppError } from '@/api/errors/custom-errors';
-import { supabase } from '@/api/services/supabase';
 import { logger } from '@/config/logger';
 import { queryAccessLogsSchema } from '@/api/schemas/qr.schema';
 import type { AccessLog } from '@/api/dto/qr.dto';
+import { AccessLogRepository } from '@/api/repositories/access_log.repository';
 
 interface PaginatedResponse {
   data: AccessLog[];
@@ -22,6 +21,11 @@ interface PaginatedResponse {
  * Controller para consulta de logs de acceso (auditoría de escaneos QR)
  */
 export class QRLogsController {
+  private accessLogRepo: AccessLogRepository;
+
+  constructor(accessLogRepo?: AccessLogRepository) {
+    this.accessLogRepo = accessLogRepo || new AccessLogRepository();
+  }
   /**
    * GET /api/access/logs
    * Consulta logs de acceso con filtros y paginación
@@ -47,50 +51,19 @@ export class QRLogsController {
         filters: { user_id, location_id, transaction_id, validation_result },
       });
 
-      // 2. Construir query base
-      let query = supabase
-        .from('access_logs')
-        .select('*', { count: 'exact' })
-        .order('timestamp', { ascending: false });
+      // 2. Usar repositorio para obtener logs con filtros
+      const { data: logs, count } = await this.accessLogRepo.findWithFilters({
+        user_id,
+        location_id,
+        transaction_id,
+        validation_result,
+        from,
+        to,
+        page,
+        limit,
+      });
 
-      // 3. Aplicar filtros opcionales
-      if (user_id) {
-        query = query.eq('user_id', user_id);
-      }
-
-      if (location_id) {
-        query = query.eq('location_id', location_id);
-      }
-
-      if (transaction_id) {
-        query = query.eq('transaction_id', transaction_id);
-      }
-
-      if (validation_result) {
-        query = query.eq('validation_result', validation_result);
-      }
-
-      if (from) {
-        query = query.gte('timestamp', from);
-      }
-
-      if (to) {
-        query = query.lte('timestamp', to);
-      }
-
-      // 4. Aplicar paginación
-      const offset = (page - 1) * limit;
-      query = query.range(offset, offset + limit - 1);
-
-      // 5. Ejecutar query
-      const { data: logs, error: logsError, count } = await query;
-
-      if (logsError) {
-        logger.error('Error al consultar logs de acceso', { error: logsError });
-        throw new AppError('Error al consultar logs', 500);
-      }
-
-      // 6. Calcular metadata de paginación
+      // 3. Calcular metadata de paginación
       const total = count ?? 0;
       const totalPages = Math.ceil(total / limit);
 

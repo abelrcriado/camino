@@ -166,7 +166,14 @@
  */
 
 import { QRReturnController } from '@/api/controllers/qr-return.controller';
+import { TransactionRepository } from '@/api/repositories/transaction.repository';
+import { ReturnRepository } from '@/api/repositories/return.repository';
 
-const controller = new QRReturnController();
+// Instanciar repositorios con DI pattern
+const transactionRepo = new TransactionRepository();
+const returnRepo = new ReturnRepository();
+
+// Instanciar controller con repositorios inyectados
+const controller = new QRReturnController(transactionRepo, returnRepo);
 
 export default controller.processReturn;
