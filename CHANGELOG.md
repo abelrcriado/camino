@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.2](https://github.com/abelrcriado/camino/compare/v0.5.0...v0.4.2) (2025-10-17)
+
 ### [0.4.1](https://github.com/abelrcriado/camino/compare/v0.4.0...v0.4.1) (2025-10-17)
 
 ### 🧹 Chores
