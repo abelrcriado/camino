@@ -1,4 +1,15 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+/**
+ * @swagger
+ * /api/services/needing-maintenance:
+ *   get:
+ *     summary: Servicios que requieren mantenimiento
+ *     description: Obtiene lista de servicios que necesitan mantenimiento preventivo o correctivo
+ *     tags: [Services]
+ *     responses:
+ *       200:
+ *         description: Lista de servicios que necesitan mantenimiento
+ */
+import type { NextApiRequest, NextApiResponse} from "next";
 import { ServiceController } from "@/api/controllers/service.controller";
 import { asyncHandler } from "@/api/middlewares/error-handler";
 

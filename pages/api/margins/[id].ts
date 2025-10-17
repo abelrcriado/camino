@@ -3,6 +3,91 @@ import { asyncHandler } from "@/api/middlewares/error-handler";
 import { ErrorMessages } from "@/shared/constants/error-messages";
 import { validateUUID } from "@/api/middlewares/validate-uuid";
 
+/**
+ * @swagger
+ * /api/margins/{id}:
+ *   get:
+ *     summary: Obtener configuración de margen general
+ *     description: Recupera la configuración de margen general para un punto de servicio
+ *     tags: [Margins]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID del punto de servicio
+ *     responses:
+ *       200:
+ *         description: Configuración de margen obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     service_point_id:
+ *                       type: string
+ *                       format: uuid
+ *                     general_margin_percentage:
+ *                       type: number
+ *                       format: float
+ *                       description: Porcentaje de margen general (0-100)
+ *       400:
+ *         description: ID inválido
+ *       500:
+ *         description: Error interno del servidor
+ *   put:
+ *     summary: Actualizar margen general
+ *     description: Actualiza o crea el margen general para un punto de servicio
+ *     tags: [Margins]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID del punto de servicio
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - general_margin_percentage
+ *             properties:
+ *               general_margin_percentage:
+ *                 type: number
+ *                 format: float
+ *                 minimum: 0
+ *                 maximum: 100
+ *                 description: Porcentaje de margen general
+ *                 example: 25.5
+ *     responses:
+ *       200:
+ *         description: Margen actualizado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Error de validación
+ *       500:
+ *         description: Error interno del servidor
+ */
+
 export default asyncHandler(async (req, res) => {
   const { id } = req.query;
 

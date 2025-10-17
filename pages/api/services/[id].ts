@@ -1,3 +1,61 @@
+/**
+ * @swagger
+ * /api/services/{id}:
+ *   get:
+ *     summary: Obtener servicio por ID
+ *     tags: [Services]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Información del servicio
+ *       404:
+ *         description: Servicio no encontrado
+ *   put:
+ *     summary: Actualizar servicio
+ *     tags: [Services]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Servicio actualizado
+ *   delete:
+ *     summary: Eliminar servicio
+ *     tags: [Services]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Servicio eliminado
+ *   patch:
+ *     summary: Alternar estado activo
+ *     tags: [Services]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Estado actualizado
+ */
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ServiceController } from "@/api/controllers/service.controller";
 import { asyncHandler } from "@/api/middlewares/error-handler";
