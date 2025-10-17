@@ -288,8 +288,8 @@
  */
 
 import { NextApiRequest, NextApiResponse } from "next";
-import { ProductoController } from "@/controllers/producto.controller";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { ProductoController } from "@/api/controllers/producto.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 const controller = new ProductoController();
 

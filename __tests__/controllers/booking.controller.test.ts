@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { BookingController } from "../../src/controllers/booking.controller";
-import { BookingService } from "../../src/services/booking.service";
+import { BookingController } from "@/api/controllers/booking.controller";
+import { BookingService } from "@/api/services/booking.service";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 describe("BookingController", () => {

@@ -8,8 +8,8 @@ import {
   type UpdatePartnerInput,
   type DeletePartnerInput,
   type QueryPartnerInput,
-} from "../../src/schemas/partner.schema";
-import { PARTNER_TYPE_VALUES } from "../../src/constants/enums";
+} from "@/api/schemas/partner.schema";
+import { PARTNER_TYPE_VALUES } from "@/shared/constants/enums";
 import { generateUUID } from "../helpers/factories";
 
 describe("Partner Schema Validation", () => {

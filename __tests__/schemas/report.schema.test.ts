@@ -5,11 +5,11 @@ import {
   updateReportSchema,
   deleteReportSchema,
   queryReportSchema,
-} from "../../src/schemas/report.schema";
+} from "@/api/schemas/report.schema";
 import {
   REPORT_TYPE_VALUES,
   REPORT_STATUS_VALUES,
-} from "../../src/constants/enums";
+} from "@/shared/constants/enums";
 
 describe("Report Schemas", () => {
   const validUUID = generateUUID();

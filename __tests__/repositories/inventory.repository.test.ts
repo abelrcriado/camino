@@ -6,8 +6,8 @@ import {
   beforeEach,
   afterEach,
 } from "@jest/globals";
-import { InventoryRepository } from "../../src/repositories/inventory.repository";
-import { Inventory } from "../../src/dto/inventory.dto";
+import { InventoryRepository } from "@/api/repositories/inventory.repository";
+import { Inventory } from "@/shared/dto/inventory.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { InventoryFactory } from "../helpers/factories";
 

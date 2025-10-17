@@ -1,10 +1,10 @@
 // Endpoint para obtener estadísticas de un camino específico
 import type { NextApiRequest, NextApiResponse } from "next";
-import { CaminoService } from "../../../../src/services/camino.service";
-import { CaminoRepository } from "../../../../src/repositories/camino.repository";
-import { asyncHandler } from "@/middlewares/error-handler";
-import { ErrorMessages } from "@/constants/error-messages";
-import { validateUUID } from "@/middlewares/validate-uuid";
+import { CaminoService } from "@/api/services/camino.service";
+import { CaminoRepository } from "@/api/repositories/camino.repository";
+import { asyncHandler } from "@/api/middlewares/error-handler";
+import { ErrorMessages } from "@/shared/constants/error-messages";
+import { validateUUID } from "@/api/middlewares/validate-uuid";
 
 /**
  * @swagger

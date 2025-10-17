@@ -1,8 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { BookingService } from '../../src/services/booking.service';
-import { BookingRepository } from '../../src/repositories/booking.repository';
-import type { CreateBookingDto } from '../../src/dto/booking.dto';
-import { DatabaseError } from '../../src/errors/custom-errors';
+import { BookingService } from '@/api/services/booking.service';
+import { BookingRepository } from '@/api/repositories/booking.repository';
+import type { CreateBookingDto } from '@/shared/dto/booking.dto';
+import { DatabaseError } from '@/api/errors/custom-errors';
 import {
   BookingFactory,
   generateValidDateRange,

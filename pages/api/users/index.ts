@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { UserController } from "@/controllers/user.controller";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { UserController } from "@/api/controllers/user.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 const controller = new UserController();
 

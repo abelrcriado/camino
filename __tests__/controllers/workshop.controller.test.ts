@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { WorkshopController } from "../../src/controllers/workshop.controller";
-import { WorkshopService } from "../../src/services/workshop.service";
+import { WorkshopController } from "@/api/controllers/workshop.controller";
+import { WorkshopService } from "@/api/services/workshop.service";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 describe("WorkshopController", () => {

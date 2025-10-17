@@ -7,7 +7,7 @@
 
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { ProductoRepository } from "@/repositories/producto.repository";
+import { ProductoRepository } from "@/api/repositories/producto.repository";
 import { ProductoFactory } from "../helpers/factories";
 
 type MockedFunction = ReturnType<typeof jest.fn>;

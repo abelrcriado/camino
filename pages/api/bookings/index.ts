@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { BookingController } from "@/controllers/booking.controller";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { BookingController } from "@/api/controllers/booking.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 const controller = new BookingController();
 

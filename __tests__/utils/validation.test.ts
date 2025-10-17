@@ -9,7 +9,7 @@ import {
   isValidUUID,
   isValidISODate,
   isValidEmail,
-} from "../../src/utils/validation";
+} from "@/shared/utils/validation";
 
 describe("Validation Utils", () => {
   describe("isValidUUID", () => {

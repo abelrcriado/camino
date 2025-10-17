@@ -9,7 +9,7 @@ import { createMocks } from "node-mocks-http";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 // Mock de Supabase para evitar llamadas reales a la base de datos
-jest.mock("../../src/services/supabase", () => ({
+jest.mock("@/api/services/supabase", () => ({
   supabase: {
     from: jest.fn(() => ({
       select: jest.fn(() => {
@@ -85,7 +85,7 @@ jest.mock("../../src/services/supabase", () => ({
 }));
 
 // Mock del logger para tests
-jest.mock("../../src/utils/apiLogger", () => ({
+jest.mock("@/shared/utils/apiLogger", () => ({
   logRequest: jest.fn(),
   logResponse: jest.fn(),
   logError: jest.fn(),

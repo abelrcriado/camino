@@ -6,7 +6,7 @@ import {
   validateAndRespond,
   createValidator,
   validatePartial,
-} from "../../src/utils/zodValidation";
+} from "@/shared/utils/zodValidation";
 import { createMocks } from "node-mocks-http";
 
 describe("zodValidation", () => {

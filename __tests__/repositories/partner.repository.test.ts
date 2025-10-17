@@ -6,8 +6,8 @@ import {
   beforeEach,
   afterEach,
 } from "@jest/globals";
-import { PartnerRepository } from "../../src/repositories/partner.repository";
-import { Partner } from "../../src/dto/partner.dto";
+import { PartnerRepository } from "@/api/repositories/partner.repository";
+import { Partner } from "@/shared/dto/partner.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { PartnerFactory } from "../helpers/factories";
 

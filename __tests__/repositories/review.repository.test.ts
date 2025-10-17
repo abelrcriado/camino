@@ -6,8 +6,8 @@ import {
   beforeEach,
   afterEach,
 } from "@jest/globals";
-import { ReviewRepository } from "../../src/repositories/review.repository";
-import { Review } from "../../src/dto/review.dto";
+import { ReviewRepository } from "@/api/repositories/review.repository";
+import { Review } from "@/shared/dto/review.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { ReviewFactory } from "../helpers/factories";
 

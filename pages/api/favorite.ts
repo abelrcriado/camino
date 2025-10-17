@@ -1,7 +1,7 @@
 // CRUD endpoints para Favorite - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
-import { FavoriteController } from "../../src/controllers/favorite.controller";
-import { asyncHandler } from "../../src/middlewares/error-handler";
+import { FavoriteController } from "@/api/controllers/favorite.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

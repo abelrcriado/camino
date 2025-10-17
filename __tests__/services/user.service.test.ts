@@ -1,12 +1,12 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { UserService } from "../../src/services/user.service";
-import { UserRepository } from "../../src/repositories/user.repository";
+import { UserService } from "@/api/services/user.service";
+import { UserRepository } from "@/api/repositories/user.repository";
 import {
   ConflictError,
   DatabaseError,
   NotFoundError,
-} from "../../src/errors/custom-errors";
-import type { UpdateUserDto } from "../../src/dto/user.dto";
+} from "@/api/errors/custom-errors";
+import type { UpdateUserDto } from "@/shared/dto/user.dto";
 import { UserFactory } from "../helpers/factories";
 
 describe("UserService", () => {

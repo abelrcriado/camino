@@ -9,8 +9,8 @@ import {
   updateCSPSchema,
   deleteCSPSchema,
   queryCSPSchema,
-} from "../../src/schemas/csp.schema";
-import { CSP_TYPE_VALUES } from "../../src/constants/enums";
+} from "@/api/schemas/csp.schema";
+import { CSP_TYPE_VALUES } from "@/shared/constants/enums";
 import { generateUUID } from "../helpers/factories";
 
 describe("CSP Schemas", () => {

@@ -1,7 +1,7 @@
 // CRUD endpoints para Inventory - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
-import { InventoryController } from "../../src/controllers/inventory.controller";
-import { asyncHandler } from "../../src/middlewares/error-handler";
+import { InventoryController } from "@/api/controllers/inventory.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

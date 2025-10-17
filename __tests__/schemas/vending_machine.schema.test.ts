@@ -12,8 +12,8 @@ import {
   type UpdateVendingMachineInput,
   type DeleteVendingMachineInput,
   type QueryVendingMachineInput,
-} from "../../src/schemas/vending_machine.schema";
-import { VENDING_MACHINE_STATUS_VALUES } from "../../src/constants/enums";
+} from "@/api/schemas/vending_machine.schema";
+import { VENDING_MACHINE_STATUS_VALUES } from "@/shared/constants/enums";
 import { generateUUID } from "../helpers/factories";
 
 describe("Vending Machine Schema Validation", () => {

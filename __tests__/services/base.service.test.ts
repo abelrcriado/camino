@@ -1,12 +1,12 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { BaseService } from "../../src/services/base.service";
-import { BaseRepository } from "../../src/repositories/base.repository";
-import { NotFoundError, DatabaseError } from "../../src/errors/custom-errors";
+import { BaseService } from "@/api/services/base.service";
+import { BaseRepository } from "@/api/repositories/base.repository";
+import { NotFoundError, DatabaseError } from "@/api/errors/custom-errors";
 import type {
   PaginationParams,
   QueryFilters,
   SortParams,
-} from "../../src/types/common.types";
+} from "@/shared/types/common.types";
 import { generateUUID } from "../helpers/factories";
 
 // Clase concreta para testing (BaseService es abstracta)

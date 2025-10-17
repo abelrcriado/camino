@@ -361,8 +361,8 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PrecioController } from "@/controllers/precio.controller";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { PrecioController } from "@/api/controllers/precio.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 const controller = new PrecioController();
 

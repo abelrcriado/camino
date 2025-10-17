@@ -7,8 +7,8 @@ import {
   queryPreciosVigentesSchema,
   precioResueltoSchema,
   precioEntitySchema,
-} from "@/schemas/precio.schema";
-import { NivelPrecio, EntidadTipo } from "@/dto/precio.dto";
+} from "@/api/schemas/precio.schema";
+import { NivelPrecio, EntidadTipo } from "@/shared/dto/precio.dto";
 import { generateUUID } from "../helpers/factories";
 
 describe("Precio Schemas", () => {

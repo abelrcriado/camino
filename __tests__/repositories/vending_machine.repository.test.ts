@@ -6,8 +6,8 @@ import {
   beforeEach,
   afterEach,
 } from "@jest/globals";
-import { VendingMachineRepository } from "../../src/repositories/vending_machine.repository";
-import { VendingMachine } from "../../src/dto/vending_machine.dto";
+import { VendingMachineRepository } from "@/api/repositories/vending_machine.repository";
+import { VendingMachine } from "@/shared/dto/vending_machine.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { VendingMachineFactory } from "../helpers/factories";
 

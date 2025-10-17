@@ -12,7 +12,7 @@ import {
   type UpdateWorkshopInput,
   type DeleteWorkshopInput,
   type QueryWorkshopInput,
-} from "../../src/schemas/workshop.schema";
+} from "@/api/schemas/workshop.schema";
 import { generateUUID } from "../helpers/factories";
 
 describe("Workshop Schema Validation", () => {

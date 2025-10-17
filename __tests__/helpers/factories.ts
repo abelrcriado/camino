@@ -36,36 +36,36 @@ import {
   randState,
 } from "@ngneat/falso";
 
-import type { User, CreateUserDto } from "@/dto/user.dto";
-import type { Booking, CreateBookingDto } from "@/dto/booking.dto";
-import type { Payment, CreatePaymentDto } from "@/dto/payment.dto";
-import type { Producto, CreateProductoDto } from "@/dto/producto.dto";
-import type { VentaApp, CreateVentaAppDto } from "@/dto/venta_app.dto";
+import type { User, CreateUserDto } from "@/shared/dto/user.dto";
+import type { Booking, CreateBookingDto } from "@/shared/dto/booking.dto";
+import type { Payment, CreatePaymentDto } from "@/shared/dto/payment.dto";
+import type { Producto, CreateProductoDto } from "@/shared/dto/producto.dto";
+import type { VentaApp, CreateVentaAppDto } from "@/shared/dto/venta_app.dto";
 import type {
   VendingMachine,
   CreateVendingMachineDto,
-} from "@/dto/vending_machine.dto";
+} from "@/shared/dto/vending_machine.dto";
 import type {
   VendingMachineSlot,
   CreateVendingMachineSlotDto,
-} from "@/dto/vending_machine_slot.dto";
-import type { Camino, CreateCaminoDto } from "@/dto/camino.dto";
-import type { Workshop, CreateWorkshopDto } from "@/dto/workshop.dto";
-import type { Review, CreateReviewDto } from "@/dto/review.dto";
-import type { Inventory, CreateInventoryDto } from "@/dto/inventory.dto";
+} from "@/shared/dto/vending_machine_slot.dto";
+import type { Camino, CreateCaminoDto } from "@/shared/dto/camino.dto";
+import type { Workshop, CreateWorkshopDto } from "@/shared/dto/workshop.dto";
+import type { Review, CreateReviewDto } from "@/shared/dto/review.dto";
+import type { Inventory, CreateInventoryDto } from "@/shared/dto/inventory.dto";
 import type {
   InventoryItem,
   CreateInventoryItemDto,
-} from "@/dto/inventory_item.dto";
-import type { Favorite, CreateFavoriteDto } from "@/dto/favorite.dto";
+} from "@/shared/dto/inventory_item.dto";
+import type { Favorite, CreateFavoriteDto } from "@/shared/dto/favorite.dto";
 import type {
   TallerManager,
   CreateTallerManagerDto,
-} from "@/dto/taller_manager.dto";
-import type { Report, CreateReportDto } from "@/dto/report.dto";
-import type { Partner, CreatePartnerDto } from "@/dto/partner.dto";
-import type { CSP, CreateCSPDto } from "@/dto/csp.dto";
-import { NivelPrecio, EntidadTipo, type Precio, type CreatePrecioDto } from "@/dto/precio.dto";
+} from "@/shared/dto/taller_manager.dto";
+import type { Report, CreateReportDto } from "@/shared/dto/report.dto";
+import type { Partner, CreatePartnerDto } from "@/shared/dto/partner.dto";
+import type { CSP, CreateCSPDto } from "@/shared/dto/csp.dto";
+import { NivelPrecio, EntidadTipo, type Precio, type CreatePrecioDto } from "@/shared/dto/precio.dto";
 
 // ============================================================================
 // Counter for unique values
@@ -1029,7 +1029,7 @@ export const PrecioFactory = {
 import type {
   ServiceAssignment,
   CreateServiceAssignmentDto,
-} from "@/dto/service_assignment.dto";
+} from "@/shared/dto/service_assignment.dto";
 
 export const ServiceAssignmentFactory = {
   create(overrides: Partial<ServiceAssignment> = {}): ServiceAssignment {

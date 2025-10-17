@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { UserController } from "../../src/controllers/user.controller";
-import { UserService } from "../../src/services/user.service";
+import { UserController } from "@/api/controllers/user.controller";
+import { UserService } from "@/api/services/user.service";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { UserFactory } from "../helpers/factories";
 

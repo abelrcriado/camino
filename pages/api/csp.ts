@@ -1,8 +1,8 @@
 // CRUD endpoints para CSP
 import type { NextApiRequest, NextApiResponse} from "next";
-import { CSPController } from "../../src/controllers/csp.controller";
-import { withCorrelationId } from "../../src/middlewares/correlationId";
-import { asyncHandler } from "../../src/middlewares/error-handler";
+import { CSPController } from "@/api/controllers/csp.controller";
+import { withCorrelationId } from "@/api/middlewares/correlationId";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

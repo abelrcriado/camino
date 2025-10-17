@@ -8,7 +8,7 @@ import {
   updateServiceAssignmentSchema,
   deleteServiceAssignmentSchema,
   queryServiceAssignmentSchema,
-} from "../../src/schemas/service_assignment.schema";
+} from "@/api/schemas/service_assignment.schema";
 
 describe("ServiceAssignment Schemas", () => {
   describe("createServiceAssignmentSchema", () => {

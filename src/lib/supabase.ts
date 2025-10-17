@@ -3,6 +3,6 @@
  * Re-exports the supabase client from services
  */
 
-import { supabase } from "../services/supabase";
+import { supabase } from "@/api/services/supabase";
 
 export const createClient = () => supabase;

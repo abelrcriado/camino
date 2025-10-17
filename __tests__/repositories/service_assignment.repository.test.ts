@@ -5,7 +5,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { ServiceAssignmentRepository } from "../../src/repositories/service_assignment.repository";
+import { ServiceAssignmentRepository } from "@/api/repositories/service_assignment.repository";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { ServiceAssignmentFactory } from "../helpers/factories";
 

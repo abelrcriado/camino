@@ -6,14 +6,14 @@ import {
   beforeEach,
   afterEach,
 } from "@jest/globals";
-import { BookingRepository } from "../../src/repositories/booking.repository";
+import { BookingRepository } from "@/api/repositories/booking.repository";
 import {
   Booking,
   CreateBookingDto,
   BookingFilters,
-} from "../../src/dto/booking.dto";
+} from "@/shared/dto/booking.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { PaginationParams } from "../../src/types/common.types";
+import { PaginationParams } from "@/shared/types/common.types";
 import { BookingFactory } from "../helpers/factories";
 
 // Mock Supabase client con métodos de query builder

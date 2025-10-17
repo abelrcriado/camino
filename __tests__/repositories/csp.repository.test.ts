@@ -6,8 +6,8 @@ import {
   beforeEach,
   afterEach,
 } from "@jest/globals";
-import { CSPRepository } from "../../src/repositories/csp.repository";
-import { CSP } from "../../src/dto/csp.dto";
+import { CSPRepository } from "@/api/repositories/csp.repository";
+import { CSP } from "@/shared/dto/csp.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { CSPFactory } from "../helpers/factories";
 

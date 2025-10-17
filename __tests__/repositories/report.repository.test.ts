@@ -6,8 +6,8 @@ import {
   beforeEach,
   afterEach,
 } from "@jest/globals";
-import { ReportRepository } from "../../src/repositories/report.repository";
-import { Report } from "../../src/dto/report.dto";
+import { ReportRepository } from "@/api/repositories/report.repository";
+import { Report } from "@/shared/dto/report.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { ReportFactory } from "../helpers/factories";
 

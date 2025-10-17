@@ -1,9 +1,9 @@
 // Endpoint para buscar producto por SKU
 import type { NextApiRequest, NextApiResponse } from "next";
-import { ProductoService } from "../../../../src/services/producto.service";
-import { ProductoRepository } from "../../../../src/repositories/producto.repository";
-import { asyncHandler } from "@/middlewares/error-handler";
-import { ErrorMessages } from "@/constants/error-messages";
+import { ProductoService } from "@/api/services/producto.service";
+import { ProductoRepository } from "@/api/repositories/producto.repository";
+import { asyncHandler } from "@/api/middlewares/error-handler";
+import { ErrorMessages } from "@/shared/constants/error-messages";
 
 /**
  * @swagger

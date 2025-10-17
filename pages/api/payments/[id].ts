@@ -3,11 +3,11 @@
  * Methods: GET (by id), PUT (update payment)
  */
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PaymentController } from "../../../src/controllers/payment.controller";
-import { PaymentService } from "../../../src/services/payment.service";
-import { PaymentRepository } from "../../../src/repositories/payment.repository";
+import { PaymentController } from "@/api/controllers/payment.controller";
+import { PaymentService } from "@/api/services/payment.service";
+import { PaymentRepository } from "@/api/repositories/payment.repository";
 import { createClient } from "@supabase/supabase-js";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 // Inicializar Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;

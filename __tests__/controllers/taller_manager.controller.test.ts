@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { TallerManagerController } from "../../src/controllers/taller_manager.controller";
-import { TallerManagerService } from "../../src/services/taller_manager.service";
+import { TallerManagerController } from "@/api/controllers/taller_manager.controller";
+import { TallerManagerService } from "@/api/services/taller_manager.service";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { TallerManagerFactory } from "../helpers/factories";
 

@@ -1,10 +1,10 @@
 // Endpoint para listar service points de una ubicación específica
 import type { NextApiRequest, NextApiResponse } from "next";
-import { ServicePointService } from "../../../../src/services/service-point.service";
-import { ServicePointRepository } from "../../../../src/repositories/service-point.repository";
-import { asyncHandler } from "@/middlewares/error-handler";
-import { ErrorMessages } from "@/constants/error-messages";
-import { validateUUID } from "@/middlewares/validate-uuid";
+import { ServicePointService } from "@/api/services/service-point.service";
+import { ServicePointRepository } from "@/api/repositories/service-point.repository";
+import { asyncHandler } from "@/api/middlewares/error-handler";
+import { ErrorMessages } from "@/shared/constants/error-messages";
+import { validateUUID } from "@/api/middlewares/validate-uuid";
 
 /**
  * @swagger

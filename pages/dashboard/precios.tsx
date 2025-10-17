@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import DashboardLayout from "@/dashboard/components/dashboard/DashboardLayout";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/dashboard/components/ui/card";
 import {
   Table,
   TableBody,
@@ -14,12 +14,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+} from "@/dashboard/components/ui/table";
+import { Badge } from "@/dashboard/components/ui/badge";
+import { Button } from "@/dashboard/components/ui/button";
+import { Input } from "@/dashboard/components/ui/input";
+import { Label } from "@/dashboard/components/ui/label";
+import { Textarea } from "@/dashboard/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -27,14 +27,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/dashboard/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/dashboard/components/ui/select";
 import {
   Plus,
   Edit,

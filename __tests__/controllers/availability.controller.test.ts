@@ -1,8 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { createRequest, createResponse } from "node-mocks-http";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { AvailabilityController } from "@/controllers/availability.controller";
-import { AvailabilityService } from "@/services/availability.service";
+import { AvailabilityController } from "@/api/controllers/availability.controller";
+import { AvailabilityService } from "@/api/services/availability.service";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

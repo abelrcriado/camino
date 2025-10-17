@@ -1,8 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { WorkshopService } from '../../src/services/workshop.service';
-import { WorkshopRepository } from '../../src/repositories/workshop.repository';
-import type { UpdateWorkshopDto } from '../../src/dto/workshop.dto';
-import { DatabaseError } from '../../src/errors/custom-errors';
+import { WorkshopService } from '@/api/services/workshop.service';
+import { WorkshopRepository } from '@/api/repositories/workshop.repository';
+import type { UpdateWorkshopDto } from '@/shared/dto/workshop.dto';
+import { DatabaseError } from '@/api/errors/custom-errors';
 import { WorkshopFactory } from '../helpers/factories';
 
 describe('WorkshopService', () => {

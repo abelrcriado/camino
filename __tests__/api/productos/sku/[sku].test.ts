@@ -2,12 +2,12 @@
 import { createMocks } from "node-mocks-http";
 import type { NextApiRequest, NextApiResponse } from "next";
 import handler from "../../../../pages/api/productos/sku/[sku]";
-import { ProductoService } from "../../../../src/services/producto.service";
-import { ProductoRepository } from "../../../../src/repositories/producto.repository";
+import { ProductoService } from "@/api/services/producto.service";
+import { ProductoRepository } from "@/api/repositories/producto.repository";
 
 // Mock de dependencias
-jest.mock("../../../../src/services/producto.service");
-jest.mock("../../../../src/repositories/producto.repository");
+jest.mock("@/api/services/producto.service");
+jest.mock("@/api/repositories/producto.repository");
 
 describe("/api/productos/sku/[sku]", () => {
   let mockFindBySku: jest.Mock;

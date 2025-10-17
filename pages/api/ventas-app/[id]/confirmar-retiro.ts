@@ -1,10 +1,10 @@
 // Endpoint para confirmar retiro de producto comprado
 import type { NextApiRequest, NextApiResponse } from "next";
-import { VentaAppService } from "@/services/venta_app.service";
-import { VentaAppRepository } from "@/repositories/venta_app.repository";
-import { asyncHandler } from "@/middlewares/error-handler";
-import { ErrorMessages } from "@/constants/error-messages";
-import { validateUUID } from "@/middlewares/validate-uuid";
+import { VentaAppService } from "@/api/services/venta_app.service";
+import { VentaAppRepository } from "@/api/repositories/venta_app.repository";
+import { asyncHandler } from "@/api/middlewares/error-handler";
+import { ErrorMessages } from "@/shared/constants/error-messages";
+import { validateUUID } from "@/api/middlewares/validate-uuid";
 
 /**
  * @swagger

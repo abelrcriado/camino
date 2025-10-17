@@ -16,7 +16,7 @@ import {
   MIN_CAPACIDAD,
   MAX_CAPACIDAD,
   DEFAULT_CAPACIDAD,
-} from "@/schemas/vending_machine_slot.schema";
+} from "@/api/schemas/vending_machine_slot.schema";
 import { generateUUID } from "../helpers/factories";
 
 describe("Vending Machine Slot Schemas", () => {

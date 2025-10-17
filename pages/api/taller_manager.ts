@@ -1,7 +1,7 @@
 // CRUD endpoints para Taller Manager - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
-import { TallerManagerController } from "../../src/controllers/taller_manager.controller";
-import { asyncHandler } from "../../src/middlewares/error-handler";
+import { TallerManagerController } from "@/api/controllers/taller_manager.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

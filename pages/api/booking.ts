@@ -1,7 +1,7 @@
 // CRUD endpoints para Booking - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
-import { BookingController } from "../../src/controllers/booking.controller";
-import { asyncHandler } from "../../src/middlewares/error-handler";
+import { BookingController } from "@/api/controllers/booking.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

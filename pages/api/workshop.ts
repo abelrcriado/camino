@@ -1,7 +1,7 @@
 // CRUD endpoints para Workshop - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
-import { WorkshopController } from "../../src/controllers/workshop.controller";
-import { asyncHandler } from "../../src/middlewares/error-handler";
+import { WorkshopController } from "@/api/controllers/workshop.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

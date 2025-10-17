@@ -1,9 +1,9 @@
 // Endpoint dinámico para operaciones sobre una ubicación específica
 import type { NextApiRequest, NextApiResponse } from "next";
-import { LocationController } from "../../../src/controllers/location.controller";
-import { asyncHandler } from "../../../src/middlewares/error-handler";
-import { ErrorMessages } from "@/constants/error-messages";
-import { validateUUID } from "@/middlewares/validate-uuid";
+import { LocationController } from "@/api/controllers/location.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
+import { ErrorMessages } from "@/shared/constants/error-messages";
+import { validateUUID } from "@/api/middlewares/validate-uuid";
 
 /**
  * @swagger

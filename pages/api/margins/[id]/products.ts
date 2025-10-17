@@ -1,7 +1,7 @@
-import { marginController } from "@/controllers/margin.controller";
-import { asyncHandler } from "@/middlewares/error-handler";
-import { ErrorMessages } from "@/constants/error-messages";
-import { validateUUID } from "@/middlewares/validate-uuid";
+import { marginController } from "@/api/controllers/margin.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
+import { ErrorMessages } from "@/shared/constants/error-messages";
+import { validateUUID } from "@/api/middlewares/validate-uuid";
 
 export default asyncHandler(async (req, res) => {
   const { id } = req.query;

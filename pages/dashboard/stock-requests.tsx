@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import DashboardLayout from "@/dashboard/components/dashboard/DashboardLayout";
 import {
   FiPlus,
   FiTruck,

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { ProductSubcategoryController } from "@/controllers/product-subcategory.controller";
+import { ProductSubcategoryController } from "@/api/controllers/product-subcategory.controller";
 
 const controller = new ProductSubcategoryController();
 

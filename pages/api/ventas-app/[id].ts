@@ -1,9 +1,9 @@
 // Endpoint para obtener detalle de una venta específica
 import type { NextApiRequest, NextApiResponse } from "next";
-import { VentaAppController } from "@/controllers/venta_app.controller";
-import { asyncHandler } from "@/middlewares/error-handler";
-import { validateUUID } from "@/middlewares/validate-uuid";
-import { ErrorMessages } from "@/constants/error-messages";
+import { VentaAppController } from "@/api/controllers/venta_app.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
+import { validateUUID } from "@/api/middlewares/validate-uuid";
+import { ErrorMessages } from "@/shared/constants/error-messages";
 
 /**
  * @swagger

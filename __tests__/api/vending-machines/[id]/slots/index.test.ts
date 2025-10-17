@@ -2,12 +2,12 @@
 import { createMocks } from "node-mocks-http";
 import type { NextApiRequest, NextApiResponse } from "next";
 import handler from "../../../../../pages/api/vending-machines/[id]/slots/index";
-import { VendingMachineSlotService } from "../../../../../src/services/vending_machine_slot.service";
-import { VendingMachineSlotRepository } from "../../../../../src/repositories/vending_machine_slot.repository";
+import { VendingMachineSlotService } from "@/api/services/vending_machine_slot.service";
+import { VendingMachineSlotRepository } from "@/api/repositories/vending_machine_slot.repository";
 
 // Mock de dependencias
-jest.mock("../../../../../src/services/vending_machine_slot.service");
-jest.mock("../../../../../src/repositories/vending_machine_slot.repository");
+jest.mock("@/api/services/vending_machine_slot.service");
+jest.mock("@/api/repositories/vending_machine_slot.repository");
 
 describe("/api/vending-machines/[id]/slots", () => {
   let mockFindByMachine: jest.Mock;

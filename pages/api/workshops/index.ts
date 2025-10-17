@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { WorkshopController } from "@/controllers/workshop.controller";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { WorkshopController } from "@/api/controllers/workshop.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 const controller = new WorkshopController();
 

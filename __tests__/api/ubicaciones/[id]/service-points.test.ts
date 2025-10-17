@@ -2,12 +2,12 @@
 import { createMocks } from "node-mocks-http";
 import type { NextApiRequest, NextApiResponse } from "next";
 import handler from "../../../../pages/api/ubicaciones/[id]/service-points";
-import { ServicePointService } from "../../../../src/services/service-point.service";
-import { ServicePointRepository } from "../../../../src/repositories/service-point.repository";
+import { ServicePointService } from "@/api/services/service-point.service";
+import { ServicePointRepository } from "@/api/repositories/service-point.repository";
 
 // Mock de dependencias
-jest.mock("../../../../src/services/service-point.service");
-jest.mock("../../../../src/repositories/service-point.repository");
+jest.mock("@/api/services/service-point.service");
+jest.mock("@/api/repositories/service-point.repository");
 
 describe("/api/ubicaciones/[id]/service-points", () => {
   let mockGetByLocation: jest.Mock;

@@ -1,8 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { TallerManagerService } from "../../src/services/taller_manager.service";
-import { TallerManagerRepository } from "../../src/repositories/taller_manager.repository";
-import type { UpdateTallerManagerDto } from "../../src/dto/taller_manager.dto";
-import { DatabaseError } from "../../src/errors/custom-errors";
+import { TallerManagerService } from "@/api/services/taller_manager.service";
+import { TallerManagerRepository } from "@/api/repositories/taller_manager.repository";
+import type { UpdateTallerManagerDto } from "@/shared/dto/taller_manager.dto";
+import { DatabaseError } from "@/api/errors/custom-errors";
 import { TallerManagerFactory } from "../helpers/factories";
 
 describe("TallerManagerService", () => {

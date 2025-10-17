@@ -8,7 +8,7 @@ import {
   updateBookingSchema,
   deleteBookingSchema,
   queryBookingSchema,
-} from "../../src/schemas/booking.schema";
+} from "@/api/schemas/booking.schema";
 import { BookingFactory, generateUUID } from "../helpers/factories";
 
 describe("Booking Schemas", () => {

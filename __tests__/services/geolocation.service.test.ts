@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { GeolocationServiceImpl } from '@/services/geolocation.service';
-import { GeolocationRepository } from '@/repositories/geolocation.repository';
-import { CSPWithDistance } from '@/dto/csp.dto';
+import { GeolocationServiceImpl } from '@/api/services/geolocation.service';
+import { GeolocationRepository } from '@/api/repositories/geolocation.repository';
+import { CSPWithDistance } from '@/shared/dto/csp.dto';
 import { generateUUID } from '../helpers/factories';
 
 // Mock repository

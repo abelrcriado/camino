@@ -2,12 +2,12 @@
 import { createMocks } from "node-mocks-http";
 import type { NextApiRequest, NextApiResponse } from "next";
 import handler from "../../../../pages/api/caminos/[id]/stats";
-import { CaminoService } from "../../../../src/services/camino.service";
-import { CaminoRepository } from "../../../../src/repositories/camino.repository";
+import { CaminoService } from "@/api/services/camino.service";
+import { CaminoRepository } from "@/api/repositories/camino.repository";
 
 // Mock de dependencias
-jest.mock("../../../../src/services/camino.service");
-jest.mock("../../../../src/repositories/camino.repository");
+jest.mock("@/api/services/camino.service");
+jest.mock("@/api/repositories/camino.repository");
 
 describe("/api/caminos/[id]/stats", () => {
   let mockGetStats: jest.Mock;

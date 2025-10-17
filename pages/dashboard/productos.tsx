@@ -7,17 +7,17 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/dashboard/components/ui/card";
+import { Button } from "@/dashboard/components/ui/button";
+import { Input } from "@/dashboard/components/ui/input";
+import { Label } from "@/dashboard/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/dashboard/components/ui/select";
 import {
   Table,
   TableBody,
@@ -25,7 +25,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/dashboard/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -33,9 +33,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/use-toast";
+} from "@/dashboard/components/ui/dialog";
+import { Badge } from "@/dashboard/components/ui/badge";
+import { useToast } from "@/dashboard/components/ui/use-toast";
 import {
   Search,
   Filter,

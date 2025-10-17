@@ -10,7 +10,7 @@ import {
   updatePaymentSchema,
   deletePaymentSchema,
   queryPaymentSchema,
-} from "../../src/schemas/payment.schema";
+} from "@/api/schemas/payment.schema";
 import { generateUUID } from "../helpers/factories";
 
 describe("Payment Schemas", () => {

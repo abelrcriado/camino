@@ -1,10 +1,10 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { PrecioService } from "@/services/precio.service";
-import { PrecioRepository } from "@/repositories/precio.repository";
+import { PrecioService } from "@/api/services/precio.service";
+import { PrecioRepository } from "@/api/repositories/precio.repository";
 import {
   NivelPrecio,
   EntidadTipo,
-} from "@/dto/precio.dto";
+} from "@/shared/dto/precio.dto";
 import { PrecioFactory, generateUUID } from "../helpers/factories";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

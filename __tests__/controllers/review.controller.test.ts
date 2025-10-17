@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { ReviewController } from "../../src/controllers/review.controller";
-import { ReviewService } from "../../src/services/review.service";
+import { ReviewController } from "@/api/controllers/review.controller";
+import { ReviewService } from "@/api/services/review.service";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const VALID_USER_ID = "550e8400-e29b-41d4-a716-446655440001";

@@ -8,7 +8,7 @@ import {
   updateUserSchema,
   deleteUserSchema,
   queryUserSchema,
-} from "../../src/schemas/user.schema";
+} from "@/api/schemas/user.schema";
 import { UserFactory, generateUUID } from "../helpers/factories";
 
 describe("User Schemas", () => {

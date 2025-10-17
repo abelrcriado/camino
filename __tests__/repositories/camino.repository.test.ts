@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { CaminoRepository } from "@/repositories/camino.repository";
+import { CaminoRepository } from "@/api/repositories/camino.repository";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { CaminoFactory, generateUUID } from "../helpers/factories";
 

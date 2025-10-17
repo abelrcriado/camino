@@ -4,7 +4,7 @@ import {
   withCorrelationId,
   getCorrelationId,
   getRequestDuration,
-} from "../../src/middlewares/correlationId";
+} from "@/api/middlewares/correlationId";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 describe("correlationId middleware", () => {

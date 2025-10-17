@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { InventoryItemController } from "../../src/controllers/inventory_item.controller";
-import { InventoryItemService } from "../../src/services/inventory_item.service";
+import { InventoryItemController } from "@/api/controllers/inventory_item.controller";
+import { InventoryItemService } from "@/api/services/inventory_item.service";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { InventoryItemFactory } from "../helpers/factories";
 

@@ -1,11 +1,11 @@
 // Endpoint para reabastecer un slot de vending machine
 import type { NextApiRequest, NextApiResponse } from "next";
-import { VendingMachineSlotService } from "@/services/vending_machine_slot.service";
-import { VendingMachineSlotRepository } from "@/repositories/vending_machine_slot.repository";
-import { asyncHandler } from "@/middlewares/error-handler";
-import { ErrorMessages } from "@/constants/error-messages";
-import { validateUUIDs } from "@/middlewares/validate-uuid";
-import { validateSlotOwnership } from "@/utils/validate-ownership";
+import { VendingMachineSlotService } from "@/api/services/vending_machine_slot.service";
+import { VendingMachineSlotRepository } from "@/api/repositories/vending_machine_slot.repository";
+import { asyncHandler } from "@/api/middlewares/error-handler";
+import { ErrorMessages } from "@/shared/constants/error-messages";
+import { validateUUIDs } from "@/api/middlewares/validate-uuid";
+import { validateSlotOwnership } from "@/shared/utils/validate-ownership";
 
 /**
  * @swagger

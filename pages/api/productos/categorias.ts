@@ -25,9 +25,9 @@
  *         description: Error interno del servidor
  */
 
-import { ProductoService } from "@/services/producto.service";
-import { asyncHandler } from "@/middlewares/error-handler";
-import { ErrorMessages } from "@/constants/error-messages";
+import { ProductoService } from "@/api/services/producto.service";
+import { asyncHandler } from "@/api/middlewares/error-handler";
+import { ErrorMessages } from "@/shared/constants/error-messages";
 
 const productoService = new ProductoService();
 

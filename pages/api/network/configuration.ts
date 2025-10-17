@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

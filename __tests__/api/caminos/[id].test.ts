@@ -2,10 +2,10 @@
 import { createMocks } from "node-mocks-http";
 import type { NextApiRequest, NextApiResponse } from "next";
 import handler from "../../../pages/api/caminos/[id]";
-import { CaminoController } from "../../../src/controllers/camino.controller";
+import { CaminoController } from "@/api/controllers/camino.controller";
 
 // Mock del controller
-jest.mock("../../../src/controllers/camino.controller");
+jest.mock("@/api/controllers/camino.controller");
 
 describe("/api/caminos/[id]", () => {
   let mockHandle: jest.Mock;

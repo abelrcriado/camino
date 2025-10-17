@@ -1,8 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { PrecioController } from "@/controllers/precio.controller";
-import { PrecioService } from "@/services/precio.service";
+import { PrecioController } from "@/api/controllers/precio.controller";
+import { PrecioService } from "@/api/services/precio.service";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { NivelPrecio, EntidadTipo, type Precio } from "@/dto/precio.dto";
+import { NivelPrecio, EntidadTipo, type Precio } from "@/shared/dto/precio.dto";
 
 describe("PrecioController", () => {
   let controller: PrecioController;

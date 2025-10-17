@@ -4,7 +4,7 @@ import {
   updateReviewSchema,
   deleteReviewSchema,
   queryReviewSchema,
-} from "../../src/schemas/review.schema";
+} from "@/api/schemas/review.schema";
 import { generateUUID } from "../helpers/factories";
 
 describe("Review Schemas", () => {

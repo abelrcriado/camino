@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { PaymentService } from "../../src/services/payment.service";
-import { PaymentRepository } from "../../src/repositories/payment.repository";
-import type { UpdatePaymentDto } from "../../src/dto/payment.dto";
+import { PaymentService } from "@/api/services/payment.service";
+import { PaymentRepository } from "@/api/repositories/payment.repository";
+import type { UpdatePaymentDto } from "@/shared/dto/payment.dto";
 import { PaymentFactory } from "../helpers/factories";
 
 describe("PaymentService", () => {

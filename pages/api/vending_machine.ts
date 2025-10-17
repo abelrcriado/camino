@@ -1,7 +1,7 @@
 // CRUD endpoints para Vending Machine - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
-import { VendingMachineController } from "../../src/controllers/vending_machine.controller";
-import { asyncHandler } from "../../src/middlewares/error-handler";
+import { VendingMachineController } from "@/api/controllers/vending_machine.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

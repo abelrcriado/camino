@@ -1,6 +1,6 @@
 // API entrypoint (Next.js API Route example)
 import type { NextApiRequest, NextApiResponse } from "next";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

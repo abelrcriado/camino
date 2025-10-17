@@ -10,7 +10,7 @@ import {
   queryCSPAvailabilitySchema,
   querySlotAvailabilitySchema,
   bulkCreateOpeningHoursSchema,
-} from "@/schemas/availability.schema";
+} from "@/api/schemas/availability.schema";
 
 describe("Availability Schemas", () => {
   describe("createOpeningHoursSchema", () => {

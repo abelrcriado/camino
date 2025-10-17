@@ -1,12 +1,12 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { FavoriteService } from "../../src/services/favorite.service";
-import { FavoriteRepository } from "../../src/repositories/favorite.repository";
+import { FavoriteService } from "@/api/services/favorite.service";
+import { FavoriteRepository } from "@/api/repositories/favorite.repository";
 import {
   ConflictError,
   DatabaseError,
   NotFoundError,
-} from "../../src/errors/custom-errors";
-import type { UpdateFavoriteDto } from "../../src/dto/favorite.dto";
+} from "@/api/errors/custom-errors";
+import type { UpdateFavoriteDto } from "@/shared/dto/favorite.dto";
 import { FavoriteFactory } from "../helpers/factories";
 
 describe("FavoriteService", () => {

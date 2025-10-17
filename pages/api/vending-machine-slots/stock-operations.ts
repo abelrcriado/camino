@@ -94,9 +94,9 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from "next";
-import { VendingMachineSlotController } from "@/controllers/vending_machine_slot.controller";
-import { asyncHandler } from "@/middlewares/error-handler";
-import { ErrorMessages } from "@/constants/error-messages";
+import { VendingMachineSlotController } from "@/api/controllers/vending_machine_slot.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
+import { ErrorMessages } from "@/shared/constants/error-messages";
 
 const controller = new VendingMachineSlotController();
 

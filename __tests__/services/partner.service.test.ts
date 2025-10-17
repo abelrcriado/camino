@@ -1,8 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { PartnerService } from "../../src/services/partner.service";
-import { PartnerRepository } from "../../src/repositories/partner.repository";
-import type { UpdatePartnerDto } from "../../src/dto/partner.dto";
-import { DatabaseError } from "../../src/errors/custom-errors";
+import { PartnerService } from "@/api/services/partner.service";
+import { PartnerRepository } from "@/api/repositories/partner.repository";
+import type { UpdatePartnerDto } from "@/shared/dto/partner.dto";
+import { DatabaseError } from "@/api/errors/custom-errors";
 import { PartnerFactory } from "../helpers/factories";
 
 describe("PartnerService", () => {

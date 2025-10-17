@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { ReportController } from "../../src/controllers/report.controller";
-import { ReportService } from "../../src/services/report.service";
+import { ReportController } from "@/api/controllers/report.controller";
+import { ReportService } from "@/api/services/report.service";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ReportFactory } from "../helpers/factories";
 

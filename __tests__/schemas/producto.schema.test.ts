@@ -9,7 +9,7 @@ import {
   deleteProductoSchema,
   queryProductoSchema,
   UnidadMedidaEnum,
-} from "@/schemas/producto.schema";
+} from "@/api/schemas/producto.schema";
 import { generateUUID } from "../helpers/factories";
 
 describe("Producto Schemas", () => {

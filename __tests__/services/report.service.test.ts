@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { ReportService } from "../../src/services/report.service";
-import { ReportRepository } from "../../src/repositories/report.repository";
-import type { UpdateReportDto } from "../../src/dto/report.dto";
+import { ReportService } from "@/api/services/report.service";
+import { ReportRepository } from "@/api/repositories/report.repository";
+import type { UpdateReportDto } from "@/shared/dto/report.dto";
 import { ReportFactory } from "../helpers/factories";
 
 describe("ReportService", () => {

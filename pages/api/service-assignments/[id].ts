@@ -1,5 +1,5 @@
-import { serviceAssignmentController } from "@/controllers/service-assignment.controller";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { serviceAssignmentController } from "@/api/controllers/service-assignment.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 export default asyncHandler(async (req, res) => {
   switch (req.method) {

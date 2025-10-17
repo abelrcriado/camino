@@ -1,7 +1,7 @@
 // CRUD endpoints para Review - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
-import { ReviewController } from "../../src/controllers/review.controller";
-import { asyncHandler } from "../../src/middlewares/error-handler";
+import { ReviewController } from "@/api/controllers/review.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

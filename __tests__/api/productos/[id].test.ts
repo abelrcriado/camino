@@ -2,10 +2,10 @@
 import { createMocks } from "node-mocks-http";
 import type { NextApiRequest, NextApiResponse } from "next";
 import handler from "../../../pages/api/productos/[id]";
-import { ProductoController } from "../../../src/controllers/producto.controller";
+import { ProductoController } from "@/api/controllers/producto.controller";
 
 // Mock del controller
-jest.mock("../../../src/controllers/producto.controller");
+jest.mock("@/api/controllers/producto.controller");
 
 describe("/api/productos/[id]", () => {
   let mockHandle: jest.Mock;

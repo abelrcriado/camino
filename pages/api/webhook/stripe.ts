@@ -6,12 +6,12 @@
  * for Stripe signature verification to work
  */
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PaymentController } from "../../../src/controllers/payment.controller";
-import { PaymentService } from "../../../src/services/payment.service";
-import { PaymentRepository } from "../../../src/repositories/payment.repository";
+import { PaymentController } from "@/api/controllers/payment.controller";
+import { PaymentService } from "@/api/services/payment.service";
+import { PaymentRepository } from "@/api/repositories/payment.repository";
 import { createClient } from "@supabase/supabase-js";
 import { buffer } from "micro";
-import { asyncHandler } from "../../../src/middlewares/error-handler";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 import { ErrorMessages } from "../../../src/constants/error-messages";
 
 // Disable default body parsing so we can get raw body for Stripe signature verification

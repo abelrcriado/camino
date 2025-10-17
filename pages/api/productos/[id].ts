@@ -1,9 +1,9 @@
 // Endpoint dinámico para operaciones sobre un producto específico
 import type { NextApiRequest, NextApiResponse } from "next";
-import { ProductoController } from "../../../src/controllers/producto.controller";
-import { validateUUID } from "@/middlewares/validate-uuid";
-import { ErrorMessages } from "@/constants/error-messages";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { ProductoController } from "@/api/controllers/producto.controller";
+import { validateUUID } from "@/api/middlewares/validate-uuid";
+import { ErrorMessages } from "@/shared/constants/error-messages";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

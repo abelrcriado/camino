@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { LocationController } from "@/controllers/location.controller";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { LocationController } from "@/api/controllers/location.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 const controller = new LocationController();
 

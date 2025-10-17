@@ -6,12 +6,12 @@
 
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { createMocks } from "node-mocks-http";
-import { PaymentController } from "../../src/controllers/payment.controller";
-import { PaymentService } from "../../src/services/payment.service";
+import { PaymentController } from "@/api/controllers/payment.controller";
+import { PaymentService } from "@/api/services/payment.service";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-jest.mock("../../src/services/payment.service");
+jest.mock("@/api/services/payment.service");
 
 describe("PaymentController", () => {
   let controller: PaymentController;

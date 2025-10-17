@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { ProductCategoryController } from "@/controllers/product-category.controller";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { ProductCategoryController } from "@/api/controllers/product-category.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 const controller = new ProductCategoryController();
 

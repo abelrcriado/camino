@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import DashboardLayout from "@/dashboard/components/dashboard/DashboardLayout";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/dashboard/components/ui/card";
 import {
   Table,
   TableBody,
@@ -14,9 +14,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+} from "@/dashboard/components/ui/table";
+import { Badge } from "@/dashboard/components/ui/badge";
+import { Button } from "@/dashboard/components/ui/button";
 import { RefreshCw, Download, Search } from "lucide-react";
 
 interface Payment {

@@ -1,11 +1,11 @@
 // Endpoint para obtener ventas de un usuario específico
 import type { NextApiRequest, NextApiResponse } from "next";
-import { VentaAppService } from "@/services/venta_app.service";
-import { VentaAppRepository } from "@/repositories/venta_app.repository";
-import type { VentaAppFilters } from "@/dto/venta_app.dto";
-import { asyncHandler } from "@/middlewares/error-handler";
-import { ErrorMessages } from "@/constants/error-messages";
-import { validateUUID } from "@/middlewares/validate-uuid";
+import { VentaAppService } from "@/api/services/venta_app.service";
+import { VentaAppRepository } from "@/api/repositories/venta_app.repository";
+import type { VentaAppFilters } from "@/shared/dto/venta_app.dto";
+import { asyncHandler } from "@/api/middlewares/error-handler";
+import { ErrorMessages } from "@/shared/constants/error-messages";
+import { validateUUID } from "@/api/middlewares/validate-uuid";
 
 /**
  * @swagger

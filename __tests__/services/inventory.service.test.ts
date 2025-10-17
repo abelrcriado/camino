@@ -1,8 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { InventoryService } from "../../src/services/inventory.service";
-import { InventoryRepository } from "../../src/repositories/inventory.repository";
-import type { UpdateInventoryDto } from "../../src/dto/inventory.dto";
-import { DatabaseError } from "../../src/errors/custom-errors";
+import { InventoryService } from "@/api/services/inventory.service";
+import { InventoryRepository } from "@/api/repositories/inventory.repository";
+import type { UpdateInventoryDto } from "@/shared/dto/inventory.dto";
+import { DatabaseError } from "@/api/errors/custom-errors";
 import { InventoryFactory } from "../helpers/factories";
 
 describe("InventoryService", () => {

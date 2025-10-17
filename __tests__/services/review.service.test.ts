@@ -1,8 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { ReviewService } from "../../src/services/review.service";
-import { ReviewRepository } from "../../src/repositories/review.repository";
-import type { UpdateReviewDto } from "../../src/dto/review.dto";
-import { DatabaseError } from "../../src/errors/custom-errors";
+import { ReviewService } from "@/api/services/review.service";
+import { ReviewRepository } from "@/api/repositories/review.repository";
+import type { UpdateReviewDto } from "@/shared/dto/review.dto";
+import { DatabaseError } from "@/api/errors/custom-errors";
 import { ReviewFactory } from "../helpers/factories";
 
 describe("ReviewService", () => {

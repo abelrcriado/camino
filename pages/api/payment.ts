@@ -1,7 +1,7 @@
 // CRUD endpoints para Payment - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PaymentController } from "../../src/controllers/payment.controller";
-import { asyncHandler } from "../../src/middlewares/error-handler";
+import { PaymentController } from "@/api/controllers/payment.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

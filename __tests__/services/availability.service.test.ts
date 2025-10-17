@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { AvailabilityService } from "@/services/availability.service";
-import { AvailabilityRepository } from "@/repositories/availability.repository";
+import { AvailabilityService } from "@/api/services/availability.service";
+import { AvailabilityRepository } from "@/api/repositories/availability.repository";
 import { generateUUID } from "../helpers/factories";
 
 type MockedFunction = ReturnType<typeof jest.fn>;

@@ -8,7 +8,7 @@ import {
   updateCaminoSchema,
   deleteCaminoSchema,
   queryCaminoSchema,
-} from "../../src/schemas/camino.schema";
+} from "@/api/schemas/camino.schema";
 import { generateUUID } from "../helpers/factories";
 
 describe("Camino Schemas", () => {

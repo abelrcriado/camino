@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { CSPController } from "../../src/controllers/csp.controller";
-import { CSPService } from "../../src/services/csp.service";
+import { CSPController } from "@/api/controllers/csp.controller";
+import { CSPService } from "@/api/services/csp.service";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 describe("CSPController", () => {

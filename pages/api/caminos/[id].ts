@@ -1,9 +1,9 @@
 // Endpoint dinámico para operaciones sobre un camino específico
 import type { NextApiRequest, NextApiResponse } from "next";
-import { CaminoController } from "../../../src/controllers/camino.controller";
-import { validateUUID } from "@/middlewares/validate-uuid";
-import { ErrorMessages } from "@/constants/error-messages";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { CaminoController } from "@/api/controllers/camino.controller";
+import { validateUUID } from "@/api/middlewares/validate-uuid";
+import { ErrorMessages } from "@/shared/constants/error-messages";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

@@ -1,7 +1,7 @@
 // CRUD endpoints para Report
 import type { NextApiRequest, NextApiResponse } from "next";
-import { ReportController } from "../../src/controllers/report.controller";
-import { asyncHandler } from "../../src/middlewares/error-handler";
+import { ReportController } from "@/api/controllers/report.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

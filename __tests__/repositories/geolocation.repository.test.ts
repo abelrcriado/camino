@@ -1,5 +1,5 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { GeolocationRepository } from '@/repositories/geolocation.repository';
+import { GeolocationRepository } from '@/api/repositories/geolocation.repository';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { generateUUID } from "../helpers/factories";
 

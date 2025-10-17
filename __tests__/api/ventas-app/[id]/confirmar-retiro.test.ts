@@ -6,10 +6,10 @@
 import { createMocks } from "node-mocks-http";
 import type { NextApiRequest, NextApiResponse } from "next";
 import handler from "../../../../pages/api/ventas-app/[id]/confirmar-retiro";
-import { VentaAppService } from "../../../../src/services/venta_app.service";
+import { VentaAppService } from "@/api/services/venta_app.service";
 
 // Mock del servicio
-jest.mock("../../../../src/services/venta_app.service");
+jest.mock("@/api/services/venta_app.service");
 
 describe("/api/ventas-app/[id]/confirmar-retiro", () => {
   let mockConfirmarRetiro: jest.Mock;

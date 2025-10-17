@@ -5,8 +5,8 @@ import {
   updateInventoryItemSchema,
   deleteInventoryItemSchema,
   queryInventoryItemSchema,
-} from "../../src/schemas/inventory_items.schema";
-import { INVENTORY_ITEM_TYPE_VALUES } from "../../src/constants/enums";
+} from "@/api/schemas/inventory_items.schema";
+import { INVENTORY_ITEM_TYPE_VALUES } from "@/shared/constants/enums";
 
 describe("Inventory Items Schemas", () => {
   const validUUID = generateUUID();

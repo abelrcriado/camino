@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import DashboardLayout from "@/dashboard/components/dashboard/DashboardLayout";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+} from "@/dashboard/components/ui/card";
+import { Badge } from "@/dashboard/components/ui/badge";
 import {
   BarChart,
   Bar,

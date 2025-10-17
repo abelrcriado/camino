@@ -6,8 +6,8 @@ import {
   beforeEach,
   afterEach,
 } from "@jest/globals";
-import { TallerManagerRepository } from "../../src/repositories/taller_manager.repository";
-import { TallerManager } from "../../src/dto/taller_manager.dto";
+import { TallerManagerRepository } from "@/api/repositories/taller_manager.repository";
+import { TallerManager } from "@/shared/dto/taller_manager.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { TallerManagerFactory } from "../helpers/factories";
 

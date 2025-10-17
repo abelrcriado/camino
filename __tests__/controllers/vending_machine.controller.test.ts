@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { VendingMachineController } from "../../src/controllers/vending_machine.controller";
-import { VendingMachineService } from "../../src/services/vending_machine.service";
+import { VendingMachineController } from "@/api/controllers/vending_machine.controller";
+import { VendingMachineService } from "@/api/services/vending_machine.service";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { VendingMachineFactory } from "../helpers/factories";
 

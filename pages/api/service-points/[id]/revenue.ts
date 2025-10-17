@@ -5,9 +5,9 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
 import { ServicePointController } from "../../../../src/controllers/service-point.controller";
-import { ServicePointService } from "../../../../src/services/service-point.service";
+import { ServicePointService } from "@/api/services/service-point.service";
 import { ServicePointRepository } from "../../../../src/repositories/service-point.repository";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 // Inicializar dependencias
 const repository = new ServicePointRepository();

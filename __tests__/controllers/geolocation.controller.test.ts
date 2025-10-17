@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { GeolocationController } from '@/controllers/geolocation.controller';
-import { GeolocationService } from '@/services/geolocation.service';
+import { GeolocationController } from '@/api/controllers/geolocation.controller';
+import { GeolocationService } from '@/api/services/geolocation.service';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Mock service

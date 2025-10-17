@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { WarehouseInventoryController } from "@/controllers/warehouse-inventory.controller";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { WarehouseInventoryController } from "@/api/controllers/warehouse-inventory.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 
 const controller = new WarehouseInventoryController();

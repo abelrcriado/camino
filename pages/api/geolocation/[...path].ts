@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
-import { GeolocationController } from "@/controllers/geolocation.controller";
-import { GeolocationRepository } from "@/repositories/geolocation.repository";
-import { GeolocationServiceImpl } from "@/services/geolocation.service";
-import { asyncHandler } from "@/middlewares/error-handler";
+import { GeolocationController } from "@/api/controllers/geolocation.controller";
+import { GeolocationRepository } from "@/api/repositories/geolocation.repository";
+import { GeolocationServiceImpl } from "@/api/services/geolocation.service";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;

@@ -1,8 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { VendingMachineService } from "../../src/services/vending_machine.service";
-import { VendingMachineRepository } from "../../src/repositories/vending_machine.repository";
-import type { UpdateVendingMachineDto } from "../../src/dto/vending_machine.dto";
-import { DatabaseError } from "../../src/errors/custom-errors";
+import { VendingMachineService } from "@/api/services/vending_machine.service";
+import { VendingMachineRepository } from "@/api/repositories/vending_machine.repository";
+import type { UpdateVendingMachineDto } from "@/shared/dto/vending_machine.dto";
+import { DatabaseError } from "@/api/errors/custom-errors";
 import { VendingMachineFactory } from "../helpers/factories";
 
 describe("VendingMachineService", () => {

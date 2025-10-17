@@ -2,10 +2,10 @@
 import { createMocks } from "node-mocks-http";
 import type { NextApiRequest, NextApiResponse } from "next";
 import handler from "../../../pages/api/ubicaciones/index";
-import { LocationController } from "../../../src/controllers/location.controller";
+import { LocationController } from "@/api/controllers/location.controller";
 
 // Mock del controller
-jest.mock("../../../src/controllers/location.controller");
+jest.mock("@/api/controllers/location.controller");
 
 describe("/api/ubicaciones", () => {
   let mockHandle: jest.Mock;

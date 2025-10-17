@@ -15,7 +15,7 @@ import {
   queryVentasSchema,
   getVentasActivasSchema,
   getVentasPorExpirarSchema,
-} from "../../src/schemas/venta_app.schema";
+} from "@/api/schemas/venta_app.schema";
 import { generateUUID } from "../helpers/factories";
 
 describe("VentaApp Schemas", () => {

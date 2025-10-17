@@ -9,7 +9,7 @@ import {
   type UpdateInventoryInput,
   type DeleteInventoryInput,
   type QueryInventoryInput,
-} from "../../src/schemas/inventory.schema";
+} from "@/api/schemas/inventory.schema";
 
 describe("Inventory Schema Validation", () => {
   const validUUID = generateUUID();

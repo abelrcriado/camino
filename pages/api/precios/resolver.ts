@@ -1,11 +1,11 @@
 // Endpoint para resolver precio jerárquico según contexto
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PrecioService } from "@/services/precio.service";
-import { PrecioRepository } from "@/repositories/precio.repository";
-import { EntidadTipo } from "@/dto/precio.dto";
-import { asyncHandler } from "@/middlewares/error-handler";
-import { ErrorMessages } from "@/constants/error-messages";
-import { validateUUID } from "@/middlewares/validate-uuid";
+import { PrecioService } from "@/api/services/precio.service";
+import { PrecioRepository } from "@/api/repositories/precio.repository";
+import { EntidadTipo } from "@/shared/dto/precio.dto";
+import { asyncHandler } from "@/api/middlewares/error-handler";
+import { ErrorMessages } from "@/shared/constants/error-messages";
+import { validateUUID } from "@/api/middlewares/validate-uuid";
 
 /**
  * @swagger

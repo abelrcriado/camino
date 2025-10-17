@@ -1,7 +1,7 @@
 // CRUD endpoints para Caminos - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
-import { CaminoController } from "../../src/controllers/camino.controller";
-import { asyncHandler } from "../../src/middlewares/error-handler";
+import { CaminoController } from "@/api/controllers/camino.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

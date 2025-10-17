@@ -6,8 +6,8 @@ import {
   beforeEach,
   afterEach,
 } from "@jest/globals";
-import { FavoriteRepository } from "../../src/repositories/favorite.repository";
-import { Favorite } from "../../src/dto/favorite.dto";
+import { FavoriteRepository } from "@/api/repositories/favorite.repository";
+import { Favorite } from "@/shared/dto/favorite.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { FavoriteFactory } from "../helpers/factories";
 

@@ -5,7 +5,7 @@ import {
   updateTallerManagerSchema,
   deleteTallerManagerSchema,
   queryTallerManagerSchema,
-} from "../../src/schemas/taller_manager.schema";
+} from "@/api/schemas/taller_manager.schema";
 
 describe("Taller Manager Schemas", () => {
   const validUUID = generateUUID();

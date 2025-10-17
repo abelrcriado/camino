@@ -5,9 +5,9 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { WorkshopRepository } from "../../src/repositories/workshop.repository";
+import { WorkshopRepository } from "@/api/repositories/workshop.repository";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Workshop } from "../../src/dto/workshop.dto";
+import type { Workshop } from "@/shared/dto/workshop.dto";
 import { WorkshopFactory } from "../helpers/factories";
 
 describe("WorkshopRepository", () => {

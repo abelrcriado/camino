@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { Validators } from "../../src/utils/validators";
+import { Validators } from "@/shared/utils/validators";
 
 describe("Validators", () => {
   describe("isValidUUID", () => {

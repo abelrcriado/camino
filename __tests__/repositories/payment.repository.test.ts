@@ -6,12 +6,12 @@ import {
   beforeEach,
   afterEach,
 } from "@jest/globals";
-import { PaymentRepository } from "../../src/repositories/payment.repository";
+import { PaymentRepository } from "@/api/repositories/payment.repository";
 import {
   Payment,
   PaymentFilters,
   CreateRefundDto,
-} from "../../src/dto/payment.dto";
+} from "@/shared/dto/payment.dto";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { PaymentFactory } from "../helpers/factories";
 

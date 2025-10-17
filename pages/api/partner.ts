@@ -1,7 +1,7 @@
 // CRUD endpoints para Partner - Clean Architecture
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PartnerController } from "../../src/controllers/partner.controller";
-import { asyncHandler } from "../../src/middlewares/error-handler";
+import { PartnerController } from "@/api/controllers/partner.controller";
+import { asyncHandler } from "@/api/middlewares/error-handler";
 
 /**
  * @swagger

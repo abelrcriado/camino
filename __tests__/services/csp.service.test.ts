@@ -1,8 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { CSPService } from "../../src/services/csp.service";
-import { CSPRepository } from "../../src/repositories/csp.repository";
-import type { UpdateCSPDto, CSP, CSPFilters } from "../../src/dto/csp.dto";
-import { DatabaseError } from "../../src/errors/custom-errors";
+import { CSPService } from "@/api/services/csp.service";
+import { CSPRepository } from "@/api/repositories/csp.repository";
+import type { UpdateCSPDto, CSP, CSPFilters } from "@/shared/dto/csp.dto";
+import { DatabaseError } from "@/api/errors/custom-errors";
 import { CSPFactory } from "../helpers/factories";
 
 describe("CSPService", () => {

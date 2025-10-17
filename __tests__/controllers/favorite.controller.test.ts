@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { FavoriteController } from "../../src/controllers/favorite.controller";
-import { FavoriteService } from "../../src/services/favorite.service";
+import { FavoriteController } from "@/api/controllers/favorite.controller";
+import { FavoriteService } from "@/api/services/favorite.service";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { FavoriteFactory } from "../helpers/factories";
 

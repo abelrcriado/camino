@@ -6,8 +6,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { VentaAppService } from "@/services/venta_app.service";
-import { VentaAppRepository } from "@/repositories/venta_app.repository";
+import { VentaAppService } from "@/api/services/venta_app.service";
+import { VentaAppRepository } from "@/api/repositories/venta_app.repository";
 import type {
   CreateVentaAppDto,
   UpdateVentaAppDto,
@@ -17,8 +17,8 @@ import type {
   ConfirmarRetiroDto,
   CancelarVentaDto,
   CrearYPagarVentaDto,
-} from "@/dto/venta_app.dto";
-import { ValidationError, NotFoundError, BusinessRuleError } from "@/errors/custom-errors";
+} from "@/shared/dto/venta_app.dto";
+import { ValidationError, NotFoundError, BusinessRuleError } from "@/api/errors/custom-errors";
 import { VentaAppFactory } from "../helpers/factories";
 
 describe("VentaAppService", () => {

@@ -4,7 +4,7 @@ import {
   updateFavoriteSchema,
   deleteFavoriteSchema,
   queryFavoriteSchema,
-} from "../../src/schemas/favorite.schema";
+} from "@/api/schemas/favorite.schema";
 import { generateUUID } from "../helpers/factories";
 
 describe("Favorite Schemas", () => {

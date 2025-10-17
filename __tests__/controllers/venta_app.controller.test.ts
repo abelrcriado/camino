@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { VentaAppController } from "@/controllers/venta_app.controller";
-import { VentaAppService } from "@/services/venta_app.service";
+import { VentaAppController } from "@/api/controllers/venta_app.controller";
+import { VentaAppService } from "@/api/services/venta_app.service";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 describe("VentaAppController", () => {
