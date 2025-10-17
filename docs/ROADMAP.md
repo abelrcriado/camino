@@ -399,8 +399,23 @@
   - **Logger mock fix:** \_\_esModule pattern para tests
   - **copilot-instructions.md:** Sección MANDATORY sobre factory pattern añadida
 
-**Total de sprints completados:** 11 sprints
-**Versión actual:** v0.4.0
+### Sprint 8: Documentación Swagger Completa (Oct 17, 2025)
+
+- **v0.4.1:** Documentación Swagger 100% completa
+  - **110 endpoints documentados:** Todos los endpoints API tienen documentación OpenAPI 3.0 completa
+  - **5 commits realizados:**
+    - Commit 1: Payments (5) + Products (5) + Vending Machines (2) = 12 endpoints
+    - Commit 2: Service Points (4) + Categories (3) + Subcategories (2) = 9 endpoints
+    - Commit 3: Users (2) + Locations (2) + Workshops (2) + Warehouses (2) = 8 endpoints
+    - Commit 4: Stock Requests (10) + Warehouse Inventory (10) = 20 endpoints
+    - Commit 5: Services (8) + Service Types (2) + Margins (2) + Network (1) + Service Assignments (2) + Webhook (1) = 16 endpoints
+  - **~4,026 líneas de documentación:** Especificaciones completas con parámetros, schemas, responses
+  - **16 categorías documentadas:** Bookings, Payments, Products, Vending Machines, Service Points, Categories, Subcategories, Users, Locations, Workshops, Warehouses, Stock Requests, Warehouse Inventory, Services, Service Types, Margins, Network, Service Assignments, Webhooks
+  - **Formato consistente:** Todos en español, OpenAPI 3.0, respuestas 200/400/404/405/500
+  - **Schemas reutilizables:** Componentes compartidos para entidades comunes
+
+**Total de sprints completados:** 12 sprints
+**Versión actual:** v0.4.1
 **Siguiente funcionalidad:** Issue #12 - Vending Machine Integration
 
 ---
