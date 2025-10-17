@@ -11,10 +11,11 @@
 **CRITICAL ARCHITECTURAL PRINCIPLE:** This is **NOT a monolithic project**. It consists of two independent sub-projects with distinct responsibilities:
 
 #### 1. **API REST** (`pages/api/` + `src/`)
+
 - **Purpose:** Serve data to mobile app (future)
 - **Consumers:** Mobile app, third-party integrations
 - **Priority:** **HIGH** - All API features come FIRST
-- **Scope:** 
+- **Scope:**
   - Public endpoints for app consumption
   - Authentication & authorization
   - Business logic (services, repositories)
@@ -22,6 +23,7 @@
   - Payments, bookings, inventory management
 
 #### 2. **Dashboard/Admin** (`pages/dashboard/`)
+
 - **Purpose:** Configure and manage data served by the API
 - **Consumers:** Internal admin users (service point managers, admins)
 - **Priority:** **LOW** - Only after API features are complete
@@ -32,12 +34,14 @@
   - Reports and analytics
 
 **DO NOT MIX RESPONSIBILITIES:**
+
 - ❌ API endpoints should NOT contain admin-only logic
 - ❌ Dashboard should NOT duplicate API business logic
 - ✅ Dashboard **consumes** the API (calls API endpoints)
 - ✅ API is **independent** of dashboard (can work without it)
 
 **Development Order:**
+
 1. **Phase 1:** API features (current focus)
 2. **Phase 2:** Dashboard UI (after API is feature-complete)
 
@@ -46,6 +50,7 @@
 **NON-NEGOTIABLE RULE:** When assigned a task (e.g., "refactor tests"), complete it at **100%**, NOT 3-4 files out of 20.
 
 **Mandatory workflow:**
+
 1. Identify ALL affected files/components
 2. Complete ALL before marking task as done
 3. Document in CHANGELOG.md (`npm run release`)
@@ -53,6 +58,7 @@
 5. If new issues discovered → Add to ROADMAP backlog
 
 **Example:**
+
 - ❌ **WRONG:** "Refactor tests" → Only 4/20 files updated
 - ✅ **CORRECT:** "Refactor tests" → 20/20 files updated + documented
 
@@ -67,6 +73,7 @@
    - Update priorities if needed
 
 **Documentation structure:**
+
 - 📋 **Work tracking:** `docs/ROADMAP.md` (single source of truth)
 - 🏗️ **Architecture:** `docs/CLEAN_ARCHITECTURE.md`, `docs/ARCHITECTURE.md`
 - � **Business model:** `docs/notas.md`
@@ -83,6 +90,7 @@ npm run build     # Must succeed
 ```
 
 **Task NOT complete until:**
+
 - ✅ All affected files updated (100%, not partial)
 - ✅ CHANGELOG.md generated (`npm run release`)
 - ✅ ROADMAP.md updated (task moved + new tasks added)
@@ -95,21 +103,24 @@ npm run build     # Must succeed
 **Strict separation of concerns** (see `docs/CLEAN_ARCHITECTURE.md`):
 
 ```
-pages/api/          ← Layer 5: Swagger docs + delegate to controller
-src/controllers/    ← Layer 4: HTTP + Zod validation + error handling
-src/services/       ← Layer 3: Business logic ONLY
-src/repositories/   ← Layer 2: Supabase queries ONLY
-src/dto/            ← Layer 1: TypeScript interfaces
+pages/api/                    ← Layer 5: Swagger docs + delegate to controller
+src/api/controllers/          ← Layer 4: HTTP + Zod validation + error handling
+src/api/services/             ← Layer 3: Business logic ONLY
+src/api/repositories/         ← Layer 2: Supabase queries ONLY
+src/api/dto/                  ← Layer 1: TypeScript interfaces
+src/shared/                   ← Shared utilities, constants, types (used by all layers)
 ```
 
 ### Mandatory Base Classes
 
 **ALL repositories extend `BaseRepository<T>`:**
+
 - Provides `findAll()`, `findById()`, `create()`, `update()`, `delete()`, `count()`
 - Constructor: `constructor(db?: SupabaseClient)` (dependency injection for testing)
 - Custom queries added as methods
 
 **ALL services extend `BaseService<T>`:**
+
 - Inherits CRUD operations with pagination, filtering, sorting
 - Custom business logic added as methods
 - Never touches Supabase directly (use repository)
@@ -142,7 +153,7 @@ npm run test:coverage # Coverage report
 
 ### Database Connection
 
-Supabase client configured in `src/services/supabase.ts` with fallback env vars:
+Supabase client configured in `src/api/lib/supabase.ts` with fallback env vars:
 
 - `SUPABASE_SERVICE_ROLE_KEY` (preferred)
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` (fallback)
@@ -206,16 +217,16 @@ describe("EntityRepository", () => {
       eq: jest.fn().mockReturnThis(),
       single: jest.fn(),
     } as any;
-    
+
     repository = new EntityRepository(mockSupabase);
   });
 
   it("should find by id", async () => {
-    mockSupabase.single.mockResolvedValue({ 
-      data: { id: "123", nombre: "Test" }, 
-      error: null 
+    mockSupabase.single.mockResolvedValue({
+      data: { id: "123", nombre: "Test" },
+      error: null,
     });
-    
+
     const result = await repository.findById("123");
     expect(result.data?.nombre).toBe("Test");
   });
@@ -241,18 +252,18 @@ describe("EntityController", () => {
   });
 
   it("GET should return 200 with data", async () => {
-    const { req, res } = createMocks({ 
-      method: "GET", 
-      query: { id: "123" } 
+    const { req, res } = createMocks({
+      method: "GET",
+      query: { id: "123" },
     });
-    
+
     mockService.findById.mockResolvedValue({ id: "123", nombre: "Test" });
-    
+
     await controller.handle(req, res);
-    
+
     expect(res._getStatusCode()).toBe(200);
     expect(JSON.parse(res._getData())).toEqual({
-      data: { id: "123", nombre: "Test" }
+      data: { id: "123", nombre: "Test" },
     });
   });
 });
@@ -275,16 +286,54 @@ npm test -- entity.controller.test
 
 **Follow this EXACT sequence** for all new endpoints:
 
-1. **DTO** (`src/dto/entity.dto.ts`):
+1. **DTO** (`src/api/dto/entity.dto.ts`):
+
    ```typescript
-   export interface Entity { id: string; nombre: string; created_at?: string; }
-   export interface CreateEntityDto { /* without id */ }
-   export interface UpdateEntityDto { id: string; /* optional fields */ }
-   export interface EntityFilters { /* query params */ }
+   export interface Entity {
+     id: string;
+     nombre: string;
+     created_at?: string;
+   }
+   export interface CreateEntityDto {
+     /* without id */
+   }
+   export interface UpdateEntityDto {
+     id: string /* optional fields */;
+   }
+   export interface EntityFilters {
+     /* query params */
+   }
    ```
 
-2. **Repository** (`src/repositories/entity.repository.ts`):
+2. **Schema** (`src/api/schemas/entity.schema.ts`):
+
    ```typescript
+   import { z } from "zod";
+
+   export const createEntitySchema = z.object({
+     nombre: z.string().min(2).max(150),
+   });
+
+   export const updateEntitySchema = z.object({
+     id: z.string().uuid(),
+     nombre: z.string().min(2).max(150).optional(),
+   });
+
+   export const queryEntitySchema = z.object({
+     page: z.coerce.number().int().min(1).default(1),
+     limit: z.coerce.number().int().min(1).max(100).default(10),
+   });
+
+   export type CreateEntityInput = z.infer<typeof createEntitySchema>;
+   ```
+
+3. **Repository** (`src/api/repositories/entity.repository.ts`):
+
+   ```typescript
+   import { BaseRepository } from "./base.repository";
+   import { supabase } from "@/api/lib/supabase";
+   import type { Entity } from "@/api/dto/entity.dto";
+
    export class EntityRepository extends BaseRepository<Entity> {
      constructor(db?: SupabaseClient) {
        super(db || supabase, "tabla_nombre");
@@ -293,8 +342,12 @@ npm test -- entity.controller.test
    }
    ```
 
-3. **Service** (`src/services/entity.service.ts`):
+4. **Service** (`src/api/services/entity.service.ts`):
+
    ```typescript
+   import { BaseService } from "./base.service";
+   import { EntityRepository } from "@/api/repositories/entity.repository";
+
    export class EntityService extends BaseService<Entity> {
      constructor(repo?: EntityRepository) {
        super(repo || new EntityRepository());
@@ -303,47 +356,119 @@ npm test -- entity.controller.test
    }
    ```
 
-4. **Controller** (`src/controllers/entity.controller.ts`):
+5. **Controller** (`src/api/controllers/entity.controller.ts`):
+
    ```typescript
-   import { createEntitySchema, updateEntitySchema, deleteEntitySchema, queryEntitySchema } from "@/schemas/entity.schema";
-   
+   import { asyncHandler } from "@/api/middlewares/async-handler";
+   import { validateUUID } from "@/api/middlewares/validate-uuid";
+   import { ErrorMessages } from "@/shared/constants/error-messages";
+   import { AppError } from "@/api/errors/AppError";
+   import { logger } from "@/api/lib/logger";
+   import { createEntitySchema, updateEntitySchema, queryEntitySchema } from "@/api/schemas/entity.schema";
+
    export class EntityController {
-     async handle(req, res) {
+     constructor(private service = new EntityService()) {}
+
+     handle = asyncHandler(async (req, res) => {
        switch (req.method) {
-         case "GET": return this.handleGet(req, res);
-         case "POST": return this.handlePost(req, res);
-         // ...
+         case "GET":
+           return this.handleGet(req, res);
+         case "POST":
+           return this.handlePost(req, res);
+         case "PUT":
+           return this.handlePut(req, res);
+         case "DELETE":
+           return this.handleDelete(req, res);
+         default:
+           throw new AppError(ErrorMessages.METHOD_NOT_ALLOWED, 405);
        }
-     }
-     
-     private async handleGet(req, res) {
+     });
+
+     private handleGet = asyncHandler(async (req, res) => {
+       const { id } = req.query;
+
+       if (id) {
+         const error = validateUUID(id, "entity");
+         if (error) throw new AppError(error, 400);
+
+         const entity = await this.service.findById(id as string);
+         if (!entity) throw new AppError(ErrorMessages.NOT_FOUND("Entity"), 404);
+
+         return res.status(200).json({ data: entity });
+       }
+
        const query = queryEntitySchema.parse(req.query);
        const result = await this.service.findAll(query);
        return res.status(200).json(result);
-     }
+     });
+
+     private handlePost = asyncHandler(async (req, res) => {
+       const data = createEntitySchema.parse(req.body);
+       const entity = await this.service.create(data);
+
+       logger.info("Entity created", { entityId: entity.id });
+       return res.status(201).json({ data: [entity] });
+     });
    }
    ```
 
-5. **Endpoint** (`pages/api/entity.ts`):
+6. **Endpoint** (`pages/api/entity.ts`):
+
    ```typescript
+   import { EntityController } from "@/api/controllers/entity.controller";
+
    /**
     * @swagger
     * /api/entity:
     *   get:
     *     summary: Obtener entidades
-    *     // ... full OpenAPI spec
+    *     tags: [Entity]
+    *     parameters:
+    *       - in: query
+    *         name: id
+    *         schema:
+    *           type: string
+    *           format: uuid
+    *       - in: query
+    *         name: page
+    *         schema:
+    *           type: integer
+    *           default: 1
+    *       - in: query
+    *         name: limit
+    *         schema:
+    *           type: integer
+    *           default: 10
+    *     responses:
+    *       200:
+    *         description: Lista de entidades
+    *   post:
+    *     summary: Crear entidad
+    *     tags: [Entity]
+    *     requestBody:
+    *       required: true
+    *       content:
+    *         application/json:
+    *           schema:
+    *             type: object
+    *             required:
+    *               - nombre
+    *             properties:
+    *               nombre:
+    *                 type: string
+    *     responses:
+    *       201:
+    *         description: Entidad creada
     */
-   export default async function handler(req, res) {
-     const controller = new EntityController();
-     return controller.handle(req, res);
-   }
+   const controller = new EntityController();
+   export default controller.handle;
    ```
 
 ## Validation & Error Handling
 
 ### Zod Schemas (MANDATORY)
 
-**Centralize ALL validation** in `src/schemas/entity.schema.ts`:
+**Centralize ALL validation** in `src/api/schemas/entity.schema.ts`:
 
 ```typescript
 import { z } from "zod";
@@ -372,17 +497,20 @@ export type CreateEntityInput = z.infer<typeof createEntitySchema>;
 **NEVER write manual UUID validation.** Use:
 
 ```typescript
-import { validateUUID, validateUUIDs } from "@/middlewares/validate-uuid";
+import { validateUUID, validateUUIDs } from "@/api/middlewares/validate-uuid";
 
 // Single UUID
 const error = validateUUID(id, "producto");
-if (error) return res.status(400).json({ error });
+if (error) throw new AppError(error, 400);
 
 // Multiple UUIDs
-const error = validateUUIDs({ id, slotId }, {
-  customNames: { slotId: "slot" }
-});
-if (error) return res.status(400).json({ error });
+const error = validateUUIDs(
+  { id, slotId },
+  {
+    customNames: { slotId: "slot" },
+  },
+);
+if (error) throw new AppError(error, 400);
 ```
 
 ### Error Messages (Centralized)
@@ -390,11 +518,12 @@ if (error) return res.status(400).json({ error });
 **NEVER hardcode error strings.** Use:
 
 ```typescript
-import { ErrorMessages } from "@/constants/error-messages";
+import { ErrorMessages } from "@/shared/constants/error-messages";
+import { AppError } from "@/api/errors/AppError";
 
-return res.status(400).json({ error: ErrorMessages.REQUIRED_ID("producto") });
-return res.status(404).json({ error: ErrorMessages.PRODUCTO_NOT_FOUND });
-return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
+throw new AppError(ErrorMessages.REQUIRED_ID("producto"), 400);
+throw new AppError(ErrorMessages.PRODUCTO_NOT_FOUND, 404);
+throw new AppError(ErrorMessages.METHOD_NOT_ALLOWED, 405);
 ```
 
 ### Ownership Validation
@@ -402,20 +531,21 @@ return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
 **For nested resources** (slots in machines, ubicaciones in caminos):
 
 ```typescript
-import { validateSlotOwnership, validateOwnership } from "@/utils/validate-ownership";
+import { validateSlotOwnership, validateOwnership } from "@/shared/utils/validate-ownership";
+import { AppError } from "@/api/errors/AppError";
 
 const slot = await service.findById(slotId);
 const ownershipError = validateSlotOwnership(slot, machineId);
 if (ownershipError) {
-  return res.status(ownershipError.status).json({ error: ownershipError.message });
+  throw new AppError(ownershipError.message, ownershipError.status);
 }
 ```
 
 ## Key Integrations
 
-**Supabase**: Database client with automatic error handling through BaseRepository
-**Stripe**: Payment processing (config in `scripts/verify-stripe-config.js`)
-**Winston**: Logging to `logs/` directory with daily rotation
+**Supabase**: Database client configured in `src/api/lib/supabase.ts` with automatic error handling through BaseRepository
+**Stripe**: Payment processing client in `src/api/lib/stripe.ts` (config in `scripts/verify-stripe-config.js`)
+**Winston**: Structured logging via `src/api/lib/logger.ts` - logs to `logs/` directory with daily rotation
 
 ## Project-Specific Conventions
 
@@ -424,6 +554,46 @@ if (ownershipError) {
 - **Path aliases**: Use `@/` for `src/` imports (configured in `tsconfig.json`)
 - **Pagination**: Standard format with `page`, `limit`, `total`, `totalPages`
 - **Sorting**: Default by `created_at DESC`, customizable via `SortParams`
+
+## Project Structure (ACTUAL)
+
+**Critical: File locations have specific organization:**
+
+```
+src/
+├── api/                         ← API-specific code (HIGH priority)
+│   ├── controllers/             ← HTTP request handlers
+│   ├── services/                ← Business logic layer
+│   ├── repositories/            ← Data access layer
+│   │   └── base.repository.ts   ← Generic CRUD operations
+│   ├── dto/                     ← Data Transfer Objects (interfaces)
+│   ├── schemas/                 ← Zod validation schemas
+│   ├── middlewares/             ← Request processing (asyncHandler, validate-uuid)
+│   ├── errors/                  ← Custom error classes (AppError)
+│   └── lib/                     ← Third-party clients (supabase, stripe, logger)
+│
+├── shared/                      ← Shared utilities across API & Dashboard
+│   ├── constants/               ← Centralized constants (error-messages)
+│   ├── utils/                   ← Helper functions (validate-ownership, pagination)
+│   └── types/                   ← Shared TypeScript types (common.types)
+│
+└── dashboard/                   ← Dashboard UI code (LOW priority - Phase 2)
+```
+
+**Import Path Examples:**
+
+```typescript
+// API layer imports
+import { UserController } from "@/api/controllers/user.controller";
+import { UserService } from "@/api/services/user.service";
+import { UserRepository } from "@/api/repositories/user.repository";
+import { asyncHandler } from "@/api/middlewares/async-handler";
+
+// Shared utilities imports
+import { ErrorMessages } from "@/shared/constants/error-messages";
+import { validateOwnership } from "@/shared/utils/validate-ownership";
+import { PaginationParams } from "@/shared/types/common.types";
+```
 
 ## File Structure Patterns
 
@@ -457,10 +627,11 @@ When modifying any entity or field, you MUST update ALL of these in sequence:
 
 **MANDATORY TESTING RULE**: If ANY component doesn't have tests, CREATE THEM FIRST before continuing work. No exceptions.
 
+- Schema missing tests? Create `__tests__/schemas/entity.schema.test.ts`
 - Repository missing tests? Create `__tests__/repositories/entity.repository.test.ts`
 - Service missing tests? Create `__tests__/services/entity.service.test.ts`
 - Controller missing tests? Create `__tests__/controllers/entity.controller.test.ts`
-- Schema missing tests? Create `__tests__/schemas/entity.schema.test.ts`
+- API integration missing tests? Create `__tests__/api/entity.test.ts`
 
 **NO INCONSISTENCIES ALLOWED** - if you change something, change everything. This prevents:
 
@@ -468,6 +639,19 @@ When modifying any entity or field, you MUST update ALL of these in sequence:
 - Validation failures from outdated schemas
 - Test failures from stale expectations
 - UI bugs from missing data
+
+**Example alignment sequence:**
+
+```bash
+# If changing "email" field to "correo_electronico":
+1. Migration: ALTER TABLE usuarios RENAME COLUMN email TO correo_electronico
+2. DTO: Update User interface field name
+3. Schema: Update Zod schema field name
+4. Repository: Update query field references
+5. Service: Update business logic references
+6. Controller: Update request/response mapping
+7. Tests: Update all test data and assertions
+```
 
 ## ARCHITECTURAL CONSISTENCY RULES
 
@@ -589,87 +773,81 @@ repository = new Repository(mockSupabase);
 
 ## MANDATORY: Centralized Utilities Usage
 
-### Error Messages (`src/constants/error-messages.ts`)
+### Error Messages (`src/shared/constants/error-messages.ts`)
 
 **ALL error messages MUST use centralized constants:**
 
 ```typescript
-import { ErrorMessages } from "@/constants/error-messages";
+import { ErrorMessages } from "@/shared/constants/error-messages";
+import { AppError } from "@/api/errors/AppError";
 
-// ✅ CORRECTO - Usar constantes centralizadas
-return res.status(400).json({ error: ErrorMessages.REQUIRED_ID("producto") });
-return res.status(404).json({ error: ErrorMessages.PRODUCTO_NOT_FOUND });
-return res.status(405).json({ error: ErrorMessages.METHOD_NOT_ALLOWED });
+// ✅ CORRECTO - Usar constantes centralizadas con AppError
+throw new AppError(ErrorMessages.REQUIRED_ID("producto"), 400);
+throw new AppError(ErrorMessages.PRODUCTO_NOT_FOUND, 404);
+throw new AppError(ErrorMessages.METHOD_NOT_ALLOWED, 405);
 
 // ❌ INCORRECTO - Mensajes hardcoded
-return res.status(400).json({ error: "ID de producto es requerido" });
+throw new Error("ID de producto es requerido");
 return res.status(404).json({ error: "Producto no encontrado" });
 ```
 
 **Benefits**: Consistency, i18n readiness, zero duplication, easy refactoring
 
-### UUID Validation (`src/middlewares/validate-uuid.ts`)
+### UUID Validation (`src/api/middlewares/validate-uuid.ts`)
 
 **ALL UUID validation MUST use centralized middleware:**
 
 ```typescript
-import { validateUUID, validateUUIDs } from "@/middlewares/validate-uuid";
+import { validateUUID, validateUUIDs } from "@/api/middlewares/validate-uuid";
+import { AppError } from "@/api/errors/AppError";
 
 // ✅ CORRECTO - Validar un solo UUID
 const error = validateUUID(id, "producto");
-if (error) return res.status(400).json({ error });
+if (error) throw new AppError(error, 400);
 
 // ✅ CORRECTO - Validar múltiples UUIDs
-const error = validateUUIDs(
-  { id, slotId },
-  { customNames: { id: "vending machine", slotId: "slot" } }
-);
-if (error) return res.status(400).json({ error });
+const error = validateUUIDs({ id, slotId }, { customNames: { id: "vending machine", slotId: "slot" } });
+if (error) throw new AppError(error, 400);
 
 // ❌ INCORRECTO - Validación manual repetida
 if (!id || typeof id !== "string") {
-  return res.status(400).json({ error: "ID es requerido" });
+  throw new Error("ID es requerido");
 }
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 if (!uuidRegex.test(id)) {
-  return res.status(400).json({ error: "UUID inválido" });
+  throw new Error("UUID inválido");
 }
 ```
 
 **Benefits**: Zero boilerplate, consistent validation, descriptive error messages
 
-### Ownership Validation (`src/utils/validate-ownership.ts`)
+### Ownership Validation (`src/shared/utils/validate-ownership.ts`)
 
 **ALL nested resource validation MUST use ownership helpers:**
 
 ```typescript
-import { validateSlotOwnership, validateOwnership } from "@/utils/validate-ownership";
+import { validateSlotOwnership, validateOwnership } from "@/shared/utils/validate-ownership";
+import { AppError } from "@/api/errors/AppError";
 
 // ✅ CORRECTO - Validar ownership de slot
 const slot = await service.findById(slotId);
 const ownershipError = validateSlotOwnership(slot, machineId);
 if (ownershipError) {
-  return res.status(ownershipError.status).json({ error: ownershipError.message });
+  throw new AppError(ownershipError.message, ownershipError.status);
 }
 
 // ✅ CORRECTO - Validar ownership genérico
-const ownershipError = validateOwnership(
-  ubicacion,
-  "Ubicación",
-  ubicacion?.camino_id,
-  caminoId,
-  "camino"
-);
+const ownershipError = validateOwnership(ubicacion, "Ubicación", ubicacion?.camino_id, caminoId, "camino");
 if (ownershipError) {
-  return res.status(ownershipError.status).json({ error: ownershipError.message });
+  throw new AppError(ownershipError.message, ownershipError.status);
 }
 
 // ❌ INCORRECTO - Validación manual duplicada
 if (!slot) {
-  return res.status(404).json({ error: "Slot no encontrado" });
+  throw new AppError("Slot no encontrado", 404);
 }
 if (slot.machine_id !== machineId) {
-  return res.status(404).json({ error: "Slot no encontrado en esta vending machine" });
+  throw new AppError("Slot no encontrado en esta vending machine", 404);
 }
 ```
 
@@ -682,8 +860,9 @@ if (slot.machine_id !== machineId) {
 1. Check if error messages exist in `ErrorMessages` - use them
 2. Check if UUID validation is needed - use `validateUUID/validateUUIDs`
 3. Check if ownership validation is needed - use ownership helpers
-4. **NEVER duplicate logic that exists in these utilities**
-5. **If you find yourself writing validation/error code, STOP and use centralized utilities**
+4. **ALWAYS use AppError for throwing errors** (enables proper asyncHandler catching)
+5. **NEVER duplicate logic that exists in these utilities**
+6. **If you find yourself writing validation/error code, STOP and use centralized utilities**
 
 ## ADDITIONAL ARCHITECTURAL RULES
 
