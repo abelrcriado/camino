@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.1](https://github.com/abelrcriado/camino/compare/v0.4.0...v0.4.1) (2025-10-17)
+
+### 🧹 Chores
+
+- fix husky v10 deprecation warnings and update roadmap ([2e84793](https://github.com/abelrcriado/camino/commit/2e84793bcfc279d8773891b40aaa36f553030aa9))
+
+### 📚 Documentation
+
+- **swagger:** add documentation for Bookings (4) and Payments (2/7) ([2494017](https://github.com/abelrcriado/camino/commit/2494017f64b7d66e7a2bb806ed191cdf9cc5c389))
+- **swagger:** add Service Points, Categories and Subcategories documentation ([79c975a](https://github.com/abelrcriado/camino/commit/79c975a5c64bf550726047cc0412b25f3a62f16a))
+- **swagger:** add Stock Requests and Warehouse Inventory (20 endpoints) ([edd3e6d](https://github.com/abelrcriado/camino/commit/edd3e6d9d7ea11fcc88b2079a86a54896e0cb04c))
+- **swagger:** add Users, Locations, Workshops and Warehouses documentation ([64bd365](https://github.com/abelrcriado/camino/commit/64bd3656a6193cf68c24380fbd37110cd668920d))
+- **swagger:** complete Payments + add Products and Vending Machines documentation ([3cdac5b](https://github.com/abelrcriado/camino/commit/3cdac5b55059819a7533379a5813d4044992fbf4))
+- **swagger:** complete Services and Miscellaneous documentation (final 16 endpoints) ([d5a3f01](https://github.com/abelrcriado/camino/commit/d5a3f010f82a42298365730f540119031ef009ed))
+
 ## [0.4.0](https://github.com/abelrcriado/camino/compare/v0.3.4...v0.4.0) (2025-10-17)
 
 ### ⚠ BREAKING CHANGES
