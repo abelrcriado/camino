@@ -1,6 +1,51 @@
 /**
  * API Route: /api/payments/confirm
  * Method: POST (confirm payment after Stripe success)
+ * 
+ * @swagger
+ * /api/payments/confirm:
+ *   post:
+ *     summary: Confirmar pago exitoso
+ *     description: Confirma un pago después de recibir confirmación de Stripe
+ *     tags: [Payments]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - payment_id
+ *               - payment_intent_id
+ *             properties:
+ *               payment_id:
+ *                 type: string
+ *                 format: uuid
+ *                 description: ID del pago en BD
+ *               payment_intent_id:
+ *                 type: string
+ *                 description: ID del payment intent de Stripe
+ *               transaction_id:
+ *                 type: string
+ *                 description: ID de transacción
+ *     responses:
+ *       200:
+ *         description: Pago confirmado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Datos inválidos
+ *       404:
+ *         description: Pago no encontrado
+ *       500:
+ *         description: Error interno
  */
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PaymentController } from "@/api/controllers/payment.controller";
