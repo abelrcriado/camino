@@ -2,6 +2,60 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/abelrcriado/camino/compare/v0.3.4...v0.4.0) (2025-10-17)
+
+### ⚠ BREAKING CHANGES
+
+- Major code reorganization for architectural clarity
+
+**New Structure:**
+
+- src/api/ - REST API (controllers, services, repositories, middlewares, schemas, errors)
+- src/dashboard/ - Dashboard/Admin UI (components, hooks, styles, utils)
+- src/shared/ - Shared code (dto, types, constants, helpers, utils)
+
+**Changes:**
+
+- Moved 426+ files to new structure
+- Updated all imports to @/api/, @/dashboard/, @/shared/
+- Fixed duplicate endpoints (service-assignments, ventas-app)
+- Added scripts: test:api, test:dashboard, lint:api, lint:dashboard
+- Added ESLint rules to prevent cross-imports
+
+**Testing:**
+
+- 96/97 test suites passing (99%)
+- 2409/2410 tests passing (99.96%)
+- 0 import errors
+- 0 module not found errors
+
+**Migration Scripts:**
+
+- scripts/update-imports.sh
+- Automated fixes for **tests**/, pages/api/, src/
+
+Refs: docs/ARCHITECTURE_OPTIONS.md
+
+- **pricing:** None
+
+### 📚 Documentation
+
+- reorganizar documentación y establecer arquitectura de dos sub-proyectos ([6b11fbd](https://github.com/abelrcriado/camino/commit/6b11fbd3eae94d606b5737c5156562c30d2b6574))
+
+### ♻️ Code Refactoring
+
+- change some features and organitactions ([07dc1f9](https://github.com/abelrcriado/camino/commit/07dc1f9cae7000c247c10350f63cd396a791ebaa))
+- reorganize monolith into api/, dashboard/, shared/ structure ([b196b6a](https://github.com/abelrcriado/camino/commit/b196b6abad6c33c14821b3f70154fff4cfbb46ae))
+
+### ✨ Features
+
+- **auth:** implementar sistema completo de autenticación con Supabase ([b44c62c](https://github.com/abelrcriado/camino/commit/b44c62cef297f7cc8e1ea161da1d41fada61ac9f))
+- **pricing:** complete Issue [#11](https://github.com/abelrcriado/camino/issues/11) - POST /api/precios verification and documentation ([7188f43](https://github.com/abelrcriado/camino/commit/7188f43237f94d1ec348fc0794951bdb155b27a2)), closes [#12](https://github.com/abelrcriado/camino/issues/12)
+
+### ✅ Tests
+
+- **auth:** add controller tests with factory pattern (33/33 passing) ([87f2fae](https://github.com/abelrcriado/camino/commit/87f2faeaeac13ab69db46c39173fcc680dcebafc))
+
 ### [0.3.4](https://github.com/abelrcriado/camino/compare/v0.3.3...v0.3.4) (2025-10-15)
 
 ### ✨ Features
