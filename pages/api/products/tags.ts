@@ -1,3 +1,25 @@
+/**
+ * @swagger
+ * /api/products/tags:
+ *   get:
+ *     summary: Listar etiquetas de productos
+ *     description: Obtiene lista de todas las etiquetas (tags) disponibles en productos
+ *     tags: [Products]
+ *     responses:
+ *       200:
+ *         description: Lista de etiquetas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       500:
+ *         description: Error interno
+ */
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ServiceProductController } from "@/api/controllers/service-product.controller";
 import { asyncHandler } from "@/api/middlewares/error-handler";
