@@ -78,45 +78,62 @@
 
 ---
 
-#### 2. Sistema de QR para Acceso (Documentado pero NO implementado)
+#### 2. Sistema de QR Offline-First (Especificado - Pendiente implementación)
 
-**Estado:** ❌ NO IMPLEMENTADO  
-**Impacto:** CRÍTICO - Es feature core del negocio
+**Estado:** 📋 ESPECIFICADO - Arquitectura completa definida  
+**Impacto:** CRÍTICO - Es feature core del negocio  
+**Documentación:** `docs/QR_SYSTEM_ARCHITECTURE.md` ✅
 
-**Documentado en:** `negocio/DOSIER/.../12-roadmap-desarrollo-app-mvp.md` (SEMANA 6)  
-**Código existente:** ❌ NINGUNO
-
-**Falta:**
+**Arquitectura definida:**
 
 ```typescript
-// Generación de códigos QR
-- [ ] POST /api/bookings/[id]/generate-qr (generar QR tras booking)
-- [ ] GET /api/bookings/[id]/qr (obtener QR existente)
-- [ ] Lógica de generación: HMAC + payload cifrado
-- [ ] Validez temporal (expira en X horas)
+// ✅ ARQUITECTURA COMPLETA ESPECIFICADA
+// Ver: docs/QR_SYSTEM_ARCHITECTURE.md
 
-// Verificación de QR (API para scanner en CSP)
-- [ ] POST /api/access/verify-qr (verificar QR escaneado)
-- [ ] Validar: booking válido, no expirado, CSP correcto
-- [ ] Registrar log de acceso
-- [ ] Fallback con código manual (6-10 dígitos)
+// Generación OFFLINE (App móvil)
+- [x] Especificación: Generación local con HMAC signature
+- [x] Especificación: IndexedDB para almacenamiento offline
+- [x] Especificación: Cola de sincronización
+- [ ] Implementación pendiente (app móvil)
 
-// Tabla en BD
-- [ ] access_logs (registrar accesos)
+// Validación ONLINE (Backend API)
+- [x] Especificación: POST /api/access/verify-qr
+- [x] Especificación: POST /api/transactions/sync
+- [x] Especificación: POST /api/transactions/return
+- [x] Especificación: GET /api/access/logs
+- [ ] Implementación Backend (3-4 días)
+
+// Base de Datos
+- [x] Especificación: Tabla transactions
+- [x] Especificación: Tabla access_logs
+- [x] Especificación: Tabla returns
+- [x] Especificación: Columna usuarios.qr_secret
+- [ ] Migración pendiente
 ```
 
-**Endpoints necesarios:**
+**Características clave:**
+
+- ✅ QR generado 100% offline (sin necesidad de servidor)
+- ✅ Validación online en CSP con internet
+- ✅ Devoluciones offline con invalidación de QR anterior
+- ✅ Sincronización diferida cuando hay conexión
+- ✅ Seguridad: HMAC-SHA256 signature anti-falsificación
+- ✅ Expiración configurable (24 horas default)
+- ✅ Auditoría completa de escaneos
+
+**Endpoints Backend necesarios:**
 
 ```
-POST   /api/bookings/[id]/generate-qr
-GET    /api/bookings/[id]/qr
-POST   /api/access/verify-qr
-POST   /api/access/verify-code (manual fallback)
-GET    /api/access/logs (historial de accesos)
+POST   /api/access/verify-qr        (validar QR escaneado)
+POST   /api/transactions/sync       (sincronizar compra offline)
+POST   /api/transactions/return     (procesar devolución)
+GET    /api/access/logs             (historial auditoría)
+PATCH  /api/auth/login              (retornar qr_secret)
 ```
 
-**Estimación:** 3-4 días  
-**Librerías:** `qrcode`, `crypto` (Node.js nativo para HMAC)
+**Estimación Backend:** 3-4 días (20-28 horas)  
+**Estimación App Móvil:** 5-7 días (coordinación necesaria)  
+**Librerías:** `qrcode`, `crypto` (Node.js nativo), IndexedDB (app)
 
 ---
 
