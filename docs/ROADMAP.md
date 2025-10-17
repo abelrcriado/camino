@@ -1,7 +1,7 @@
 # 🗺️ ROADMAP - Camino Service Backend
 
-**Última actualización:** 16 de octubre de 2025  
-**Versión del código:** v0.3.4  
+**Última actualización:** 17 de octubre de 2025  
+**Versión del código:** v0.4.0  
 **Estado:** API Features - Fase 1
 
 ---
@@ -11,24 +11,28 @@
 **PRINCIPIO FUNDAMENTAL:** Este proyecto NO es monolítico. Consiste en dos sub-proyectos independientes:
 
 ### 1️⃣ **API REST** (Prioridad ALTA - Fase 1)
+
 - **Propósito:** Servir datos a la app móvil (futura)
 - **Ubicación:** `pages/api/` + `src/` (controllers, services, repositories)
 - **Consumidores:** App móvil, integraciones de terceros
 - **Estado:** En desarrollo activo
 
 ### 2️⃣ **Dashboard/Admin** (Prioridad BAJA - Fase 2)
+
 - **Propósito:** Configurar y gestionar datos servidos por la API
 - **Ubicación:** `pages/dashboard/`
 - **Consumidores:** Usuarios administradores internos
 - **Estado:** Desarrollo diferido hasta que API esté completa
 
 **SEPARACIÓN DE RESPONSABILIDADES:**
+
 - ✅ Dashboard **consume** la API (hace llamadas HTTP a endpoints API)
 - ✅ API es **independiente** del dashboard (funciona sin él)
 - ❌ NO mezclar lógica de negocio entre API y Dashboard
 - ❌ Dashboard NO duplica lógica del API
 
 **ORDEN DE DESARROLLO:**
+
 1. **Fase 1 (actual):** Completar features de API
 2. **Fase 2 (después):** Construir Dashboard UI que consume API
 
@@ -38,16 +42,17 @@
 
 ### Métricas Clave
 
-| Métrica               | Valor Actual                | Target                    |
-| --------------------- | --------------------------- | ------------------------- |
-| **Endpoints API**     | 102 endpoints activos       | 130+ endpoints            |
-| **Tests**             | 2409/2410 pasando (99.96%)  | 100% passing              |
-| **Coverage**          | **44% actual**              | **50%+ incremental**      |
-| **Tablas BD**         | 42 tablas PostgreSQL        | 50+ tablas                |
-| **Clean Architecture**| ✅ 5-layer enforced         | ✅ Mantener               |
-| **asyncHandler**      | ✅ 100% adoption (102/102)  | ✅ Mantener               |
-| **Winston Logger**    | ✅ 0 console.log            | ✅ Mantener               |
-| **AppError**          | ✅ 100% adoption            | ✅ Mantener               |
+| Métrica                | Valor Actual               | Target                |
+| ---------------------- | -------------------------- | --------------------- |
+| **Endpoints API**      | 110 endpoints activos      | 130+ endpoints        |
+| **Tests**              | 2442/2443 pasando (99.96%) | 100% passing          |
+| **Coverage**           | **44% actual**             | **50%+ incremental**  |
+| **Tablas BD**          | 43 tablas PostgreSQL       | 50+ tablas            |
+| **Clean Architecture** | ✅ 5-layer enforced        | ✅ Mantener           |
+| **asyncHandler**       | ✅ 100% adoption (110/110) | ✅ Mantener           |
+| **Winston Logger**     | ✅ 0 console.log           | ✅ Mantener           |
+| **AppError**           | ✅ 100% adoption           | ✅ Mantener           |
+| **Factory Pattern**    | ✅ 100% test data          | ✅ Mantener MANDATORY |
 
 ### Stack Tecnológico
 
@@ -75,6 +80,7 @@
 **Objetivo:** Integrar sistema de precios con vending machines
 
 **Tareas:**
+
 - [ ] GET /api/vending-machines/[id]/precios (API endpoint)
 - [ ] Resolver precio aplicable por jerarquía (API logic)
 - [ ] Tests de integración vending + precios (API tests)
@@ -84,12 +90,34 @@
 
 ---
 
+#### Feature: Auth Social Providers (API)
+
+**Estimación:** 2-3 días  
+**Objetivo:** Autenticación con proveedores sociales (API endpoints)  
+**Estado:** Diferido - Auth básico completado en v0.4.0
+
+**Tareas:**
+
+- [ ] Configurar Apple Sign In en Supabase
+- [ ] Configurar Google OAuth en Supabase
+- [ ] Configurar Facebook Login en Supabase
+- [ ] GET /api/auth/providers (listar proveedores disponibles)
+- [ ] Callback handlers para OAuth flows
+- [ ] Sincronización de perfiles desde providers
+- [ ] Tests de integración
+- [ ] Documentación en SUPABASE_AUTH_SETUP.md
+
+**Dependencias:** ✅ Auth básico (email/password) completado
+
+---
+
 #### Feature: Notifications System (API)
 
 **Estimación:** 3-4 días  
 **Objetivo:** Sistema de notificaciones para usuarios (API endpoints)
 
 **Tareas:**
+
 - [ ] Tabla `notifications` en base de datos
 - [ ] POST /api/notifications (crear notificación)
 - [ ] GET /api/notifications (listar con filtros)
@@ -106,6 +134,7 @@
 **Objetivo:** Sistema de valoraciones para talleres y service points (API)
 
 **Tareas:**
+
 - [ ] Tabla `reviews` en base de datos
 - [ ] POST /api/reviews (crear review)
 - [ ] GET /api/reviews (filtros por taller/SP)
@@ -122,6 +151,7 @@
 **Objetivo:** Búsqueda global y filtros avanzados (API endpoints)
 
 **Tareas:**
+
 - [ ] GET /api/search (búsqueda global)
 - [ ] Búsqueda por: nombre, SKU, ubicación, categoría
 - [ ] Filtros combinados (precio, distancia, disponibilidad)
@@ -137,6 +167,7 @@
 **Objetivo:** Perfiles de usuario con preferencias (API endpoints)
 
 **Tareas:**
+
 - [ ] GET /api/users/[id]/profile (obtener perfil)
 - [ ] PUT /api/users/[id]/profile (actualizar perfil)
 - [ ] Campos: avatar, bio, preferencias
@@ -164,6 +195,7 @@
 **Contexto:** Factories ya implementadas en `src/helpers/factories.ts` usando `@ngneat/falso`, pero los tests aún crean datos inline.
 
 **Tareas:**
+
 - [ ] Auditar todos los tests actuales (2409 tests)
 - [ ] Identificar creación manual de datos de prueba
 - [ ] Refactorizar a usar factories (createMockUsuario, createMockProducto, etc.)
@@ -179,6 +211,7 @@
 **Objetivo:** Cache de datos frecuentes
 
 **Tareas:**
+
 - [ ] Redis setup (local + producción)
 - [ ] Cache precios (TTL 1h)
 - [ ] Cache productos (TTL 15min)
@@ -194,6 +227,7 @@
 **Objetivo:** Protección contra abuso API
 
 **Tareas:**
+
 - [ ] next-rate-limit middleware
 - [ ] 100 req/min por IP
 - [ ] 1000 req/hour por usuario autenticado
@@ -208,6 +242,7 @@
 **Objetivo:** Transacciones PostgreSQL para operaciones críticas
 
 **Tareas:**
+
 - [ ] Transacción venta + reserva + pago
 - [ ] Transacción booking + notificación
 - [ ] Transacción actualización stock múltiple
@@ -222,6 +257,7 @@
 **Objetivo:** Monitoreo de performance
 
 **Tareas:**
+
 - [ ] Sentry setup para error tracking
 - [ ] Winston logs a cloud (LogDNA/Datadog)
 - [ ] Métricas de tiempo de respuesta
@@ -255,6 +291,7 @@
 **REGLA CRÍTICA:** Cuando se asigna una tarea (ej: "refactorizar tests"), NO se refactorizan 3-4 archivos. Se completa la tarea al **100%**.
 
 **Workflow obligatorio:**
+
 1. Identificar TODOS los archivos/componentes afectados
 2. Completar TODOS antes de marcar tarea como done
 3. Documentar cambios en CHANGELOG.md
@@ -262,6 +299,7 @@
 5. Añadir nuevas tareas derivadas al backlog
 
 **Ejemplo:**
+
 - ❌ **INCORRECTO:** "Refactorizar tests" → Solo 4/20 archivos actualizados
 - ✅ **CORRECTO:** "Refactorizar tests" → 20/20 archivos actualizados + documentado
 
@@ -278,6 +316,7 @@
 3. Commit con mensaje: `chore(release): vX.X.X - Feature/Fix completado`
 
 **NO se considera terminado** hasta que:
+
 - ✅ `npm test` → 100% tests passing
 - ✅ `npm run lint` → 0 errores
 - ✅ `npm run build` → Exitoso
@@ -295,26 +334,31 @@
 ### Features Dashboard Pendientes
 
 #### Dashboard: Gestión de Precios por Vending Machine
+
 - Interfaz UI para Issue #12
 - Consumir GET /api/vending-machines/[id]/precios
 - Formulario para establecer precios
 
 #### Dashboard: Notificaciones Admin
+
 - Interfaz UI para ver/gestionar notificaciones
 - Consumir GET /api/notifications
 - Moderación de notificaciones
 
 #### Dashboard: Moderación de Reviews
+
 - Interfaz UI para moderar reviews
 - Consumir GET /api/reviews
 - Aprobar/rechazar reviews
 
 #### Dashboard: Analytics & Reports
+
 - Gráficos de ventas (GET /api/analytics/sales)
 - Reportes de inventario (GET /api/analytics/inventory)
 - Exportación CSV/PDF
 
 #### Dashboard: Gestión de Service Points
+
 - CRUD completo de service points
 - Consumir endpoints existentes de API
 - Gestión de ubicaciones y caminos
@@ -326,6 +370,7 @@
 ## ✅ Completado (Histórico)
 
 ### Sprint 1-5: Base del Sistema (May-Sep 2025)
+
 - Base de datos (42 tablas)
 - Clean Architecture (5 capas)
 - 102 endpoints API
@@ -334,14 +379,28 @@
 - Integración Stripe
 
 ### Sprint 6: Calidad de Código (Oct 2025)
+
 - **v0.3.0:** Eliminación 211 console.log + Winston
 - **v0.3.1:** AppError migration (124 errores)
 - **v0.3.2:** asyncHandler 100% adoption
 - **v0.3.3:** Utilities refactoring (51 endpoints)
 - **v0.3.4:** Issue #11 - Sistema de precios verificado
 
-**Total de sprints completados:** 10 sprints
-**Versión actual:** v0.3.4
+### Sprint 7: Autenticación & Testing (Oct 2025)
+
+- **v0.4.0:** Sistema de autenticación completo con Supabase
+  - **DTOs, Schemas, Services, Controllers:** 17 archivos nuevos
+  - **8 endpoints API:** login, register, logout, me, reset-password, change-password, refresh, verify-email
+  - **Auth middleware:** requireAuth, optionalAuth, requireRole
+  - **Tests completos:** 60 tests (27 schema + 33 controller) - 100% passing
+  - **Factory Pattern MANDATORY:** Todos los tests usan UserFactory, generateUUID (ZERO hardcoded data)
+  - **Configuración Supabase:** Email/password, templates en español, RLS policies, triggers
+  - **Documentación:** docs/SUPABASE_AUTH_SETUP.md con guía completa paso a paso
+  - **Logger mock fix:** \_\_esModule pattern para tests
+  - **copilot-instructions.md:** Sección MANDATORY sobre factory pattern añadida
+
+**Total de sprints completados:** 11 sprints
+**Versión actual:** v0.4.0
 **Siguiente funcionalidad:** Issue #12 - Vending Machine Integration
 
 ---
