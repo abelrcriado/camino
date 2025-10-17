@@ -282,6 +282,51 @@ npm test -- entity.controller.test
 # If ANY test fails → FIX BEFORE CONTINUING
 ```
 
+### MANDATORY: Test Data with Factories
+
+**ZERO TOLERANCE for hardcoded test data** - ALL tests MUST use factories from `__tests__/helpers/factories.ts`:
+
+```typescript
+// ✅ CORRECTO - Usar factories
+import { UserFactory, generateUUID } from "../helpers/factories";
+
+const testUser = UserFactory.create();
+const testUser2 = UserFactory.create({ role: "admin" }); // Con overrides
+const userId = generateUUID();
+
+// ❌ INCORRECTO - Datos hardcoded
+const testUser = {
+  id: "123e4567-e89b-12d3-a456-426614174000",
+  email: "test@example.com",
+  full_name: "Test User",
+};
+```
+
+**Available Factories** (`__tests__/helpers/factories.ts`):
+
+- `UserFactory.create(overrides?)` - Generates realistic user data with @ngneat/falso
+- `BookingFactory.create(overrides?)` - Booking test data
+- `ProductoFactory.create(overrides?)` - Product test data
+- `PaymentFactory.create(overrides?)` - Payment test data
+- `generateUUID()` - Unique UUID v4
+- `generateISODate()` - ISO 8601 timestamp
+- `generateSKU()` - Product SKU
+
+**Benefits of Factory Pattern:**
+
+- ✅ **Unique data per test run** - Prevents test pollution
+- ✅ **Realistic data** - Uses @ngneat/falso for names, emails, addresses
+- ✅ **DRY principle** - Change factory once, affects all tests
+- ✅ **Type safety** - Factory returns proper TypeScript types
+- ✅ **Maintainable** - Centralized test data generation
+- ✅ **Overrides** - Customize specific fields when needed
+
+**Enforcement Rule:**
+
+- **If you write hardcoded test data (UUIDs, emails, names, etc.) → IMMEDIATE REFACTORING REQUIRED**
+- **All new tests MUST use factories from day 1**
+- **When reviewing existing tests → Flag and refactor any hardcoded data**
+
 ## Creating New Endpoints: 5-Step Pattern
 
 **Follow this EXACT sequence** for all new endpoints:
