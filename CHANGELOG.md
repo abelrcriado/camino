@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.3](https://github.com/abelrcriado/camino/compare/v0.4.2...v0.4.3) (2025-10-17)
+
+### ✅ Tests
+
+- **qr-system:** add comprehensive QR schema tests (44 tests, 100% passing) ([3756099](https://github.com/abelrcriado/camino/commit/375609921300239a954a2c6997d2b775ceb0ca49))
+
+### 📚 Documentation
+
+- **qr-tests:** add QR Validation Controller test suite (27 tests, blocked by architecture) ([d2f1aeb](https://github.com/abelrcriado/camino/commit/d2f1aeb0306d158c13f38721a68a13e51a177994))
+
+### ♻️ Code Refactoring
+
+- **qr:** migrate QR controllers to clean architecture with repository DI pattern ([b55987e](https://github.com/abelrcriado/camino/commit/b55987eb5005ba96f8a54b8c27d9edd148424fcb)), closes [#Sprint9](https://github.com/abelrcriado/camino/issues/Sprint9)
+
 ### [0.4.2](https://github.com/abelrcriado/camino/compare/v0.5.0...v0.4.2) (2025-10-17)
 
 ### [0.4.1](https://github.com/abelrcriado/camino/compare/v0.4.0...v0.4.1) (2025-10-17)
