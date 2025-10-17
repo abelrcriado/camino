@@ -5,6 +5,7 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
 import { ServicePointService } from "../services/service-point.service";
+import { logger } from "@/config/logger";
 import {
   CreateServicePointDTO,
   UpdateServicePointDTO,
@@ -56,12 +57,13 @@ export class ServicePointController {
       }
 
       return res.status(405).json({ message: "Method not allowed" });
-    } catch (error: any) {
-      logger.error("[ServicePointController] Error:", error);
+    } catch (error) {
+      const err = error as Error;
+      logger.error("[ServicePointController] Error:", err);
       this.logRequest(req, 500, startTime);
       return res.status(500).json({
         message: "Internal server error",
-        error: error.message,
+        error: err.message,
       });
     }
   }
@@ -77,7 +79,7 @@ export class ServicePointController {
     const filters: ServicePointFilters = {
       type: req.query.type as ServicePointType,
       location_id: req.query.location_id as string,
-      status: req.query.status as any,
+      status: (req.query.status as string) as ServicePointFilters['status'],
       has_vending: req.query.has_vending === "true",
       has_workshop_space: req.query.has_workshop_space === "true",
       has_bike_wash: req.query.has_bike_wash === "true",

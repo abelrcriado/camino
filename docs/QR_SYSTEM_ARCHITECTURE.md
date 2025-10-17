@@ -1,7 +1,7 @@
 # 🎫 Sistema de QR Offline-First - Arquitectura Completa
 
-**Fecha:** 17 de octubre de 2025  
-**Versión:** v1.0  
+**Fecha:** 17 de octubre de 2025
+**Versión:** v1.0
 **Estado:** Diseño arquitectónico
 
 ---
@@ -29,7 +29,7 @@ Implementar un sistema de códigos QR dinámicos que funcione **completamente of
 - ✅ **Devolución parcial:** Devuelve 1 producto → Invalida QR anterior → Genera nuevo QR
 - ✅ **Sin internet permanente:** Usuario puede usar todo offline hasta llegar al CSP
 - ✅ **Seguridad:** QR no puede ser falsificado (HMAC signature)
-- ✅ **Expiración:** QR válido por tiempo limitado (ej: 24 horas)
+- ✅ **Expiración:** QR válido por tiempo limitado (ej: 7 dias) o hasta su uso
 
 ---
 
@@ -715,8 +715,8 @@ Response 200:
 
 ### HMAC Signature
 
-**Algoritmo:** HMAC-SHA256  
-**Secret:** Único por usuario, generado en registro/login  
+**Algoritmo:** HMAC-SHA256
+**Secret:** Único por usuario, generado en registro/login
 **Datos firmados:** `transaction_id + user_id + items + timestamp`
 
 ```typescript
@@ -1042,6 +1042,6 @@ Para implementar este sistema:
 
 ---
 
-**Última actualización:** 17 de octubre de 2025  
-**Autor:** Sistema Camino - Backend Team  
+**Última actualización:** 17 de octubre de 2025
+**Autor:** Sistema Camino - Backend Team
 **Estado:** ✅ Diseño completo - Listo para implementación
